@@ -1,0 +1,17 @@
+{
+  "name": "hawkular-ui-services",
+  "version": "0.1.8",
+  "keywords": [
+    "hawtio-hawkular",
+    "hawkular-console",
+    "hawkular-ui"
+  ],
+  "main": [
+    "hawkular-rest-service/dist/hawkular-rest-service.js"
+  ],
+  "ignore": [
+    "*",
+    "!hawkular-rest-service/dist",
+    "!hawkular-rest-service/dist/*"
+  ]
+}
