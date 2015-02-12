@@ -4,7 +4,7 @@ describe('Factory: hawkMetric', function() {
       $httpBackend,
       prefix = 'http://localhost:8080';
 
-  beforeEach(module('hawkular.rest'));
+  beforeEach(module('hawkular.services'));
 
   beforeEach(inject(function(_HawkularRest_, _$httpBackend_) {
     HawkularRest = _HawkularRest_;

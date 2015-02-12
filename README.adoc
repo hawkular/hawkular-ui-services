@@ -6,3 +6,21 @@
 *Hawkular UI Services* is the home of Angular UI services, such as ngResources and other utility services that can be used across Hawkular UI Modules(plugins). These UI plugins comprise the Hawkular console for https://github.com/hawkular/hawkular[Hawkular].  This console is based on https://github.com/hawtio/hawtio/blob/master/docs/Overview2dotX.md[Hawt.io 2], which a javascript based client-side framework. The various directories underneath console directory are Hawt.io 2 plugins and the various plugins eventually compose a Hawkular console. This modular approach to creating hawtio console plugins allows us to create individual plugins that comprise a console or can easily  be plugged into other Hawtio based consoles. The plugin system makes it easy to add/remove functionality (even dynamically).
 
 
+
+To build the service:
+
+```shell
+npm install
+bower install
+gulp
+```
+
+The service can be tested with the server. To run the actual testsuite you need to have hawkular-metrics server running
+on localhost on port 8080. It must have a clean database (= no tenants, no metrics, ...). Once the server is up and
+running execute:
+
+```shell
+gulp rest
+```
+
+to start the testsuite.

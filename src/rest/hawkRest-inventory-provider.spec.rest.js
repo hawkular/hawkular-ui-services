@@ -16,7 +16,7 @@ describe('Provider: Hawkular live REST', function() {
     });
   };
 
-  beforeEach(module('hawkular.rest', 'httpReal'));
+  beforeEach(module('hawkular.services', 'httpReal'));
 
   beforeEach(inject(function(_HawkularInventory_, _$resource_, _httpReal_, _$http_) {
     HawkularInventory = _HawkularInventory_;

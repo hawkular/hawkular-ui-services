@@ -3,7 +3,7 @@ describe('Provider: Hawkular live REST', function() {
   var HawkularMetric;
   var httpReal;
 
-  beforeEach(module('hawkular.rest', 'httpReal'));
+  beforeEach(module('hawkular.services', 'httpReal'));
 
   beforeEach(inject(function(_HawkularMetric_, _httpReal_) {
     HawkularMetric = _HawkularMetric_;
