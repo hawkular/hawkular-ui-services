@@ -1,4 +1,4 @@
-/// <reference path="../../lib/dt-angular/angular.d.ts" />
+/// <reference path="../../lib/hawtio-core-dts/angular.d.ts" />
 var hawkularRest;
 (function (hawkularRest) {
     hawkularRest._module = angular.module('hawkular.services', ['ngResource']);
