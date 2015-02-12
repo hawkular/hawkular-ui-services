@@ -7,6 +7,11 @@
     "hawkular-ui"
   ],
   "main": [
-    "dist/hawkular-rest-service/dist/hawkular-rest-service.js"
+    "hawkular-rest-service/dist/hawkular-rest-service.js"
+  ],
+  "ignore": [
+    "*",
+    "!hawkular-rest-service/dist",
+    "!hawkular-rest-service/dist/*"
   ]
 }
