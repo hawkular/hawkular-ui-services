@@ -15,7 +15,7 @@ gulp.task('scripts', function () {
       console.error(err.toString());
       this.emit('end');
     })
-    .pipe($.concat('hawkular-uit-service.js'))
+    .pipe($.concat('hawkular-ui-service.js'))
     .pipe(gulp.dest(paths.dist + '/'));
 });
 
