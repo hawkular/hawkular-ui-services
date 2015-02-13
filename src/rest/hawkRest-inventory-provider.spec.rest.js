@@ -107,7 +107,7 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Resource.query({tenantId: 'rest-test', resourceId: 'inventoryResource'});
+        result = HawkularInventory.Resource.get({tenantId: 'rest-test', resourceId: 'inventoryResource'});
         restResolve(result, done);
       });
 
@@ -155,13 +155,13 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        var metric = {
-          name:'cpu.load1',
-          unit:'NONE',
-          description:null
-        };
+        var metric = [{
+          name: 'cpu.load1',
+          unit: 'NONE',
+          description: 'blabla'
+        }];
 
-        result = HawkularInventory.Metric.put({tenantId: 'rest-test', resourceId: 'inventoryResource'}, metric);
+        result = HawkularInventory.Metric.save({tenantId: 'rest-test', resourceId: 'inventoryResource'}, metric);
         restResolve(result, done);
       });
 
@@ -175,11 +175,11 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Resource.query({tenantId: 'rest-test', resourceId: 'inventoryResource'});
+        result = HawkularInventory.Metric.query({tenantId: 'rest-test', resourceId: 'inventoryResource'});
         restResolve(result, done);
       });
 
-      it('should get previously created resource', function() {
+      it('should get previously created metric', function() {
         expect(result.$resolved).toEqual(true);
         expect(result.length).toEqual(1);
         expect(result[0].name).toEqual('cpu.load1');
@@ -194,7 +194,7 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
         var metric = {
           name:'cpu.load1',
-          unit:'CM',
+          unit:'BYTE',
           description:null
         };
 
@@ -212,14 +212,14 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Resource.get({tenantId: 'rest-test', resourceId: 'inventoryResource', metricId: 'cpu.load1'});
+        result = HawkularInventory.Metric.get({tenantId: 'rest-test', resourceId: 'inventoryResource', metricId: 'cpu.load1'});
         restResolve(result, done);
       });
 
       it('should get previously updated metric', function() {
         expect(result.$resolved).toEqual(true);
         expect(result.name).toEqual('cpu.load1');
-        expect(result.unit).toEqual('CM');
+        expect(result.unit).toEqual('BYTE');
       });
     });
 

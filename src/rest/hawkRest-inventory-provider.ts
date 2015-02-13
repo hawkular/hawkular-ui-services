@@ -34,7 +34,7 @@ module hawkularRest {
           resourceId : '@resourceId'
       });
 
-      factory['Metric'] = $resource(prefix + '/hawkular/inventory/:tenantId/resources/:resourceId/metric/:metricId', {
+      factory['Metric'] = $resource(prefix + '/hawkular/inventory/:tenantId/resources/:resourceId/metrics/:metricId', {
         tenantId : '@tenantId',
         resourceId: '@resourceId',
         metricId: '@metricId'
