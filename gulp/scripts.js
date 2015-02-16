@@ -11,7 +11,9 @@ var $ = require('gulp-load-plugins')({
 
 gulp.task('tslint', function () {
   gulp.src([paths.src + '/hawkRest.ts', paths.src + '/hawkRest-*.ts'])
-    .pipe(tslint())
+    .pipe(tslint({
+      rulesDirectory: './tslint-rules/'
+    }))
     .pipe(tslint.report('verbose'));
 });
 

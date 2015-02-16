@@ -11,7 +11,7 @@
     "gulp-load-plugins": "~0.7.1",
     "gulp-karma": "~0.0.4",
     "gulp-typescript": "~2.3.0",
-    "gulp-tslint": "1.4.2",
+    "gulp-tslint": "1.4.3",
     "wiredep": "~2.2.0",
     "karma-jasmine": "~0.3.1",
     "karma-phantomjs-launcher": "~0.1.4",

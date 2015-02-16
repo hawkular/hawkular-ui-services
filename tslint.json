@@ -48,6 +48,7 @@
         "check-operator",
         "check-separator",
         "_check-type"
-    ]
+    ],
+    "licence-header": true
   }
 }
