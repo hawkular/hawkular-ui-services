@@ -14,12 +14,12 @@ module hawkularRest {
     this.host = 'localhost';
     this.port = 8080;
 
-    this.setHost = function(host){
+    this.setHost = function(host) {
       this.host = host;
       return this;
     };
 
-    this.setPort = function(port){
+    this.setPort = function(port) {
       this.port = port;
       return this;
     };
@@ -27,14 +27,14 @@ module hawkularRest {
     this.$get = ['$resource', function($resource) {
 
       var prefix = 'http://' + this.host + ':' + this.port;
-      var factory = {};
+      var factory: any = {};
 
-      factory['Resource'] = $resource(prefix + '/hawkular/inventory/:tenantId/resources/:resourceId', {
+      factory.Resource = $resource(prefix + '/hawkular/inventory/:tenantId/resources/:resourceId', {
           tenantId : '@tenantId',
           resourceId : '@resourceId'
       });
 
-      factory['Metric'] = $resource(prefix + '/hawkular/inventory/:tenantId/resources/:resourceId/metrics/:metricId', {
+      factory.Metric = $resource(prefix + '/hawkular/inventory/:tenantId/resources/:resourceId/metrics/:metricId', {
         tenantId : '@tenantId',
         resourceId: '@resourceId',
         metricId: '@metricId'
