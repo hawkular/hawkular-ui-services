@@ -15,12 +15,13 @@ bower install
 gulp
 ```
 
-The service can be tested with the server. To run the actual testsuite you need to have hawkular-metrics server running
-on localhost on port 8080. It must have a clean database (= no tenants, no metrics, ...). Once the server is up and
-running execute:
+The service can be tested with the server. To run the actual testsuite you need to have relevant (that means hawkular-metrics,
+hawkular-inventory, ...) server running on localhost on port 8080. It must have a clean database (= no tenants, no metrics, ...).
+Once the server is up and running, execute the relevant rest sub-target:
 
 ```shell
-gulp rest
+gulp rest:inventory
+gulp rest:metric
 ```
 
 to start the testsuite.
