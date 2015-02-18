@@ -150,24 +150,6 @@ module hawkularRest {
         }
       });
 
-      /*
-        Helper to get the proper factory when we only have the conditionName.
-        i.e. when we have performed a Trigger.conditions() and we have a list of { conditionId:..., className: ... }.
-       */
-      factory.Condition = function(conditionName) {
-        if (conditionName === 'AvailabilityCondition') {
-          return factory.AvailabilityCondition;
-        } else if (conditionName === 'CompareCondition') {
-          return factory.CompareCondition;
-        } else if (conditionName === 'StringCondition') {
-          return factory.StringCondition;
-        } else if (conditionName === 'ThresholdCondition') {
-          return factory.ThresholdCondition;
-        } else if (conditionName === 'ThresholdRangeCondition') {
-          return factory.ThresholdRangeCondition;
-        }
-      };
-
       factory.NotifierType = $resource(prefix + '/hawkular/alerts/notifierType/:notifierType', {
         notifierType: '@notifierType'
       }, {

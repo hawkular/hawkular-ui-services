@@ -289,7 +289,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
           operator: 'NOT_UP'
         };
 
-        result = HawkularAlert.Condition('AvailabilityCondition').save(availabilityCondition);
+        result = HawkularAlert['AvailabilityCondition'].save(availabilityCondition);
         restResolve(result, done);
       });
 
@@ -310,7 +310,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('AvailabilityCondition').get({conditionId: 'test-rest-trigger-1-1-1'});
+        result = HawkularAlert['AvailabilityCondition'].get({conditionId: 'test-rest-trigger-1-1-1'});
         restResolve(result, done);
       });
 
@@ -332,7 +332,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         conditionToUpdate.operator = 'DOWN';
-        result = HawkularAlert.Condition('AvailabilityCondition').put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
+        result = HawkularAlert['AvailabilityCondition'].put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
         restResolve(result, done);
       });
 
@@ -346,7 +346,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('AvailabilityCondition').get({conditionId: 'test-rest-trigger-1-1-1'});
+        result = HawkularAlert['AvailabilityCondition'].get({conditionId: 'test-rest-trigger-1-1-1'});
         restResolve(result, done);
       });
 
@@ -365,7 +365,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('AvailabilityCondition').query();
+        result = HawkularAlert['AvailabilityCondition'].query();
         restResolve(result, done);
       });
 
@@ -380,7 +380,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('AvailabilityCondition').trigger({triggerId: 'test-rest-trigger-1'});
+        result = HawkularAlert['AvailabilityCondition'].trigger({triggerId: 'test-rest-trigger-1'});
         restResolve(result, done);
       });
 
@@ -413,7 +413,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('AvailabilityCondition').delete({conditionId: 'test-rest-trigger-1-1-1'});
+        result = HawkularAlert['AvailabilityCondition'].delete({conditionId: 'test-rest-trigger-1-1-1'});
         restResolve(result, done);
       });
 
@@ -441,7 +441,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
           data2Id: 'No-Metric-2'
         };
 
-        result = HawkularAlert.Condition('CompareCondition').save(compareCondition);
+        result = HawkularAlert['CompareCondition'].save(compareCondition);
         restResolve(result, done);
       });
 
@@ -463,7 +463,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('CompareCondition').get({conditionId: 'test-rest-trigger-2-1-1'});
+        result = HawkularAlert['CompareCondition'].get({conditionId: 'test-rest-trigger-2-1-1'});
         restResolve(result, done);
       });
 
@@ -486,7 +486,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         conditionToUpdate.operator = 'GT';
-        result = HawkularAlert.Condition('CompareCondition').put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
+        result = HawkularAlert['CompareCondition'].put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
         restResolve(result, done);
       });
 
@@ -500,7 +500,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('CompareCondition').get({conditionId: 'test-rest-trigger-2-1-1'});
+        result = HawkularAlert['CompareCondition'].get({conditionId: 'test-rest-trigger-2-1-1'});
         restResolve(result, done);
       });
 
@@ -519,7 +519,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('CompareCondition').query();
+        result = HawkularAlert['CompareCondition'].query();
         restResolve(result, done);
       });
 
@@ -534,7 +534,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('CompareCondition').trigger({triggerId: 'test-rest-trigger-2'});
+        result = HawkularAlert['CompareCondition'].trigger({triggerId: 'test-rest-trigger-2'});
         restResolve(result, done);
       });
 
@@ -567,7 +567,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('CompareCondition').delete({conditionId: 'test-rest-trigger-2-1-1'});
+        result = HawkularAlert['CompareCondition'].delete({conditionId: 'test-rest-trigger-2-1-1'});
         restResolve(result, done);
       });
 
@@ -595,7 +595,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
           ignoreCase: 'false'
         };
 
-        result = HawkularAlert.Condition('StringCondition').save(stringCondition);
+        result = HawkularAlert['StringCondition'].save(stringCondition);
         restResolve(result, done);
       });
 
@@ -617,7 +617,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('StringCondition').get({conditionId: 'test-rest-trigger-3-1-1'});
+        result = HawkularAlert['StringCondition'].get({conditionId: 'test-rest-trigger-3-1-1'});
         restResolve(result, done);
       });
 
@@ -640,7 +640,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         conditionToUpdate.operator = 'ENDS_WITH';
-        result = HawkularAlert.Condition('StringCondition').put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
+        result = HawkularAlert['StringCondition'].put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
         restResolve(result, done);
       });
 
@@ -654,7 +654,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('StringCondition').get({conditionId: 'test-rest-trigger-3-1-1'});
+        result = HawkularAlert['StringCondition'].get({conditionId: 'test-rest-trigger-3-1-1'});
         restResolve(result, done);
       });
 
@@ -673,7 +673,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('StringCondition').query();
+        result = HawkularAlert['StringCondition'].query();
         restResolve(result, done);
       });
 
@@ -688,7 +688,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('StringCondition').trigger({triggerId: 'test-rest-trigger-3'});
+        result = HawkularAlert['StringCondition'].trigger({triggerId: 'test-rest-trigger-3'});
         restResolve(result, done);
       });
 
@@ -721,7 +721,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('StringCondition').delete({conditionId: 'test-rest-trigger-3-1-1'});
+        result = HawkularAlert['StringCondition'].delete({conditionId: 'test-rest-trigger-3-1-1'});
         restResolve(result, done);
       });
 
@@ -748,7 +748,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
           threshold: 15.0
         };
 
-        result = HawkularAlert.Condition('ThresholdCondition').save(thresholdCondition);
+        result = HawkularAlert['ThresholdCondition'].save(thresholdCondition);
         restResolve(result, done);
       });
 
@@ -770,7 +770,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('ThresholdCondition').get({conditionId: 'test-rest-trigger-4-1-1'});
+        result = HawkularAlert['ThresholdCondition'].get({conditionId: 'test-rest-trigger-4-1-1'});
         restResolve(result, done);
       });
 
@@ -793,7 +793,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         conditionToUpdate.operator = 'GTE';
-        result = HawkularAlert.Condition('ThresholdCondition').put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
+        result = HawkularAlert['ThresholdCondition'].put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
         restResolve(result, done);
       });
 
@@ -807,7 +807,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('ThresholdCondition').get({conditionId: 'test-rest-trigger-4-1-1'});
+        result = HawkularAlert['ThresholdCondition'].get({conditionId: 'test-rest-trigger-4-1-1'});
         restResolve(result, done);
       });
 
@@ -826,7 +826,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('ThresholdCondition').query();
+        result = HawkularAlert['ThresholdCondition'].query();
         restResolve(result, done);
       });
 
@@ -841,7 +841,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('ThresholdCondition').trigger({triggerId: 'test-rest-trigger-4'});
+        result = HawkularAlert['ThresholdCondition'].trigger({triggerId: 'test-rest-trigger-4'});
         restResolve(result, done);
       });
 
@@ -874,7 +874,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('ThresholdCondition').delete({conditionId: 'test-rest-trigger-4-1-1'});
+        result = HawkularAlert['ThresholdCondition'].delete({conditionId: 'test-rest-trigger-4-1-1'});
         restResolve(result, done);
       });
 
@@ -904,7 +904,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
           inRange: true
         };
 
-        result = HawkularAlert.Condition('ThresholdRangeCondition').save(rangeCondition);
+        result = HawkularAlert['ThresholdRangeCondition'].save(rangeCondition);
         restResolve(result, done);
       });
 
@@ -926,7 +926,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('ThresholdRangeCondition').get({conditionId: 'test-rest-trigger-5-1-1'});
+        result = HawkularAlert['ThresholdRangeCondition'].get({conditionId: 'test-rest-trigger-5-1-1'});
         restResolve(result, done);
       });
 
@@ -949,7 +949,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         conditionToUpdate.operatorLow = 'EXCLUSIVE';
-        result = HawkularAlert.Condition('ThresholdRangeCondition').put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
+        result = HawkularAlert['ThresholdRangeCondition'].put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
         restResolve(result, done);
       });
 
@@ -963,7 +963,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('ThresholdRangeCondition').get({conditionId: 'test-rest-trigger-5-1-1'});
+        result = HawkularAlert['ThresholdRangeCondition'].get({conditionId: 'test-rest-trigger-5-1-1'});
         restResolve(result, done);
       });
 
@@ -982,7 +982,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('ThresholdRangeCondition').query();
+        result = HawkularAlert['ThresholdRangeCondition'].query();
         restResolve(result, done);
       });
 
@@ -997,7 +997,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('ThresholdRangeCondition').trigger({triggerId: 'test-rest-trigger-5'});
+        result = HawkularAlert['ThresholdRangeCondition'].trigger({triggerId: 'test-rest-trigger-5'});
         restResolve(result, done);
       });
 
@@ -1030,7 +1030,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Condition('ThresholdRangeCondition').delete({conditionId: 'test-rest-trigger-5-1-1'});
+        result = HawkularAlert['ThresholdRangeCondition'].delete({conditionId: 'test-rest-trigger-5-1-1'});
         restResolve(result, done);
       });
 
