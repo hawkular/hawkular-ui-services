@@ -56,10 +56,23 @@ module hawkularRest {
         tenantId : '@tenantId'
       });
 
-      factory.NumericMetricData = $resource(prefix + '/rhq-metrics/:tenantId/metrics/numeric/:numericId/data', {
-        tenantId : '@tenantId',
-        numericId : '@numericId'
+
+      factory['NumericMetricData'] = $resource(prefix + '/:tenantId/metrics/numeric/:numericId/data', {
+        tenantId: '@tenantId',
+        numericId: '@numericId'
+      }, {
+        queryMetrics: {
+          method: 'GET',
+          isArray: false,
+          params: {type: 'num'}
+        },
+        queryMetricsTimeRange: {
+          method: 'GET',
+          isArray: false,
+          params: {type: 'num', buckets: 60, start: '@startTimestamp', end: '@endTimestamp'}
+        }
       });
+
 
       factory.NumericMetricMeta = $resource(prefix + '/rhq-metrics/:tenantId/metrics/numeric/:numericId/meta', {
         tenantId : '@tenantId',
