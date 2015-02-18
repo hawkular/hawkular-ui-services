@@ -31,9 +31,9 @@ module hawkularRest {
       var url = prefix + metricUrlPart;
       var factory: any = {};
 
-      factory.Tenant = $resource(url +'/tenants', {});
+      factory.Tenant = $resource(url + '/tenants', {});
 
-      factory.Metric = $resource(url+'/:tenantId/metrics', {
+      factory.Metric = $resource(url + '/:tenantId/metrics', {
         tenantId : '@tenantId'
       }, {
         queryNum: {
@@ -58,7 +58,7 @@ module hawkularRest {
       });
 
 
-      factory['NumericMetricData'] = $resource(url + '/:tenantId/metrics/numeric/:numericId/data', {
+      factory.NumericMetricData = $resource(url + '/:tenantId/metrics/numeric/:numericId/data', {
         tenantId: '@tenantId',
         numericId: '@numericId'
       }, {
