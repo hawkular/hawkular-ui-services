@@ -225,7 +225,7 @@ var hawkularRest;
         };
         this.$get = ['$resource', function ($resource) {
             var prefix = 'http://' + this.host + ':' + this.port;
-            var metricUrlPart = '/rhq-metrics';
+            var metricUrlPart = '/hawkular-metrics';
             var url = prefix + metricUrlPart;
             var factory = {};
             factory.Tenant = $resource(url + '/tenants', {});
