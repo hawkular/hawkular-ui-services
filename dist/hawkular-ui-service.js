@@ -20,8 +20,6 @@ var hawkularRest;
 var hawkularRest;
 (function (hawkularRest) {
     hawkularRest._module.provider('HawkularAlert', function () {
-        this.host = 'localhost';
-        this.port = 8080;
         this.setHost = function (host) {
             this.host = host;
             return this;
@@ -30,7 +28,9 @@ var hawkularRest;
             this.port = port;
             return this;
         };
-        this.$get = ['$resource', function ($resource) {
+        this.$get = ['$resource', '$location', function ($resource, $location) {
+            this.setHost(this.host || $location.host() || 'localhost');
+            this.setPort(this.port || $location.port() || 8080);
             var prefix = 'http://' + this.host + ':' + this.port;
             var factory = {};
             factory.Alert = $resource(prefix + '/hawkular/alerts', {}, {
@@ -179,8 +179,6 @@ var hawkularRest;
 var hawkularRest;
 (function (hawkularRest) {
     hawkularRest._module.provider('HawkularInventory', function () {
-        this.host = 'localhost';
-        this.port = 8080;
         this.setHost = function (host) {
             this.host = host;
             return this;
@@ -189,7 +187,9 @@ var hawkularRest;
             this.port = port;
             return this;
         };
-        this.$get = ['$resource', function ($resource) {
+        this.$get = ['$resource', '$location', function ($resource, $location) {
+            this.setHost(this.host || $location.host() || 'localhost');
+            this.setPort(this.port || $location.port() || 8080);
             var prefix = 'http://' + this.host + ':' + this.port;
             var factory = {};
             factory.Resource = $resource(prefix + '/hawkular/inventory/:tenantId/resources/:resourceId', {
@@ -213,8 +213,6 @@ var hawkularRest;
 var hawkularRest;
 (function (hawkularRest) {
     hawkularRest._module.provider('HawkularMetric', function () {
-        this.host = 'localhost';
-        this.port = 8080;
         this.setHost = function (host) {
             this.host = host;
             return this;
@@ -223,7 +221,9 @@ var hawkularRest;
             this.port = port;
             return this;
         };
-        this.$get = ['$resource', function ($resource) {
+        this.$get = ['$resource', '$location', function ($resource, $location) {
+            this.setHost(this.host || $location.host() || 'localhost');
+            this.setPort(this.port || $location.port() || 8080);
             var prefix = 'http://' + this.host + ':' + this.port;
             var metricUrlPart = '/hawkular-metrics';
             var url = prefix + metricUrlPart;

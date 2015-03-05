@@ -24,10 +24,6 @@
 module hawkularRest {
 
   _module.provider('HawkularMetric', function() {
-    // time (in ms) the notifications are shown
-
-    this.host = 'localhost';
-    this.port = 8080;
 
     this.setHost = function(host) {
       this.host = host;
@@ -39,7 +35,12 @@ module hawkularRest {
       return this;
     };
 
-    this.$get = ['$resource', function($resource) {
+    this.$get = ['$resource', '$location', function($resource, $location) {
+
+      // If available, used pre-configured values, otherwise use values from current browser location of fallback to
+      // defaults
+      this.setHost(this.host || $location.host() || 'localhost');
+      this.setPort(this.port || $location.port() || 8080);
 
       var prefix = 'http://' + this.host + ':' + this.port;
       var metricUrlPart = '/hawkular-metrics';
