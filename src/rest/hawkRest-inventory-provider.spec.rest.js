@@ -16,7 +16,10 @@ describe('Provider: Hawkular live REST', function() {
     });
   };
 
-  beforeEach(module('hawkular.services', 'httpReal'));
+  beforeEach(module('hawkular.services', 'httpReal', function(HawkularInventoryProvider) {
+    HawkularInventoryProvider.setHost(__karma__.config.hostname);
+    HawkularInventoryProvider.setPort(__karma__.config.port);
+  }));
 
   beforeEach(inject(function(_HawkularInventory_, _$resource_, _httpReal_, _$http_) {
     HawkularInventory = _HawkularInventory_;

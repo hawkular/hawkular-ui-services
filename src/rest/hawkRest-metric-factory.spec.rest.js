@@ -3,7 +3,10 @@ describe('Provider: Hawkular live REST', function() {
   var HawkularMetric;
   var httpReal;
 
-  beforeEach(module('hawkular.services', 'httpReal'));
+  beforeEach(module('hawkular.services', 'httpReal', function(HawkularMetricProvider) {
+    HawkularMetricProvider.setHost(__karma__.config.hostname);
+    HawkularMetricProvider.setPort(__karma__.config.port);
+  }));
 
   beforeEach(inject(function(_HawkularMetric_, _httpReal_) {
     HawkularMetric = _HawkularMetric_;

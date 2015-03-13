@@ -6,6 +6,8 @@ var $ = require('gulp-load-plugins')();
 
 var wiredep = require('wiredep');
 
+var minimist = require('minimist');
+
 var paths = gulp.paths;
 
 function runTests (singleRun) {
@@ -33,7 +35,7 @@ function runTests (singleRun) {
     });
 }
 
-function runTestsRest (singleRun, service) {
+function runTestsRest (singleRun, service, options) {
   var bowerDeps = wiredep({
     directory: 'lib',
     exclude: ['bootstrap-sass-official'],
@@ -50,7 +52,11 @@ function runTestsRest (singleRun, service) {
   gulp.src(testFiles)
     .pipe($.karma({
       configFile: 'karma.conf.js',
-      action: (singleRun)? 'run': 'watch'
+      action: (singleRun)? 'run': 'watch',
+      client: {
+        hostname: options.hostname,
+        port: options.port
+      },
     }))
     .on('error', function (err) {
       // Make sure failed tests cause gulp to exit non-zero
@@ -59,9 +65,19 @@ function runTestsRest (singleRun, service) {
     });
 }
 
+var knownTestOptions = {
+  string: ['hostname', 'port'],
+  default: {
+     hostname: process.env.HAWKULAR_TEST_HOSTNAME || 'localhost',
+     port: process.env.HAWKULAR_TEST_PORT || '8080'
+  }
+};
+
+var options = minimist(process.argv.slice(2), knownTestOptions);
+
 gulp.task('test', ['scripts'], function (done) { runTests(true /* singleRun */, done) });
 gulp.task('test:auto', ['scripts'], function (done) { runTests(false /* singleRun */, done) });
 
-gulp.task('rest:alert', ['scripts'], function (done) { runTestsRest(true, 'alert', done) });
-gulp.task('rest:metric', ['scripts'], function (done) { runTestsRest(true, 'metric', done) });
-gulp.task('rest:inventory', ['scripts'], function (done) { runTestsRest(true, 'inventory', done) });
+gulp.task('rest:alert', ['scripts'], function (done) { runTestsRest(true, 'alert', options, done) });
+gulp.task('rest:metric', ['scripts'], function (done) { runTestsRest(true, 'metric', options, done) });
+gulp.task('rest:inventory', ['scripts'], function (done) { runTestsRest(true, 'inventory', options, done) });
