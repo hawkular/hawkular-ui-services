@@ -16,7 +16,10 @@ describe('Provider: Hawkular Alerts live REST', function() {
     });
   };
 
-  beforeEach(module('hawkular.services', 'httpReal'));
+  beforeEach(module('hawkular.services', 'httpReal', function(HawkularAlertProvider) {
+    HawkularAlertProvider.setHost(__karma__.config.hostname);
+    HawkularAlertProvider.setPort(__karma__.config.port);
+  }));
 
   beforeEach(inject(function(_HawkularAlert_, _$resource_, _httpReal_, _$http_) {
     HawkularAlert = _HawkularAlert_;
