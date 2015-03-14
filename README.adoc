@@ -16,7 +16,7 @@ gulp
 ```
 
 The service can be tested with the server. To run the actual testsuite you need to have relevant (that means hawkular-metrics,
-hawkular-inventory, ...) server running on localhost on port 8080. It must have a clean database (= no tenants, no metrics, ...).
+hawkular-inventory, ...) server running. It must have a clean database (= no tenants, no metrics, ...).
 Once the server is up and running, execute the relevant rest sub-target:
 
 ```shell
@@ -24,4 +24,4 @@ gulp rest:inventory
 gulp rest:metric
 ```
 
-to start the testsuite.
+to start the testsuite. You can also specify the server's hostname (`--hostname)` or port (`--port`) when running the gulp command or by environment properties called `HAWKULAR_TEST_HOSTNAME` and `HAWKULAR_TEST_PORT`. If not specified, host and port default to `localhost:8080`.
