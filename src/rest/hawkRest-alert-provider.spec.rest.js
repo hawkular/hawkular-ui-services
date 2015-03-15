@@ -17,8 +17,10 @@ describe('Provider: Hawkular Alerts live REST', function() {
   };
 
   beforeEach(module('hawkular.services', 'httpReal', function(HawkularAlertProvider) {
+
     HawkularAlertProvider.setHost(__karma__.config.hostname);
     HawkularAlertProvider.setPort(__karma__.config.port);
+
   }));
 
   beforeEach(inject(function(_HawkularAlert_, _$resource_, _httpReal_, _$http_) {
@@ -71,8 +73,14 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         var trigger = {
+          name: 'No-Metric-Name',
+          description: 'Test description',
+          actions: ['uno', 'dos', 'tres'],
+          firingMatch: 'ALL',
+          safetyMatch: 'ALL',
           id: 'test-rest-trigger-200',
-          name: 'No-Metric-Name'
+          enabled: true,
+          safetyEnabled: true
         };
         result = HawkularAlert.Trigger.save(trigger);
         restResolve(result, done);
@@ -80,8 +88,17 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       it ('should resolve and return created trigger', function() {
         expect(result.$resolved).toEqual(true);
-        expect(result.id).toEqual('test-rest-trigger-200');
         expect(result.name).toEqual('No-Metric-Name');
+        expect(result.description).toEqual('Test description');
+        expect(result.actions.length).toEqual(3);
+        expect(result.actions[0]).toEqual('uno');
+        expect(result.actions[1]).toEqual('dos');
+        expect(result.actions[2]).toEqual('tres');
+        expect(result.firingMatch).toEqual('ALL');
+        expect(result.safetyMatch).toEqual('ALL');
+        expect(result.id).toEqual('test-rest-trigger-200');
+        expect(result.enabled).toEqual(true);
+        expect(result.safetyEnabled).toEqual(true);
       });
     });
 
@@ -98,8 +115,17 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       it ('should get previously created trigger', function() {
         expect(result.$resolved).toEqual(true);
-        expect(result.id).toEqual('test-rest-trigger-200');
         expect(result.name).toEqual('No-Metric-Name');
+        expect(result.description).toEqual('Test description');
+        expect(result.actions.length).toEqual(3);
+        expect(result.actions[0]).toEqual('uno');
+        expect(result.actions[1]).toEqual('dos');
+        expect(result.actions[2]).toEqual('tres');
+        expect(result.firingMatch).toEqual('ALL');
+        expect(result.safetyMatch).toEqual('ALL');
+        expect(result.id).toEqual('test-rest-trigger-200');
+        expect(result.enabled).toEqual(true);
+        expect(result.safetyEnabled).toEqual(true);
 
         triggerToUpdate = result;
       });
@@ -131,8 +157,18 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       it ('should get previously created trigger', function() {
         expect(result.$resolved).toEqual(true);
-        expect(result.id).toEqual('test-rest-trigger-200');
         expect(result.name).toEqual('No-Metric-Name-Modified');
+        expect(result.description).toEqual('Test description');
+        expect(result.actions.length).toEqual(3);
+        expect(result.actions[0]).toEqual('uno');
+        expect(result.actions[1]).toEqual('dos');
+        expect(result.actions[2]).toEqual('tres');
+        expect(result.firingMatch).toEqual('ALL');
+        expect(result.safetyMatch).toEqual('ALL');
+        expect(result.id).toEqual('test-rest-trigger-200');
+        expect(result.enabled).toEqual(true);
+        expect(result.safetyEnabled).toEqual(true);
+
       });
     });
 
@@ -176,20 +212,25 @@ describe('Provider: Hawkular Alerts live REST', function() {
       beforeEach(function(done) {
         var dampening = {
           triggerId: 'test-rest-trigger-100',
-          type: 'RELAXED_TIME',
+          triggerMode: 'FIRE',
+          type: 'STRICT',
           evalTrueSetting: 1,
           evalTotalSetting: 1,
           evalTimeSetting: 100
         };
-        result = HawkularAlert.Dampening.save(dampening);
+        result = HawkularAlert.Dampening.save({triggerId: dampening.triggerId}, dampening);
         restResolve(result, done);
       });
 
       it ('should resolve and return created dampening', function() {
         expect(result.$resolved).toEqual(true);
         expect(result.triggerId).toEqual('test-rest-trigger-100');
-        expect(result.type).toEqual('RELAXED_TIME');
+        expect(result.triggerMode).toEqual('FIRE');
+        expect(result.type).toEqual('STRICT');
+        expect(result.evalTrueSetting).toEqual(1);
+        expect(result.evalTotalSetting).toEqual(1);
         expect(result.evalTimeSetting).toEqual(100);
+        expect(result.dampeningId).toEqual('test-rest-trigger-100-FIRE');
       });
     });
 
@@ -200,15 +241,19 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Dampening.get({triggerId: 'test-rest-trigger-100'});
+        result = HawkularAlert.Dampening.get({triggerId: 'test-rest-trigger-100', dampeningId: 'test-rest-trigger-100-FIRE'});
         restResolve(result, done);
       });
 
       it ('should get previously created dampening', function() {
         expect(result.$resolved).toEqual(true);
         expect(result.triggerId).toEqual('test-rest-trigger-100');
-        expect(result.type).toEqual('RELAXED_TIME');
+        expect(result.triggerMode).toEqual('FIRE');
+        expect(result.type).toEqual('STRICT');
+        expect(result.evalTrueSetting).toEqual(1);
+        expect(result.evalTotalSetting).toEqual(1);
         expect(result.evalTimeSetting).toEqual(100);
+        expect(result.dampeningId).toEqual('test-rest-trigger-100-FIRE');
 
         dampeningToUpdate = result;
       });
@@ -220,7 +265,8 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         dampeningToUpdate.type = 'STRICT_TIME';
-        result = HawkularAlert.Dampening.put({triggerId: dampeningToUpdate.triggerId}, dampeningToUpdate);
+        result = HawkularAlert.Dampening.put({triggerId: dampeningToUpdate.triggerId,
+          dampeningId: dampeningToUpdate.dampeningId}, dampeningToUpdate);
         restResolve(result, done);
       });
 
@@ -234,15 +280,20 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Dampening.get({triggerId: 'test-rest-trigger-100'});
+        result = HawkularAlert.Dampening.get({triggerId: 'test-rest-trigger-100',
+          dampeningId: 'test-rest-trigger-100-FIRE'});
         restResolve(result, done);
       });
 
       it ('should get previously created dampening', function() {
         expect(result.$resolved).toEqual(true);
         expect(result.triggerId).toEqual('test-rest-trigger-100');
+        expect(result.triggerMode).toEqual('FIRE');
         expect(result.type).toEqual('STRICT_TIME');
+        expect(result.evalTrueSetting).toEqual(1);
+        expect(result.evalTotalSetting).toEqual(1);
         expect(result.evalTimeSetting).toEqual(100);
+        expect(result.dampeningId).toEqual('test-rest-trigger-100-FIRE');
       });
     });
 
@@ -251,7 +302,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Dampening.query();
+        result = HawkularAlert.Dampening.query({triggerId: 'test-rest-trigger-100'});
         restResolve(result, done);
       });
 
@@ -266,7 +317,8 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Dampening.delete({triggerId: 'test-rest-trigger-100'});
+        result = HawkularAlert.Dampening.delete({triggerId: 'test-rest-trigger-100',
+          dampeningId: 'test-rest-trigger-100-FIRE'});
         restResolve(result, done);
       });
 
@@ -286,23 +338,19 @@ describe('Provider: Hawkular Alerts live REST', function() {
       beforeEach(function(done) {
         var availabilityCondition = {
           triggerId: 'test-rest-trigger-1',
-          conditionSetSize: 1,
-          conditionSetIndex: 1,
           dataId: 'No-Metric',
+          type: 'AVAILABILITY',
           operator: 'NOT_UP'
         };
 
-        result = HawkularAlert['AvailabilityCondition'].save(availabilityCondition);
+        result = HawkularAlert.Condition.save({triggerId: 'test-rest-trigger-1'}, availabilityCondition);
         restResolve(result, done);
       });
 
       it ('should resolve and return created condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-          conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-1-1-1');
-        expect(result.operator).toEqual('NOT_UP');
+        expect(result.length).toEqual(1);
+        expect(result[0].operator).toEqual('NOT_UP');
       });
     });
 
@@ -313,19 +361,17 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['AvailabilityCondition'].get({conditionId: 'test-rest-trigger-1-1-1'});
+        result = HawkularAlert.Condition.query({triggerId: 'test-rest-trigger-1'});
         restResolve(result, done);
       });
 
       it ('should get previously created availability condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-1-1-1');
-        expect(result.operator).toEqual('NOT_UP');
+        expect(result.length).toEqual(1);
+        expect(result[0].triggerId).toEqual('test-rest-trigger-1');
+        expect(result[0].operator).toEqual('NOT_UP');
 
-        conditionToUpdate = result;
+        conditionToUpdate = result[0];
       });
     });
 
@@ -335,12 +381,16 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         conditionToUpdate.operator = 'DOWN';
-        result = HawkularAlert['AvailabilityCondition'].put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
+        result = HawkularAlert.Condition.put({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
         restResolve(result, done);
       });
 
       it ('should resolve', function() {
         expect(result.$resolved).toEqual(true);
+        expect(result.length).toEqual(1);
+        expect(result[0].triggerId).toEqual('test-rest-trigger-1');
+        expect(result[0].operator).toEqual('DOWN');
       });
     });
 
@@ -349,66 +399,16 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['AvailabilityCondition'].get({conditionId: 'test-rest-trigger-1-1-1'});
+        result = HawkularAlert.Condition.get({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId});
         restResolve(result, done);
       });
 
       it ('should get previously created availability condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-1-1-1');
+        expect(result.triggerId).toEqual('test-rest-trigger-1');
         expect(result.operator).toEqual('DOWN');
       });
-    });
-
-    describe('get an availability condition list', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert['AvailabilityCondition'].query();
-        restResolve(result, done);
-      });
-
-      it ('should get a minimum array of one', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe('get an availability condition list by triggerId', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert['AvailabilityCondition'].trigger({triggerId: 'test-rest-trigger-1'});
-        restResolve(result, done);
-      });
-
-      it ('should get a minimum array of one', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe('get a list of conditions from a triggerId', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert.Trigger.conditions({triggerId: 'test-rest-trigger-1'});
-        restResolve(result, done);
-      });
-
-      it ('should get one condition', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toEqual(1);
-        expect(result[0].conditionId).toEqual('test-rest-trigger-1-1-1')
-        expect(result[0].className).toEqual('AvailabilityCondition')
-      });
-
     });
 
     describe('delete an availability condition', function() {
@@ -416,7 +416,8 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['AvailabilityCondition'].delete({conditionId: 'test-rest-trigger-1-1-1'});
+        result = HawkularAlert.Condition.delete({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId});
         restResolve(result, done);
       });
 
@@ -436,26 +437,22 @@ describe('Provider: Hawkular Alerts live REST', function() {
       beforeEach(function(done) {
         var compareCondition = {
           triggerId: 'test-rest-trigger-2',
-          conditionSetSize: 1,
-          conditionSetIndex: 1,
-          data1Id: 'No-Metric-1',
+          type: 'COMPARE',
+          dataId: 'No-Metric-1',
           operator: 'LT',
           data2Multiplier: 1.0,
           data2Id: 'No-Metric-2'
         };
 
-        result = HawkularAlert['CompareCondition'].save(compareCondition);
+        result = HawkularAlert.Condition.save({triggerId: 'test-rest-trigger-2'}, compareCondition);
         restResolve(result, done);
       });
 
       it ('should resolve and return created condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-2-1-1');
-        expect(result.operator).toEqual('LT');
-        expect(result.data2Id).toEqual('No-Metric-2');
+        expect(result.length).toEqual(1);
+        expect(result[0].operator).toEqual('LT');
+        expect(result[0].data2Id).toEqual('No-Metric-2');
       });
     });
 
@@ -466,20 +463,17 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['CompareCondition'].get({conditionId: 'test-rest-trigger-2-1-1'});
+        result = HawkularAlert.Condition.query({triggerId: 'test-rest-trigger-2'});
         restResolve(result, done);
       });
 
       it ('should get previously created compare condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-2-1-1');
-        expect(result.operator).toEqual('LT');
-        expect(result.data2Id).toEqual('No-Metric-2');
+        expect(result.length).toEqual(1);
+        expect(result[0].operator).toEqual('LT');
+        expect(result[0].data2Id).toEqual('No-Metric-2');
 
-        conditionToUpdate = result;
+        conditionToUpdate = result[0];
       });
     });
 
@@ -489,12 +483,16 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         conditionToUpdate.operator = 'GT';
-        result = HawkularAlert['CompareCondition'].put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
+        result = HawkularAlert.Condition.put({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
         restResolve(result, done);
       });
 
       it ('should resolve', function() {
         expect(result.$resolved).toEqual(true);
+        expect(result.length).toEqual(1);
+        expect(result[0].operator).toEqual('GT');
+        expect(result[0].data2Id).toEqual('No-Metric-2');
       });
     });
 
@@ -503,66 +501,16 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['CompareCondition'].get({conditionId: 'test-rest-trigger-2-1-1'});
+        result = HawkularAlert.Condition.get({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId});
         restResolve(result, done);
       });
 
       it ('should get previously created compare condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-2-1-1');
+        expect(result.triggerId).toEqual('test-rest-trigger-2');
         expect(result.operator).toEqual('GT');
       });
-    });
-
-    describe('get a compare condition list', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert['CompareCondition'].query();
-        restResolve(result, done);
-      });
-
-      it ('should get a minimum array of one', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe('get a compare condition list by triggerId', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert['CompareCondition'].trigger({triggerId: 'test-rest-trigger-2'});
-        restResolve(result, done);
-      });
-
-      it ('should get a minimum array of one', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe('get a list of conditions from a triggerId', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert.Trigger.conditions({triggerId: 'test-rest-trigger-2'});
-        restResolve(result, done);
-      });
-
-      it ('should get one condition', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toEqual(1);
-        expect(result[0].conditionId).toEqual('test-rest-trigger-2-1-1')
-        expect(result[0].className).toEqual('CompareCondition')
-      });
-
     });
 
     describe('delete a compare condition', function() {
@@ -570,7 +518,8 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['CompareCondition'].delete({conditionId: 'test-rest-trigger-2-1-1'});
+        result = HawkularAlert.Condition.delete({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId});
         restResolve(result, done);
       });
 
@@ -590,26 +539,23 @@ describe('Provider: Hawkular Alerts live REST', function() {
       beforeEach(function(done) {
         var stringCondition = {
           triggerId: 'test-rest-trigger-3',
-          conditionSetSize: 1,
-          conditionSetIndex: 1,
+          type: 'STRING',
           dataId: 'No-Metric',
           operator: 'EQUAL',
           pattern: 'pattern-test',
           ignoreCase: 'false'
         };
 
-        result = HawkularAlert['StringCondition'].save(stringCondition);
+        result = HawkularAlert.Condition.save({triggerId: 'test-rest-trigger-3'}, stringCondition);
         restResolve(result, done);
       });
 
       it ('should resolve and return created condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-3-1-1');
-        expect(result.operator).toEqual('EQUAL');
-        expect(result.pattern).toEqual('pattern-test');
+        expect(result.length).toEqual(1);
+        expect(result[0].triggerId).toEqual('test-rest-trigger-3');
+        expect(result[0].operator).toEqual('EQUAL');
+        expect(result[0].pattern).toEqual('pattern-test');
       });
     });
 
@@ -620,20 +566,18 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['StringCondition'].get({conditionId: 'test-rest-trigger-3-1-1'});
+        result = HawkularAlert.Condition.query({triggerId: 'test-rest-trigger-3'});
         restResolve(result, done);
       });
 
       it ('should get previously created string condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-3-1-1');
-        expect(result.operator).toEqual('EQUAL');
-        expect(result.pattern).toEqual('pattern-test');
+        expect(result.length).toEqual(1);
+        expect(result[0].triggerId).toEqual('test-rest-trigger-3');
+        expect(result[0].operator).toEqual('EQUAL');
+        expect(result[0].pattern).toEqual('pattern-test');
 
-        conditionToUpdate = result;
+        conditionToUpdate = result[0];
       });
     });
 
@@ -643,12 +587,16 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         conditionToUpdate.operator = 'ENDS_WITH';
-        result = HawkularAlert['StringCondition'].put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
+        result = HawkularAlert.Condition.put({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
         restResolve(result, done);
       });
 
       it ('should resolve', function() {
         expect(result.$resolved).toEqual(true);
+        expect(result[0].triggerId).toEqual('test-rest-trigger-3');
+        expect(result[0].operator).toEqual('ENDS_WITH');
+        expect(result[0].pattern).toEqual('pattern-test');
       });
     });
 
@@ -657,66 +605,16 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['StringCondition'].get({conditionId: 'test-rest-trigger-3-1-1'});
+        result = HawkularAlert.Condition.get({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId});
         restResolve(result, done);
       });
 
       it ('should get previously created string condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-3-1-1');
+        expect(result.triggerId).toEqual('test-rest-trigger-3');
         expect(result.operator).toEqual('ENDS_WITH');
       });
-    });
-
-    describe('get an string condition list', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert['StringCondition'].query();
-        restResolve(result, done);
-      });
-
-      it ('should get a minimum array of one', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe('get an string condition list by triggerId', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert['StringCondition'].trigger({triggerId: 'test-rest-trigger-3'});
-        restResolve(result, done);
-      });
-
-      it ('should get a minimum array of one', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe('get a list of conditions from a triggerId', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert.Trigger.conditions({triggerId: 'test-rest-trigger-3'});
-        restResolve(result, done);
-      });
-
-      it ('should get one condition', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toEqual(1);
-        expect(result[0].conditionId).toEqual('test-rest-trigger-3-1-1')
-        expect(result[0].className).toEqual('StringCondition')
-      });
-
     });
 
     describe('delete an string condition', function() {
@@ -724,7 +622,8 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['StringCondition'].delete({conditionId: 'test-rest-trigger-3-1-1'});
+        result = HawkularAlert.Condition.delete({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId});
         restResolve(result, done);
       });
 
@@ -744,25 +643,22 @@ describe('Provider: Hawkular Alerts live REST', function() {
       beforeEach(function(done) {
         var thresholdCondition = {
           triggerId: 'test-rest-trigger-4',
-          conditionSetSize: 1,
-          conditionSetIndex: 1,
+          type: 'THRESHOLD',
           dataId: 'No-Metric',
           operator: 'LT',
           threshold: 15.0
         };
 
-        result = HawkularAlert['ThresholdCondition'].save(thresholdCondition);
+        result = HawkularAlert.Condition.save({triggerId: 'test-rest-trigger-4'}, thresholdCondition);
         restResolve(result, done);
       });
 
       it ('should resolve and return created condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-4-1-1');
-        expect(result.operator).toEqual('LT');
-        expect(result.threshold).toEqual(15.0);
+        expect(result.length).toEqual(1);
+        expect(result[0].triggerId).toEqual('test-rest-trigger-4');
+        expect(result[0].operator).toEqual('LT');
+        expect(result[0].threshold).toEqual(15.0);
       });
     });
 
@@ -773,20 +669,18 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['ThresholdCondition'].get({conditionId: 'test-rest-trigger-4-1-1'});
+        result = HawkularAlert.Condition.query({triggerId: 'test-rest-trigger-4'});
         restResolve(result, done);
       });
 
       it ('should get previously created threshold condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-4-1-1');
-        expect(result.operator).toEqual('LT');
-        expect(result.threshold).toEqual(15.0);
+        expect(result.length).toEqual(1);
+        expect(result[0].triggerId).toEqual('test-rest-trigger-4');
+        expect(result[0].operator).toEqual('LT');
+        expect(result[0].threshold).toEqual(15.0);
 
-        conditionToUpdate = result;
+        conditionToUpdate = result[0];
       });
     });
 
@@ -796,12 +690,17 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         conditionToUpdate.operator = 'GTE';
-        result = HawkularAlert['ThresholdCondition'].put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
+        result = HawkularAlert.Condition.put({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
         restResolve(result, done);
       });
 
       it ('should resolve', function() {
         expect(result.$resolved).toEqual(true);
+        expect(result.length).toEqual(1);
+        expect(result[0].triggerId).toEqual('test-rest-trigger-4');
+        expect(result[0].operator).toEqual('GTE');
+        expect(result[0].threshold).toEqual(15.0);
       });
     });
 
@@ -810,66 +709,16 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['ThresholdCondition'].get({conditionId: 'test-rest-trigger-4-1-1'});
+        result = HawkularAlert.Condition.get({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId});
         restResolve(result, done);
       });
 
       it ('should get previously created threshold condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-4-1-1');
+        expect(result.triggerId).toEqual('test-rest-trigger-4');
         expect(result.operator).toEqual('GTE');
       });
-    });
-
-    describe('get an threshold condition list', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert['ThresholdCondition'].query();
-        restResolve(result, done);
-      });
-
-      it ('should get a minimum array of one', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe('get an threshold condition list by triggerId', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert['ThresholdCondition'].trigger({triggerId: 'test-rest-trigger-4'});
-        restResolve(result, done);
-      });
-
-      it ('should get a minimum array of one', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe('get a list of conditions from a triggerId', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert.Trigger.conditions({triggerId: 'test-rest-trigger-4'});
-        restResolve(result, done);
-      });
-
-      it ('should get one condition', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toEqual(1);
-        expect(result[0].conditionId).toEqual('test-rest-trigger-4-1-1')
-        expect(result[0].className).toEqual('ThresholdCondition')
-      });
-
     });
 
     describe('delete an threshold condition', function() {
@@ -877,7 +726,8 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['ThresholdCondition'].delete({conditionId: 'test-rest-trigger-4-1-1'});
+        result = HawkularAlert.Condition.delete({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId});
         restResolve(result, done);
       });
 
@@ -897,8 +747,7 @@ describe('Provider: Hawkular Alerts live REST', function() {
       beforeEach(function(done) {
         var rangeCondition = {
           triggerId: 'test-rest-trigger-5',
-          conditionSetSize: 1,
-          conditionSetIndex: 1,
+          type: 'RANGE',
           dataId: 'No-Metric',
           operatorLow: 'INCLUSIVE',
           operatorHigh: 'EXCLUSIVE',
@@ -907,18 +756,16 @@ describe('Provider: Hawkular Alerts live REST', function() {
           inRange: true
         };
 
-        result = HawkularAlert['ThresholdRangeCondition'].save(rangeCondition);
+        result = HawkularAlert.Condition.save({triggerId: 'test-rest-trigger-5'}, rangeCondition);
         restResolve(result, done);
       });
 
       it ('should resolve and return created condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-5-1-1');
-        expect(result.operatorLow).toEqual('INCLUSIVE');
-        expect(result.thresholdHigh).toEqual(10.99);
+        expect(result.length).toEqual(1);
+        expect(result[0].triggerId).toEqual('test-rest-trigger-5');
+        expect(result[0].operatorLow).toEqual('INCLUSIVE');
+        expect(result[0].thresholdHigh).toEqual(10.99);
       });
     });
 
@@ -929,20 +776,18 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['ThresholdRangeCondition'].get({conditionId: 'test-rest-trigger-5-1-1'});
+        result = HawkularAlert.Condition.query({triggerId: 'test-rest-trigger-5'});
         restResolve(result, done);
       });
 
       it ('should get previously created range condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-5-1-1');
-        expect(result.operatorLow).toEqual('INCLUSIVE');
-        expect(result.thresholdHigh).toEqual(10.99);
+        expect(result.length).toEqual(1);
+        expect(result[0].triggerId).toEqual('test-rest-trigger-5');
+        expect(result[0].operatorLow).toEqual('INCLUSIVE');
+        expect(result[0].thresholdHigh).toEqual(10.99);
 
-        conditionToUpdate = result;
+        conditionToUpdate = result[0];
       });
     });
 
@@ -952,12 +797,17 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
       beforeEach(function(done) {
         conditionToUpdate.operatorLow = 'EXCLUSIVE';
-        result = HawkularAlert['ThresholdRangeCondition'].put({conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
+        result = HawkularAlert.Condition.put({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId}, conditionToUpdate);
         restResolve(result, done);
       });
 
       it ('should resolve', function() {
         expect(result.$resolved).toEqual(true);
+        expect(result.length).toEqual(1);
+        expect(result[0].triggerId).toEqual('test-rest-trigger-5');
+        expect(result[0].operatorLow).toEqual('EXCLUSIVE');
+        expect(result[0].thresholdHigh).toEqual(10.99);
       });
     });
 
@@ -966,66 +816,16 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['ThresholdRangeCondition'].get({conditionId: 'test-rest-trigger-5-1-1'});
+        result = HawkularAlert.Condition.get({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId});
         restResolve(result, done);
       });
 
       it ('should get previously created range condition', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.conditionId).toEqual('test-rest-trigger-5-1-1');
+        expect(result.triggerId).toEqual('test-rest-trigger-5');
         expect(result.operatorLow).toEqual('EXCLUSIVE');
       });
-    });
-
-    describe('get an range condition list', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert['ThresholdRangeCondition'].query();
-        restResolve(result, done);
-      });
-
-      it ('should get a minimum array of one', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe('get an range condition list by triggerId', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert['ThresholdRangeCondition'].trigger({triggerId: 'test-rest-trigger-5'});
-        restResolve(result, done);
-      });
-
-      it ('should get a minimum array of one', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toBeGreaterThan(0);
-      });
-    });
-
-    describe('get a list of conditions from a triggerId', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-        result = HawkularAlert.Trigger.conditions({triggerId: 'test-rest-trigger-5'});
-        restResolve(result, done);
-      });
-
-      it ('should get one condition', function() {
-        expect(result.$resolved).toEqual(true);
-        expect(result.length).toEqual(1);
-        expect(result[0].conditionId).toEqual('test-rest-trigger-5-1-1')
-        expect(result[0].className).toEqual('ThresholdRangeCondition')
-      });
-
     });
 
     describe('delete an range condition', function() {
@@ -1033,7 +833,8 @@ describe('Provider: Hawkular Alerts live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert['ThresholdRangeCondition'].delete({conditionId: 'test-rest-trigger-5-1-1'});
+        result = HawkularAlert.Condition.delete({triggerId: conditionToUpdate.triggerId,
+          conditionId: conditionToUpdate.conditionId});
         restResolve(result, done);
       });
 
@@ -1044,34 +845,34 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
   });
 
-  describe('Definitions - Notifier Types: ', function() {
+  describe('Definitions - Action Plugins: ', function() {
 
-    describe('get a list of Notifier Types / Plugins', function() {
+    describe('get a list of Action Plugins', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.NotifierType.query();
+        result = HawkularAlert.ActionPlugin.query();
         restResolve(result, done);
       });
 
-      it ('should get more than one notifier type', function() {
+      it ('should get more than one action plugin', function() {
         expect(result.$resolved).toEqual(true);
         expect(result.length).toBeGreaterThan(0);
       });
 
     });
 
-    describe('get a specific Notifier Type', function() {
+    describe('get a specific Action Plugin', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.NotifierType.get({notifierType : 'email'});
+        result = HawkularAlert.ActionPlugin.get({actionPlugin : 'email'});
         restResolve(result, done);
       });
 
-      it ('should get notifier type properties', function() {
+      it ('should get action plugin properties', function() {
         expect(result.$resolved).toEqual(true);
         expect(result.length).toBeGreaterThan(0);
       });
@@ -1080,69 +881,65 @@ describe('Provider: Hawkular Alerts live REST', function() {
 
   });
 
-  describe('Definitions - Notifiers: ', function() {
+  describe('Definitions - Actions: ', function() {
 
-    describe('creating a new notifier', function() {
+    describe('creating a new action ', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        var notifier = {
-          NotifierId: 'test-notifier-email-1',
-          NotifierType: 'email',
+        var action = {
+          actionId: 'test-notifier-email-1',
+          actionPlugin: 'email',
           prop1: 'value1',
           prop2: 'value2',
           prop3: 'value3'
         };
 
-        result = HawkularAlert.Notifier.save(notifier);
+        result = HawkularAlert.Action.save(action);
         restResolve(result, done);
       });
 
-      it ('should resolve and return created notifier', function() {
+      it ('should resolve and return created action', function() {
         expect(result.$resolved).toEqual(true);
-        expect(result.NotifierId).toEqual('test-notifier-email-1');
-        expect(result.NotifierType).toEqual('email');
+        expect(result.actionId).toEqual('test-notifier-email-1');
+        expect(result.actionPlugin).toEqual('email');
         expect(result.prop1).toEqual('value1');
         expect(result.prop2).toEqual('value2');
         expect(result.prop3).toEqual('value3');
       });
     });
 
-    var notifierToUpdate;
+    var actionToUpdate;
 
-    describe('get an existing notifier', function() {
+    describe('get an existing action ', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Notifier.get({notifierId: 'test-notifier-email-1'});
+        result = HawkularAlert.Action.get({actionId: 'test-notifier-email-1'});
         restResolve(result, done);
       });
 
       it ('should get previously created notifier', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.$resolved).toEqual(true);
-        expect(result.NotifierId).toEqual('test-notifier-email-1');
-        expect(result.NotifierType).toEqual('email');
+        expect(result.actionId).toEqual('test-notifier-email-1');
+        expect(result.actionPlugin).toEqual('email');
         expect(result.prop1).toEqual('value1');
         expect(result.prop2).toEqual('value2');
         expect(result.prop3).toEqual('value3');
 
-        notifierToUpdate = result;
+        actionToUpdate = result;
       });
     });
 
-    describe('update an existing notifier', function() {
+    describe('update an existing action ', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        notifierToUpdate.prop1 = 'value1Modified';
-        result = HawkularAlert.Notifier.put({notifierId: 'test-notifier-email-1'}, notifierToUpdate);
+        actionToUpdate.prop1 = 'value1Modified';
+        result = HawkularAlert.Action.put({actionId: 'test-notifier-email-1'}, actionToUpdate);
         restResolve(result, done);
       });
 
@@ -1151,37 +948,49 @@ describe('Provider: Hawkular Alerts live REST', function() {
       });
     });
 
-    describe('get an updated notifier', function() {
+    describe('get an updated action', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Notifier.get({notifierId: 'test-notifier-email-1'});
+        result = HawkularAlert.Action.get({actionId: 'test-notifier-email-1'});
         restResolve(result, done);
       });
 
-      it ('should get previously created notifier', function() {
+      it ('should get previously created action', function() {
         expect(result.$resolved).toEqual(true);
-        /*
-         conditionId == triggerId + '-' + conditionSetSize + '-' + conditionSetIndex;
-         */
-        expect(result.$resolved).toEqual(true);
-        expect(result.NotifierId).toEqual('test-notifier-email-1');
-        expect(result.NotifierType).toEqual('email');
+        expect(result.actionId).toEqual('test-notifier-email-1');
+        expect(result.actionPlugin).toEqual('email');
         expect(result.prop1).toEqual('value1Modified');
         expect(result.prop2).toEqual('value2');
         expect(result.prop3).toEqual('value3');
 
-        notifierToUpdate = result;
+        actionUpdate = result;
       });
     });
 
-    describe('delete a notifier', function() {
+    describe('get a list of actions by plugin', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularAlert.Notifier.delete({notifierId: 'test-notifier-email-1'});
+        result = HawkularAlert.Action.plugin({actionPlugin: 'email'});
+        restResolve(result, done);
+      });
+
+      it ('should get previously created action', function() {
+        expect(result.$resolved).toEqual(true);
+        expect(result.length).toBeGreaterThan(0);
+      });
+    });
+
+
+    describe('delete an action', function() {
+      var result;
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+      beforeEach(function(done) {
+        result = HawkularAlert.Action.delete({actionId: 'test-notifier-email-1'});
         restResolve(result, done);
       });
 

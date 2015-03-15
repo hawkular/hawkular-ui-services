@@ -49,125 +49,86 @@ var hawkularRest;
                 put: {
                     method: 'PUT'
                 },
-                conditions: {
+                reload: {
                     method: 'GET',
-                    url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions',
-                    isArray: true,
+                    url: prefix + '/hawkular/alerts/reload/:triggerId',
                     params: {
                         triggerId: '@triggerId'
                     }
                 }
             });
-            factory.Dampening = $resource(prefix + '/hawkular/alerts/trigger/dampening/:triggerId', {
-                triggerId: '@triggerId'
+            factory.Dampening = $resource(prefix + '/hawkular/alerts/triggers/:triggerId/dampenings/:dampeningId', {
+                triggerId: '@triggerId',
+                dampeningId: '@dampeningId'
             }, {
                 save: {
                     method: 'POST',
-                    url: prefix + '/hawkular/alerts/trigger/dampening/'
+                    url: prefix + '/hawkular/alerts/triggers/:triggerId/dampenings/'
                 },
                 put: {
                     method: 'PUT'
+                },
+                query: {
+                    method: 'GET',
+                    isArray: true,
+                    url: prefix + '/hawkular/alerts/triggers/:triggerId/dampenings/'
                 }
             });
-            factory.AvailabilityCondition = $resource(prefix + '/hawkular/alerts/conditions/availability/:conditionId', {
+            factory.Condition = $resource(prefix + '/hawkular/alerts/triggers/:triggerId/conditions/:conditionId', {
+                triggerId: '@triggerId',
                 conditionId: '@conditionId'
             }, {
-                put: {
-                    method: 'PUT'
-                },
-                trigger: {
+                get: {
                     method: 'GET',
-                    url: prefix + '/hawkular/alerts/conditions/availability/trigger/:triggerId',
+                    url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/:conditionId'
+                },
+                save: {
+                    method: 'POST',
                     isArray: true,
-                    params: {
-                        triggerId: '@triggerId'
-                    }
+                    url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/'
+                },
+                put: {
+                    method: 'PUT',
+                    isArray: true
+                },
+                query: {
+                    method: 'GET',
+                    isArray: true,
+                    url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/'
+                },
+                delete: {
+                    method: 'DELETE',
+                    isArray: true
                 }
             });
-            factory.CompareCondition = $resource(prefix + '/hawkular/alerts/conditions/compare/:conditionId', {
-                conditionId: '@conditionId'
-            }, {
-                put: {
-                    method: 'PUT'
-                },
-                trigger: {
-                    method: 'GET',
-                    url: prefix + '/hawkular/alerts/conditions/compare/trigger/:triggerId',
-                    isArray: true,
-                    params: {
-                        triggerId: '@triggerId'
-                    }
-                }
-            });
-            factory.StringCondition = $resource(prefix + '/hawkular/alerts/conditions/string/:conditionId', {
-                conditionId: '@conditionId'
-            }, {
-                put: {
-                    method: 'PUT'
-                },
-                trigger: {
-                    method: 'GET',
-                    url: prefix + '/hawkular/alerts/conditions/string/trigger/:triggerId',
-                    isArray: true,
-                    params: {
-                        triggerId: '@triggerId'
-                    }
-                }
-            });
-            factory.ThresholdCondition = $resource(prefix + '/hawkular/alerts/conditions/threshold/:conditionId', {
-                conditionId: '@conditionId'
-            }, {
-                put: {
-                    method: 'PUT'
-                },
-                trigger: {
-                    method: 'GET',
-                    url: prefix + '/hawkular/alerts/conditions/threshold/trigger/:triggerId',
-                    isArray: true,
-                    params: {
-                        triggerId: '@triggerId'
-                    }
-                }
-            });
-            factory.ThresholdRangeCondition = $resource(prefix + '/hawkular/alerts/conditions/range/:conditionId', {
-                conditionId: '@conditionId'
-            }, {
-                put: {
-                    method: 'PUT'
-                },
-                trigger: {
-                    method: 'GET',
-                    url: prefix + '/hawkular/alerts/conditions/range/trigger/:triggerId',
-                    isArray: true,
-                    params: {
-                        triggerId: '@triggerId'
-                    }
-                }
-            });
-            factory.NotifierType = $resource(prefix + '/hawkular/alerts/notifierType/:notifierType', {
-                notifierType: '@notifierType'
+            factory.ActionPlugin = $resource(prefix + '/hawkular/alerts/plugins/:actionPlugin', {
+                actionPlugin: '@actionPlugin'
             }, {
                 get: {
                     method: 'GET',
                     isArray: true
                 }
             });
-            factory.Notifier = $resource(prefix + '/hawkular/alerts/notifiers/:notifierId', {
-                notifierId: '@notifierId'
+            factory.Action = $resource(prefix + '/hawkular/alerts/actions/:actionId', {
+                actionId: '@actionId'
             }, {
-                put: {
-                    method: 'PUT',
-                    url: prefix + '/hawkular/alerts/notifiers/:notifierId',
-                    params: {
-                        notifierId: '@notifierId'
-                    }
+                save: {
+                    method: 'POST',
+                    url: prefix + '/hawkular/alerts/actions/'
                 },
-                notifierType: {
+                put: {
+                    method: 'PUT'
+                },
+                get: {
+                    method: 'GET',
+                    isArray: false
+                },
+                plugin: {
                     method: 'GET',
                     isArray: true,
-                    url: prefix + '/hawkular/alerts/notifiers/type/:notifierType',
+                    url: prefix + '/hawkular/alerts/actions/plugin/:actionPlugin',
                     params: {
-                        notifierType: '@notifierType'
+                        actionPlugin: '@actionPlugin'
                     }
                 }
             });
