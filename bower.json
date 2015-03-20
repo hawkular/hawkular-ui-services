@@ -15,11 +15,11 @@
     "!dist/*"
   ],
   "dependencies": {
-    "angular-resource": "~1.3.11",
-    "angular": "~1.3.11"
+    "angular-resource": "1.3.15",
+    "angular": "1.3.15"
   },
   "devDependencies": {
-    "angular-mocks": "~1.3.11",
+    "angular-mocks": "1.3.15",
     "hawtio-core-dts": "2.0.11"
   }
 }
