@@ -61,11 +61,6 @@ module hawkularRest {
           method: 'GET',
           isArray: true,
           params: { type: 'avail' }
-        },
-        queryLog: {
-          method: 'GET',
-          isArray: true,
-          params: { type: 'log' }
         }
       });
 
@@ -80,13 +75,12 @@ module hawkularRest {
       }, {
         queryMetrics: {
           method: 'GET',
-          isArray: false,
-          params: {type: 'num'}
+          isArray: true
         },
         queryMetricsTimeRange: {
           method: 'GET',
-          isArray: false,
-          params: {type: 'num', buckets: 60, start: '@startTimestamp', end: '@endTimestamp'}
+          isArray: true,
+          params: {buckets: 60, start: '@startTimestamp', end: '@endTimestamp'}
         }
       });
 

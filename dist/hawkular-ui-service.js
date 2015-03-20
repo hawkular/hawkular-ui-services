@@ -241,11 +241,6 @@ var hawkularRest;
                     method: 'GET',
                     isArray: true,
                     params: { type: 'avail' }
-                },
-                queryLog: {
-                    method: 'GET',
-                    isArray: true,
-                    params: { type: 'log' }
                 }
             });
             factory.NumericMetric = $resource(url + '/:tenantId/metrics/numeric', {
@@ -257,13 +252,12 @@ var hawkularRest;
             }, {
                 queryMetrics: {
                     method: 'GET',
-                    isArray: false,
-                    params: { type: 'num' }
+                    isArray: true
                 },
                 queryMetricsTimeRange: {
                     method: 'GET',
-                    isArray: false,
-                    params: { type: 'num', buckets: 60, start: '@startTimestamp', end: '@endTimestamp' }
+                    isArray: true,
+                    params: { buckets: 60, start: '@startTimestamp', end: '@endTimestamp' }
                 }
             });
             factory.NumericMetricMeta = $resource(url + '/:tenantId/metrics/numeric/:numericId/meta', {
