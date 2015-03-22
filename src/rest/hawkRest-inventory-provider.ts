@@ -45,15 +45,69 @@ module hawkularRest {
       var prefix = 'http://' + this.host + ':' + this.port;
       var factory: any = {};
 
-      factory.Resource = $resource(prefix + '/hawkular/inventory/:tenantId/resources/:resourceId', {
+      factory.Environment = $resource(prefix + '/hawkular/inventory/:tenantId/environments/:environmentId', {
+        tenantId : '@tenantId',
+        environmentId : '@environmentId'
+      }, {
+        put: {
+          method: 'PUT'
+        }
+      });
+
+      factory.Resource = $resource(prefix + '/hawkular/inventory/:tenantId/:environmentId/resources/:resourceId', {
           tenantId : '@tenantId',
+          environmentId : '@environmentId',
           resourceId : '@resourceId'
       });
 
-      factory.Metric = $resource(prefix + '/hawkular/inventory/:tenantId/resources/:resourceId/metrics/:metricId', {
+      factory.ResourceType = $resource(prefix + '/hawkular/inventory/:tenantId/resourceTypes/:resourceTypeId', {
+          tenantId : '@tenantId',
+          resourceTypeId : '@resourceTypeId'
+      });
+
+      factory.MetricType = $resource(prefix + '/hawkular/inventory/:tenantId/metricTypes/:metricTypeId', {
         tenantId : '@tenantId',
+        metricTypeId: '@metricTypeId'
+      }, {
+        put: {
+          method: 'PUT'
+        }
+      });
+
+      factory.ResourceMetric = $resource(prefix + '/hawkular/inventory/:tenantId/:environmentId/resources/:resourceId/metrics/:metricId', {
+        tenantId : '@tenantId',
+        environmentId : '@environmentId',
         resourceId: '@resourceId',
         metricId: '@metricId'
+      }, {
+        put: {
+          method: 'PUT'
+        }
+      });
+
+      factory.ResourceMetricType = $resource(prefix + '/hawkular/inventory/:tenantId/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId', {
+          tenantId : '@tenantId',
+          resourceTypeId : '@resourceTypeId',
+          metricTypeId : '@metricTypeId'
+      });
+
+      factory.ResourceOfType = $resource(prefix + '/hawkular/inventory/:tenantId/resourceTypes/:resourceTypeId/resources', {
+          tenantId : '@tenantId',
+          resourceTypeId : '@resourceTypeId'
+      });
+
+      factory.Metric = $resource(prefix + '/hawkular/inventory/:tenantId/:environmentId/metrics/:metricId', {
+        tenantId : '@tenantId',
+        environmentId : '@environmentId',
+        metricId: '@metricId'
+      }, {
+        put: {
+          method: 'PUT'
+        }
+      });
+
+      factory.Tenants = $resource(prefix + '/hawkular/inventory/tenants/:tenantId', {
+        tenantId : '@tenantId'
       }, {
         put: {
           method: 'PUT'

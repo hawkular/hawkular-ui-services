@@ -35,15 +35,36 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
+        var tId = 'acme.com';
+        var eId = 'test';
+        var tenant = {
+          id: tId
+        };
+        result = HawkularInventory.Tenant.save(tenant);
+        restResolve(result, done);
+
+        var environment = {
+          id: eId
+        };
+        result = HawkularInventory.Environment.save({tenantId: tId}, environment);
+        restResolve(result, done);
+
+        var resourceType = {
+          id: 'URL',
+          version: '1.0'
+        };
+        result = HawkularInventory.ResourceType.save({tenantId: tId}, environment);
+        restResolve(result, done);
+
         var resource = {
-          type: 'URL',
           id: 'inventoryResource',
-          parameters: {
-            url: 'http://hawkular.org'
+          type: {
+            id: 'URL',
+            version: '1.0'
           }
         };
 
-        result = HawkularInventory.Resource.save({tenantId: 'rest-test'}, resource);
+        result = HawkularInventory.Resource.save({tenantId: tId, environmentId: eId}, resource);
         restResolve(result, done);
       });
 
