@@ -9,6 +9,8 @@ module.exports = function(config) {
 
     browsers : ['PhantomJS'],
 
+    browserNoActivityTimeout: 20000,
+
     plugins : [
         'karma-phantomjs-launcher',
         'karma-jasmine'
