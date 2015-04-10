@@ -67,10 +67,7 @@ describe('Provider: Hawkular live REST', function() {
         }
         var resource = {
           id: rId,
-          type: {
-            id: typeId,
-            version: '1.0'
-          }
+          resourceTypeId: typeId
         }
 
         var createTenant = function() {
@@ -130,10 +127,7 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
         var resource = {
           id: rId2,
-          type: {
-            id: typeId,
-            version: '1.0'
-          }
+          resourceTypeId: typeId
         };
         debug && dump('creating resource ' + rId2 + '..');
         result = HawkularInventory.Resource.save({tenantId: tId, environmentId: eId}, resource);
@@ -212,10 +206,7 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
         var resource = {
           id: rId3,
-          type: {
-            id: typeId,
-            version: '1.0'
-          }
+          resourceTypeId: typeId
         };
 
         debug && dump('creating resource ' + rId3 + '..');
@@ -239,7 +230,7 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
         var metricType = {
           id: mtId, 
-          unit: 's'
+          unit: 'SECONDS'
         }
         var metric = {
           id: mId1, 

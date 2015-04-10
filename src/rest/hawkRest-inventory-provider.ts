@@ -67,10 +67,7 @@ module hawkularRest {
           tenantId: '@tenantId',
           environmentId: '@environmentId',
           resourceId: '@resourceId',
-          type: {
-            id: '@resourceTypeId',
-            version: '1.0'
-          }
+          resourceTypeId: '@resourceTypeId'
       });
 
       factory.ResourceType = $resource(url + '/:tenantId/resourceTypes/:resourceTypeId', {
