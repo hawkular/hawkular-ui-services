@@ -56,7 +56,7 @@ function runTestsRest (singleRun, service, options) {
       client: {
         hostname: options.hostname,
         port: options.port
-      },
+      }
     }))
     .on('error', function (err) {
       // Make sure failed tests cause gulp to exit non-zero
