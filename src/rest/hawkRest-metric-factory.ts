@@ -84,14 +84,6 @@ module hawkularRest {
         }
       });
 
-
-      factory.NumericMetricMeta = $resource(url + '/:tenantId/metrics/numeric/:numericId/meta', {
-        tenantId : '@tenantId',
-        numericId : '@numericId'
-      }, {
-        update: 'PUT'
-      });
-
       factory.NumericMetricMultiple = $resource(url + '/:tenantId/metrics/numeric/data', {
         tenantId : '@tenantId',
         numericId : '@numericId'

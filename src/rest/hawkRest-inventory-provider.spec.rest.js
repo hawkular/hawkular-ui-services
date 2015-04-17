@@ -6,7 +6,7 @@ describe('Provider: Hawkular live REST', function() {
   var $http;
 
   var debug = false;
-  var suffix = '-test-0';
+  var suffix = '-test-' + new Date().getTime();
   var tId = 'tenant' + suffix;
   var typeId = 'type' + suffix;
   var eId = 'environment' + suffix;
@@ -20,16 +20,16 @@ describe('Provider: Hawkular live REST', function() {
   var restPromiseResolve = function(promise, done, finallyDo){
     httpReal.submit();
 
-    promise.then(function(){}, 
-    function(error){
-      debug && dump('call failed with: ' + JSON.stringify(error));
-      done();
-      fail(errorFn(error));
-    }).finally(function(){
-      debug && dump('..done');
-      finallyDo && finallyDo();
-      done();
-    });
+    promise.then(function(){},
+      function(error){
+        debug && dump('call failed with: ' + JSON.stringify(error));
+        done();
+        fail(errorFn(error));
+      }).finally(function(){
+        debug && dump('..done');
+        finallyDo && finallyDo();
+        done();
+      });
   };
 
   var restResolve = function(result, done){
@@ -37,7 +37,9 @@ describe('Provider: Hawkular live REST', function() {
   };
 
   beforeEach(module('hawkular.services', 'httpReal', function(HawkularInventoryProvider) {
+    /** @namespace __karma__.config.hostname */
     HawkularInventoryProvider.setHost(__karma__.config.hostname);
+    /** @namespace __karma__.config.port */
     HawkularInventoryProvider.setPort(__karma__.config.port);
   }));
 
@@ -57,45 +59,45 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
         var tenant = {
           id: tId
-        }
+        };
         var environment = {
           id: eId
-        }
+        };
         var resourceType = {
           id: typeId,
           version: '1.0'
-        }
+        };
         var resource = {
           id: rId,
           resourceTypeId: typeId
-        }
+        };
 
         var createTenant = function() {
-          debug && dump('creating tenant..');
+          debug && dump('creating tenant..', tenant);
           return HawkularInventory.Tenant.save(tenant).$promise;
-        }
+        };
         var createEnv = function() {
-          debug && dump('creating environment..');
+          debug && dump('creating environment..', environment);
           return HawkularInventory.Environment.save({tenantId: tId}, environment).$promise;
-        }
+        };
         var createResourceType = function() {
-          debug && dump('creating resource type..');
+          debug && dump('creating resource type..', resourceType);
           return HawkularInventory.ResourceType.save({tenantId: tId}, resourceType).$promise;
-        }
+        };
         var createResource = function() {
           debug && dump('creating resource' + rId + '..');
           return HawkularInventory.Resource.save({tenantId: tId, environmentId: eId}, resource).$promise;
-        }
+        };
         var err = function(fault) {
           debug && dump('call failed with: ' + JSON.stringify(fault));
           done();
           fail(errorFn(fault));
-        }
+        };
         var finish = function() {
           resolved = true;
-        }
+        };
 
-        result = createTenant().then(createEnv).then(createResourceType).then(createResource).catch(err);
+        var result = createTenant().then(createEnv).then(createResourceType).then(createResource).catch(err);
         restPromiseResolve(result, done, finish);
       });
 
@@ -229,36 +231,36 @@ describe('Provider: Hawkular live REST', function() {
 
       beforeEach(function(done) {
         var metricType = {
-          id: mtId, 
+          id: mtId,
           unit: 'SECONDS'
-        }
+        };
         var metric = {
-          id: mId1, 
+          id: mId1,
           metricTypeId: mtId
-        }
+        };
 
         var createMetricType = function() {
           debug && dump('creating metric type ' + mtId + '..');
           return HawkularInventory.MetricType.save({tenantId: tId}, metricType).$promise;
-        }
+        };
         var createMetric = function() {
           debug && dump('creating metric ' + mId1 + '..');
           return HawkularInventory.Metric.save({tenantId: tId, environmentId: eId}, metric).$promise;
-        }
+        };
         var associateMetric = function() {
           debug && dump('associating metric ' + mId1 + ' with resource ' + rId3 + '..');
           return HawkularInventory.ResourceMetric.save({tenantId: tId, environmentId: eId, resourceId: rId3}, [mId1]).$promise;
-        }
+        };
         var err = function(fault) {
           debug && dump('call failed with: ' + JSON.stringify(fault));
           done();
           fail(errorFn(fault));
-        }
+        };
         var finish = function() {
           resolved = true;
-        }
+        };
 
-        result = createMetricType().then(createMetric).then(associateMetric).catch(err);
+        var result = createMetricType().then(createMetric).then(associateMetric).catch(err);
         restPromiseResolve(result, done, finish);
       });
 
@@ -305,9 +307,9 @@ describe('Provider: Hawkular live REST', function() {
 
       beforeEach(function(done) {
         var metric = {
-          id: mId2, 
+          id: mId2,
           metricTypeId: mtId
-        }
+        };
         debug && dump('creating metric ' + mId2 + '..');
         result = HawkularInventory.Metric.save({tenantId: tId, environmentId: eId}, metric);
         restResolve(result, done);
@@ -344,8 +346,8 @@ describe('Provider: Hawkular live REST', function() {
 
       beforeEach(function(done) {
         var environment = {
-          id: eId + 2 
-        }
+          id: eId + 2
+        };
         debug && dump('creating environment ' + mId2 + '..');
         result = HawkularInventory.Environment.save({tenantId: tId}, environment);
         restResolve(result, done);
