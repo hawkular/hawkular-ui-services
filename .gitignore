@@ -3,3 +3,4 @@ lib/
 .sass-cache/
 .tmp/
 .idea/
+.bower/
