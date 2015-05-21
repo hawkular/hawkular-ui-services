@@ -47,7 +47,7 @@ module hawkularRest {
       var url = prefix + inventoryUrlPart;
       var factory: any = {};
 
-      factory.Tenant = $resource(url + '/tenants/:tenantId', {
+      factory.Tenant = $resource(url + '/tenant/:tenantId', {
         tenantId: '@tenantId'
       }, {
         put: {
