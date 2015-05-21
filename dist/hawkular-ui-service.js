@@ -19,6 +19,29 @@ var hawkularRest;
 
 var hawkularRest;
 (function (hawkularRest) {
+    hawkularRest._module.provider('HawkularAccount', function () {
+        this.setHost = function (host) {
+            this.host = host;
+            return this;
+        };
+        this.setPort = function (port) {
+            this.port = port;
+            return this;
+        };
+        this.$get = ['$resource', '$location', function ($resource, $location) {
+            this.setHost(this.host || $location.host() || 'localhost');
+            this.setPort(this.port || $location.port() || 8080);
+            var prefix = 'http://' + this.host + ':' + this.port;
+            var factory = {};
+            factory.Organization = $resource(prefix + '/hawkular-accounts/organizations/:id', { id: '@id' });
+            factory.Persona = $resource(prefix + '/hawkular-accounts/personas/:id', { id: '@id' });
+            return factory;
+        }];
+    });
+})(hawkularRest || (hawkularRest = {}));
+
+var hawkularRest;
+(function (hawkularRest) {
     hawkularRest._module.provider('HawkularAlert', function () {
         this.setHost = function (host) {
             this.host = host;
@@ -268,12 +291,6 @@ var hawkularRest;
                     isArray: true,
                     params: { buckets: 60, start: '@startTimestamp', end: '@endTimestamp' }
                 }
-            });
-            factory.NumericMetricMeta = $resource(url + '/:tenantId/metrics/numeric/:numericId/meta', {
-                tenantId: '@tenantId',
-                numericId: '@numericId'
-            }, {
-                update: 'PUT'
             });
             factory.NumericMetricMultiple = $resource(url + '/:tenantId/metrics/numeric/data', {
                 tenantId: '@tenantId',
