@@ -129,7 +129,8 @@ module hawkularRest {
       });
 
 
-      factory.Action = $resource(prefix + '/hawkular/alerts/actions/:actionId', {
+      factory.Action = $resource(prefix + '/hawkular/alerts/actions/:pluginId/:actionId', {
+        pluginId: '@pluginId',
         actionId: '@actionId'
       }, {
         save: {
