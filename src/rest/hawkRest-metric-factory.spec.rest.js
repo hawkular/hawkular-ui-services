@@ -5,8 +5,8 @@ describe('Provider: Hawkular live REST', function() {
 
   var debug = false;
   var suffix = '-test-' + new Date().getTime();
-  var tennantId = 'com.acme.sk' + suffix;
-  var tennantId2 = 'com.acme.sk2' + suffix;
+  var tenantId1 = 'com.acme.sk' + suffix;
+  var tenantId2 = 'com.acme.sk2' + suffix;
   var metricId = 'mymetric' + suffix;
 
   var arrayContainsField = function(array, field, value) {
@@ -17,7 +17,7 @@ describe('Provider: Hawkular live REST', function() {
       }
     }
     return false;
-  }
+  };
 
   beforeEach(module('hawkular.services', 'httpReal', function(HawkularMetricProvider) {
     HawkularMetricProvider.setHost(__karma__.config.hostname);
@@ -38,11 +38,11 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
 
         var tenant = {
-          id: tennantId
+          id: tenantId1
         };
 
         debug && dump('creating tenant..', tenant);
-        HawkularMetric.configureTenantId(tennantId);
+        //HawkularMetric.configureTenantId(tenantId1);
         result = HawkularMetric.Tenant.save(tenant);
         httpReal.submit();
 
@@ -66,7 +66,6 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
 
         debug && dump('querying tenants..');
-        HawkularMetric.configureTenantId(tennantId);
         result = HawkularMetric.Tenant.query();
         httpReal.submit();
 
@@ -80,7 +79,7 @@ describe('Provider: Hawkular live REST', function() {
 
       it('should get previously created tenant only', function() {
         expect(result.$resolved).toBe(true);
-        expect(arrayContainsField(result, 'id', tennantId)).toBe(true);
+        expect(arrayContainsField(result, 'id', tenantId1)).toBe(true);
       });
     });
 
@@ -91,11 +90,10 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
 
         var tenant = {
-          id: tennantId2
+          id: tenantId2
         };
 
         debug && dump('creating tenant..', tenant);
-        HawkularMetric.configureTenantId(tennantId);
         result = HawkularMetric.Tenant.save(tenant);
         httpReal.submit();
 
@@ -148,15 +146,13 @@ describe('Provider: Hawkular live REST', function() {
 
       beforeEach(function(done) {
 
-        console.log('?????????????????????', tennantId)
-
         var metric = {
           id: metricId
         };
 
         debug && dump('creating numeric metric..', metric);
-        HawkularMetric.configureTenantId(tennantId);
-        result = HawkularMetric.NumericMetric.save(metric);
+        HawkularMetric.configureTenantId(tenantId1);
+        result = HawkularMetric.GaugeMetric.save(metric);
         httpReal.submit();
 
         result.$promise.then(function(){
@@ -179,7 +175,7 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
 
         debug && dump('querying numeric metric..');
-        HawkularMetric.configureTenantId(tennantId);
+        HawkularMetric.configureTenantId(tenantId1);
         result = HawkularMetric.Metric.queryNum();
         httpReal.submit();
 
@@ -211,8 +207,8 @@ describe('Provider: Hawkular live REST', function() {
 
 
         debug && dump('creating numeric metric data..', data);
-        HawkularMetric.configureTenantId(tennantId);
-        result = HawkularMetric.NumericMetricData.save({ numericId: metricId }, data);
+        HawkularMetric.configureTenantId(tenantId1);
+        result = HawkularMetric.NumericMetricData.save({ gaugeId: metricId }, data);
         httpReal.submit();
 
         result.$promise.then(function(){
@@ -252,7 +248,7 @@ describe('Provider: Hawkular live REST', function() {
         ];
 
         debug && dump('creating numeric metric multiple data..', data);
-        HawkularMetric.configureTenantId(tennantId);
+        HawkularMetric.configureTenantId(tenantId1);
         result = HawkularMetric.NumericMetricMultiple.save(data);
         httpReal.submit();
 
@@ -288,7 +284,7 @@ describe('Provider: Hawkular live REST', function() {
         };
 
         debug && dump('creating availability metric..', metric);
-        HawkularMetric.configureTenantId(tennantId);
+        HawkularMetric.configureTenantId(tenantId1);
         result = HawkularMetric.AvailabilityMetric.save(null, metric);
         httpReal.submit();
 
@@ -312,7 +308,7 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
 
         debug && dump('qyerying availability metric..');
-        HawkularMetric.configureTenantId(tennantId);
+        HawkularMetric.configureTenantId(tenantId1);
         result = HawkularMetric.Metric.queryAvail();
         httpReal.submit();
 
@@ -342,7 +338,7 @@ describe('Provider: Hawkular live REST', function() {
         ];
 
         debug && dump('creating availability metric data..', data);
-        HawkularMetric.configureTenantId(tennantId);
+        HawkularMetric.configureTenantId(tenantId1);
         result = HawkularMetric.AvailabilityMetricData.save({ availabilityId: 'myavail' }, data);
         httpReal.submit();
 
@@ -383,7 +379,7 @@ describe('Provider: Hawkular live REST', function() {
         ];
 
         debug && dump('creating availability metric multiple data..', data);
-        HawkularMetric.configureTenantId(tennantId);
+        HawkularMetric.configureTenantId(tenantId1);
         result = HawkularMetric.AvailabilityMetricMultiple.save(data);
         httpReal.submit();
 

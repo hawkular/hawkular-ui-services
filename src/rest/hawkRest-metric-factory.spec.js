@@ -14,7 +14,7 @@ describe('Factory: hawkMetric', function() {
   it('should create a tenant', function() {
     var tenantId = 'myTenantId';
 
-    $httpBackend.expectPOST(prefix + '/hawkular-metrics/tenants')
+    $httpBackend.expectPOST(prefix + '/hawkular/metrics/tenants')
       .respond(200);
     var result = HawkularRest.Tenant.create({tenantId: tenantId});
 
@@ -26,7 +26,7 @@ describe('Factory: hawkMetric', function() {
   it('should create a metric', function() {
     var tenantId = 'myTenantId';
 
-    $httpBackend.expectGET(prefix + '/hawkular-metrics/' + tenantId + '/metrics')
+    $httpBackend.expectGET(prefix + '/hawkular/metrics/' + tenantId + '/metrics')
       .respond([{
         name: 'mock.metric',
         metadata: {
