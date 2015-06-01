@@ -53,7 +53,7 @@ module hawkularRest {
         queryNum: {
           method: 'GET',
           isArray: true,
-          params: { type: 'gauges' }
+          params: { type: 'gauge' }
         },
         queryAvail: {
           method: 'GET',
@@ -62,10 +62,10 @@ module hawkularRest {
         }
       });
 
-      factory.NumericMetric = $resource(url + '/gauges');
+      factory.GaugeMetric = $resource(url + '/gauges');
 
-      factory.NumericMetricData = $resource(url + '/gauges/:numericId/data', {
-        numericId: '@numericId'
+      factory.GaugeMetric = $resource(url + '/gauges/:gaugeId/data', {
+        gaugeId: '@gaugeId'
       }, {
         queryMetrics: {
           method: 'GET',
@@ -78,8 +78,8 @@ module hawkularRest {
         }
       });
 
-      factory.NumericMetricMultiple = $resource(url + '/gauges/data', {
-        numericId : '@numericId'
+      factory.GaugeMetricMultiple = $resource(url + '/gauges/data', {
+        gaugeId : '@gaugeId'
       });
 
       factory.AvailabilityMetric = $resource(url + '/availability');
@@ -91,9 +91,7 @@ module hawkularRest {
       factory.AvailabilityMetricMultiple = $resource(url + '/availability/data');
 
       factory.configureTenantId = function(tenantId) {
-        //console.log('--------------------------------', $httpProvider);
-        console.log('--------------------------------', $httpProvider.defaults.headers['Hawkular-Tenant'] = tenantId);
-       //$httpProvider.defaults.headers.get['Hawkular-Tenant'] = this.tenantId;
+       $httpProvider.defaults.headers.common['Hawkular-Tenant'] = tenantId;
       };
 
       return factory;

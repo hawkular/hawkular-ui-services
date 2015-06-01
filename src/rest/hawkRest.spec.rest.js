@@ -14,6 +14,7 @@ angular.module('httpReal', ['ng'])
 var TIMEOUT = 30000;
 
 var errorFn = function(error){
+  console.log(error);
   var msg = 'ngResource error: ' + (error && error.data && error.data.errorMsg ? error.data.errorMsg : JSON.stringify(error));
   return(msg);
 };
