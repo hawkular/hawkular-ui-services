@@ -23,7 +23,7 @@
 
 module hawkularRest {
 
-  _module.provider('HawkularMetric', ['$httpProvider', function($httpProvider) {
+  _module.provider('HawkularMetric', function() {
 
     this.setHost = function(host) {
       this.host = host;
@@ -35,7 +35,7 @@ module hawkularRest {
       return this;
     };
 
-    this.$get = ['$resource', '$location', function($resource, $location) {
+    this.$get = ['$resource', '$location', '$http', function($resource, $location, $http) {
 
       // If available, used pre-configured values, otherwise use values from current browser location of fallback to
       // defaults
@@ -50,12 +50,12 @@ module hawkularRest {
       factory.Tenant = $resource(url + '/tenants', {});
 
       factory.Metric = $resource(url + '/', null, {
-        queryNum: {
+        queryGauges: {
           method: 'GET',
           isArray: true,
           params: { type: 'gauge' }
         },
-        queryAvail: {
+        queryAvailability: {
           method: 'GET',
           isArray: true,
           params: { type: 'availability' }
@@ -64,7 +64,7 @@ module hawkularRest {
 
       factory.GaugeMetric = $resource(url + '/gauges');
 
-      factory.GaugeMetric = $resource(url + '/gauges/:gaugeId/data', {
+      factory.GaugeMetricData = $resource(url + '/gauges/:gaugeId/data', {
         gaugeId: '@gaugeId'
       }, {
         queryMetrics: {
@@ -91,11 +91,11 @@ module hawkularRest {
       factory.AvailabilityMetricMultiple = $resource(url + '/availability/data');
 
       factory.configureTenantId = function(tenantId) {
-       $httpProvider.defaults.headers.common['Hawkular-Tenant'] = tenantId;
+       $http.defaults.headers.common['Hawkular-Tenant'] = tenantId;
       };
 
       return factory;
     }];
 
-  }]);
+  });
 }
