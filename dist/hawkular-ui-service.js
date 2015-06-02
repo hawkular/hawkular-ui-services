@@ -249,7 +249,7 @@ var hawkularRest;
 
 var hawkularRest;
 (function (hawkularRest) {
-    hawkularRest._module.provider('HawkularMetric', ['$httpProvider', function ($httpProvider) {
+    hawkularRest._module.provider('HawkularMetric', function () {
         this.setHost = function (host) {
             this.host = host;
             return this;
@@ -258,7 +258,7 @@ var hawkularRest;
             this.port = port;
             return this;
         };
-        this.$get = ['$resource', '$location', function ($resource, $location) {
+        this.$get = ['$resource', '$location', '$http', function ($resource, $location, $http) {
             this.setHost(this.host || $location.host() || 'localhost');
             this.setPort(this.port || $location.port() || 8080);
             var prefix = 'http://' + this.host + ':' + this.port;
@@ -267,19 +267,19 @@ var hawkularRest;
             var factory = {};
             factory.Tenant = $resource(url + '/tenants', {});
             factory.Metric = $resource(url + '/', null, {
-                queryNum: {
+                queryGauges: {
                     method: 'GET',
                     isArray: true,
                     params: { type: 'gauge' }
                 },
-                queryAvail: {
+                queryAvailability: {
                     method: 'GET',
                     isArray: true,
                     params: { type: 'availability' }
                 }
             });
             factory.GaugeMetric = $resource(url + '/gauges');
-            factory.GaugeMetric = $resource(url + '/gauges/:gaugeId/data', {
+            factory.GaugeMetricData = $resource(url + '/gauges/:gaugeId/data', {
                 gaugeId: '@gaugeId'
             }, {
                 queryMetrics: {
@@ -301,9 +301,9 @@ var hawkularRest;
             });
             factory.AvailabilityMetricMultiple = $resource(url + '/availability/data');
             factory.configureTenantId = function (tenantId) {
-                $httpProvider.defaults.headers.common['Hawkular-Tenant'] = tenantId;
+                $http.defaults.headers.common['Hawkular-Tenant'] = tenantId;
             };
             return factory;
         }];
-    }]);
+    });
 })(hawkularRest || (hawkularRest = {}));

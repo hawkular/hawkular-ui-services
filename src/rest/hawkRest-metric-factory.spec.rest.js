@@ -176,7 +176,7 @@ describe('Provider: Hawkular live REST', function() {
 
         debug && dump('querying numeric metric..');
         HawkularMetric.configureTenantId(tenantId1);
-        result = HawkularMetric.Metric.queryNum();
+        result = HawkularMetric.Metric.queryGauges();
         httpReal.submit();
 
         result.$promise.then(function(){
@@ -208,7 +208,7 @@ describe('Provider: Hawkular live REST', function() {
 
         debug && dump('creating numeric metric data..', data);
         HawkularMetric.configureTenantId(tenantId1);
-        result = HawkularMetric.NumericMetricData.save({ gaugeId: metricId }, data);
+        result = HawkularMetric.GaugeMetricData.save({ gaugeId: metricId }, data);
         httpReal.submit();
 
         result.$promise.then(function(){
