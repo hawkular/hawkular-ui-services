@@ -51,6 +51,10 @@ module hawkularRest {
         reload: {
           method: 'GET',
           url: prefix + '/hawkular/alerts/reload'
+        },
+        resolve: {
+          method: 'PUT',
+          url: prefix + '/hawkular/alerts/resolve'
         }
       });
 
