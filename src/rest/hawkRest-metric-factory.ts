@@ -35,8 +35,7 @@ module hawkularRest {
       return this;
     };
 
-    this.$get = ['$resource', '$location', '$http', function($resource, $location, $http) {
-
+    this.$get = ['$resource', '$location', '$http', function($resource, $location) {
       // If available, used pre-configured values, otherwise use values from current browser location of fallback to
       // defaults
       this.setHost(this.host || $location.host() || 'localhost');
@@ -49,49 +48,141 @@ module hawkularRest {
 
       factory.Tenant = $resource(url + '/tenants', {});
 
-      factory.Metric = $resource(url + '/', null, {
-        queryGauges: {
-          method: 'GET',
-          isArray: true,
-          params: { type: 'gauge' }
-        },
-        queryAvailability: {
-          method: 'GET',
-          isArray: true,
-          params: { type: 'availability' }
-        }
-      });
+      factory.Metric = function(tenantId) {
+        return $resource(url + '/metrics', null, {
+          queryGauges: {
+            method: 'GET',
+            isArray: true,
+            params: { type: 'gauge' },
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          queryAvailability: {
+            method: 'GET',
+            isArray: true,
+            params: { type: 'availability' },
+            headers: {'Hawkular-Tenant': tenantId}
+          }
+        });
+      };
 
-      factory.GaugeMetric = $resource(url + '/gauges');
+      factory.GaugeMetric = function(tenantId){
+        return $resource(url + '/gauges', null, {
+          get: {
+            method:'GET',
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          query: {
+            method:'GET',
+            isArray:true,
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          save: {
+            method:'POST',
+            headers: {'Hawkular-Tenant': tenantId}
+          }
+        });
+      };
 
-      factory.GaugeMetricData = $resource(url + '/gauges/:gaugeId/data', {
-        gaugeId: '@gaugeId'
-      }, {
-        queryMetrics: {
-          method: 'GET',
-          isArray: true
-        },
-        queryMetricsTimeRange: {
-          method: 'GET',
-          isArray: true,
-          params: {buckets: 60, start: '@startTimestamp', end: '@endTimestamp'}
-        }
-      });
+      factory.GaugeMetricData = function(tenantId) {
+        return $resource(url + '/gauges/:gaugeId/data', {
+          gaugeId: '@gaugeId'
+        }, {
+          queryMetrics: {
+            method: 'GET',
+            isArray: true,
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          queryMetricsTimeRange: {
+            method: 'GET',
+            isArray: true,
+            params: {buckets: 60, start: '@startTimestamp', end: '@endTimestamp'},
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          get: {
+            method:'GET',
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          save: {
+            method:'POST',
+            headers: {'Hawkular-Tenant': tenantId}
+          }
+        });
+      };
 
-      factory.GaugeMetricMultiple = $resource(url + '/gauges/data', {
-        gaugeId : '@gaugeId'
-      });
+      factory.GaugeMetricMultiple = function(tenantId) {
+        return $resource(url + '/gauges/data', {
+          gaugeId : '@gaugeId'
+        }, {
+          get: {
+            method:'GET',
+            headers: {'Hawkular-Tenant': tenantId}
+            ,
+            query: {
+              method:'GET',
+              isArray:true,
+              headers: {'Hawkular-Tenant': tenantId}
+            }},
+          save: {
+            method:'POST',
+            headers: {'Hawkular-Tenant': tenantId}
+          }
+        });
+      };
 
-      factory.AvailabilityMetric = $resource(url + '/availability');
+      factory.AvailabilityMetric = function(tenantId) {
+        return $resource(url + '/availability', null, {
+          get: {
+            method:'GET',
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          query: {
+            method:'GET',
+            isArray:true,
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          save: {
+            method:'POST',
+            headers: {'Hawkular-Tenant': tenantId}
+          }
+        });
+      };
 
-      factory.AvailabilityMetricData = $resource(url + '/availability/:availabilityId/data', {
-        availabilityId : '@availabilityId'
-      });
+      factory.AvailabilityMetricData = function(tenantId) {
+        return $resource(url + '/availability/:availabilityId/data', {
+          availabilityId : '@availabilityId'
+        }, {
+          get: {
+            method:'GET',
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          query: {
+            method:'GET',
+            isArray:true,
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          save: {
+            method:'POST',
+            headers: {'Hawkular-Tenant': tenantId}
+          }
+        });
+      };
 
-      factory.AvailabilityMetricMultiple = $resource(url + '/availability/data');
-
-      factory.configureTenantId = function(tenantId) {
-       $http.defaults.headers.common['Hawkular-Tenant'] = tenantId;
+      factory.AvailabilityMetricMultiple = function(tenantId) {
+        return $resource(url + '/availability/data', null, {
+          get: {
+            method:'GET',
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          query: {
+            method:'GET',
+            isArray:true,
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          save: {
+            method:'POST',
+            headers: {'Hawkular-Tenant': tenantId}
+          }
+        });
       };
 
       return factory;

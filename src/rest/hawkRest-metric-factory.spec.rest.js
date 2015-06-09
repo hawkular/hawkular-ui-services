@@ -42,7 +42,6 @@ describe('Provider: Hawkular live REST', function() {
         };
 
         debug && dump('creating tenant..', tenant);
-        //HawkularMetric.configureTenantId(tenantId1);
         result = HawkularMetric.Tenant.save(tenant);
         httpReal.submit();
 
@@ -59,7 +58,7 @@ describe('Provider: Hawkular live REST', function() {
       });
     });
 
-    describe('getting a tenant', function() {
+    describe('querying tenants', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
@@ -110,7 +109,7 @@ describe('Provider: Hawkular live REST', function() {
       });
     });
 
-    describe('getting a tenant', function() {
+    describe('querying tenants', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
@@ -140,7 +139,7 @@ describe('Provider: Hawkular live REST', function() {
      Numeric
      */
 
-    describe('creating a numeric metric', function() {
+    describe('creating a gauge metric', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
@@ -150,9 +149,8 @@ describe('Provider: Hawkular live REST', function() {
           id: metricId
         };
 
-        debug && dump('creating numeric metric..', metric);
-        HawkularMetric.configureTenantId(tenantId1);
-        result = HawkularMetric.GaugeMetric.save(metric);
+        debug && dump('creating gauge metric..', metric);
+        result = HawkularMetric.GaugeMetric(tenantId1).save(metric);
         httpReal.submit();
 
         result.$promise.then(function(){
@@ -168,15 +166,14 @@ describe('Provider: Hawkular live REST', function() {
       });
     });
 
-    describe('getting a numeric metric', function() {
+    describe('querying a gauge metric', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
 
-        debug && dump('querying numeric metric..');
-        HawkularMetric.configureTenantId(tenantId1);
-        result = HawkularMetric.Metric.queryGauges();
+        debug && dump('querying gauge metric..');
+        result = HawkularMetric.Metric(tenantId1).queryGauges();
         httpReal.submit();
 
         result.$promise.then(function(){
@@ -187,13 +184,13 @@ describe('Provider: Hawkular live REST', function() {
         });
       });
 
-      it('should get previously created tenant only', function() {
+      it('should get previously created gauge metrics only', function() {
         expect(result.$resolved).toBe(true);
         expect(arrayContainsField(result, 'id', metricId)).toBe(true);
       });
     });
 
-    describe('creating a numeric data for single metric', function() {
+    describe('creating a gauge metric data for single metric', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
@@ -206,9 +203,8 @@ describe('Provider: Hawkular live REST', function() {
         ];
 
 
-        debug && dump('creating numeric metric data..', data);
-        HawkularMetric.configureTenantId(tenantId1);
-        result = HawkularMetric.GaugeMetricData.save({ gaugeId: metricId }, data);
+        debug && dump('creating gauge metric data..', data);
+        result = HawkularMetric.GaugeMetricData(tenantId1).save({ gaugeId: metricId }, data);
         httpReal.submit();
 
         result.$promise.then(function(){
@@ -224,7 +220,7 @@ describe('Provider: Hawkular live REST', function() {
       });
     });
 
-    describe('creating data for multiple numeric metrics', function() {
+    describe('creating data for multiple gauge metrics', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
@@ -247,9 +243,8 @@ describe('Provider: Hawkular live REST', function() {
           }
         ];
 
-        debug && dump('creating numeric metric multiple data..', data);
-        HawkularMetric.configureTenantId(tenantId1);
-        result = HawkularMetric.NumericMetricMultiple.save(data);
+        debug && dump('creating gauge metric multiple data..', data);
+        result = HawkularMetric.GaugeMetricMultiple(tenantId1).save(data);
         httpReal.submit();
 
         result.$promise.then(function(){
@@ -284,8 +279,7 @@ describe('Provider: Hawkular live REST', function() {
         };
 
         debug && dump('creating availability metric..', metric);
-        HawkularMetric.configureTenantId(tenantId1);
-        result = HawkularMetric.AvailabilityMetric.save(null, metric);
+        result = HawkularMetric.AvailabilityMetric(tenantId1).save(null, metric);
         httpReal.submit();
 
         result.$promise.then(function(){
@@ -301,15 +295,14 @@ describe('Provider: Hawkular live REST', function() {
       });
     });
 
-    describe('getting a availability metric', function() {
+    describe('querying availability metrics', function() {
       var result;
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
 
         debug && dump('qyerying availability metric..');
-        HawkularMetric.configureTenantId(tenantId1);
-        result = HawkularMetric.Metric.queryAvail();
+        result = HawkularMetric.Metric(tenantId1).queryAvailability();
         httpReal.submit();
 
         result.$promise.then(function(){
@@ -338,8 +331,7 @@ describe('Provider: Hawkular live REST', function() {
         ];
 
         debug && dump('creating availability metric data..', data);
-        HawkularMetric.configureTenantId(tenantId1);
-        result = HawkularMetric.AvailabilityMetricData.save({ availabilityId: 'myavail' }, data);
+        result = HawkularMetric.AvailabilityMetricData(tenantId1).save({ availabilityId: 'myavail' }, data);
         httpReal.submit();
 
         result.$promise.then(function(){
@@ -379,8 +371,7 @@ describe('Provider: Hawkular live REST', function() {
         ];
 
         debug && dump('creating availability metric multiple data..', data);
-        HawkularMetric.configureTenantId(tenantId1);
-        result = HawkularMetric.AvailabilityMetricMultiple.save(data);
+        result = HawkularMetric.AvailabilityMetricMultiple(tenantId1).save(data);
         httpReal.submit();
 
         result.$promise.then(function(){
