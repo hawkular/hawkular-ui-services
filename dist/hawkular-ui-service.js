@@ -183,39 +183,75 @@ var hawkularRest;
             var inventoryUrlPart = '/hawkular/inventory';
             var url = prefix + inventoryUrlPart;
             var factory = {};
-            factory.Tenant = $resource(url + '/tenant/:tenantId', {
-                tenantId: '@tenantId'
-            }, {
+            factory.Tenant = $resource(url + '/tenant', {
                 put: {
                     method: 'PUT'
                 }
             });
-            factory.Environment = $resource(url + '/:tenantId/environments/:environmentId', {
+            factory.Environment = $resource(url + '/environments/:environmentId', {
                 id: '@environmentId'
             }, {
                 put: {
                     method: 'PUT'
+                },
+                relationships: {
+                    method: 'GET',
+                    url: url + '/environments/:environmentId/relationships'
                 }
             });
-            factory.Resource = $resource(url + '/:tenantId/:environmentId/resources/:resourceId', {
-                tenantId: '@tenantId',
+            factory.Feed = $resource(url + '/:environmentId/feeds/:feedId', {
+                id: '@feedId'
+            }, {
+                put: {
+                    method: 'PUT'
+                },
+                relationships: {
+                    method: 'GET',
+                    url: url + '/:environmentId/feeds/:feedId/relationships'
+                }
+            });
+            factory.Resource = $resource(url + '/:environmentId/resources/:resourceId', {
                 environmentId: '@environmentId',
                 resourceId: '@resourceId',
                 resourceTypeId: '@resourceTypeId'
+            }, {
+                relationships: {
+                    method: 'GET',
+                    url: url + '/:environmentId/resources/:resourceId/relationships'
+                }
             });
-            factory.ResourceType = $resource(url + '/:tenantId/resourceTypes/:resourceTypeId', {
+            factory.FeedResource = $resource(url + '/:environmentId/:feedId/resources/:resourceId', {
+                environmentId: '@environmentId',
+                feedId: '@feedId',
+                resourceId: '@resourceId',
+                resourceTypeId: '@resourceTypeId'
+            }, {
+                relationships: {
+                    method: 'GET',
+                    url: url + '/:environmentId/:feedId/resources/:resourceId/relationships'
+                }
+            });
+            factory.ResourceType = $resource(url + '/resourceTypes/:resourceTypeId', {
                 id: '@resourceTypeId',
                 version: '1.0'
+            }, {
+                relationships: {
+                    method: 'GET',
+                    url: url + '/resourceTypes/:resourceTypeId/relationships'
+                }
             });
-            factory.MetricType = $resource(url + '/:tenantId/metricTypes/:metricTypeId', {
+            factory.MetricType = $resource(url + '/metricTypes/:metricTypeId', {
                 id: '@metricTypeId'
             }, {
                 put: {
                     method: 'PUT'
+                },
+                relationships: {
+                    method: 'GET',
+                    url: url + '/metricTypes/:metricTypeId/relationships'
                 }
             });
-            factory.ResourceMetric = $resource(url + '/:tenantId/:environmentId/resources/:resourceId/metrics/:metricId', {
-                tenantId: '@tenantId',
+            factory.ResourceMetric = $resource(url + '/:environmentId/resources/:resourceId/metrics/:metricId', {
                 environmentId: '@environmentId',
                 resourceId: '@resourceId',
                 metricId: '@metricId'
@@ -224,22 +260,41 @@ var hawkularRest;
                     method: 'PUT'
                 }
             });
-            factory.ResourceMetricType = $resource(url + '/:tenantId/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId', {
-                tenantId: '@tenantId',
+            factory.ResourceMetricType = $resource(url + '/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId', {
                 resourceTypeId: '@resourceTypeId',
                 metricTypeId: '@metricTypeId'
+            }, {
+                relationships: {
+                    method: 'GET',
+                    url: url + '/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId/relationships'
+                }
             });
-            factory.ResourceOfType = $resource(url + '/:tenantId/resourceTypes/:resourceTypeId/resources', {
-                tenantId: '@tenantId',
+            factory.ResourceOfType = $resource(url + '/resourceTypes/:resourceTypeId/resources', {
                 resourceTypeId: '@resourceTypeId'
             });
-            factory.Metric = $resource(url + '/:tenantId/:environmentId/metrics/:metricId', {
-                tenantId: '@tenantId',
+            factory.Metric = $resource(url + '/:environmentId/metrics/:metricId', {
                 environmentId: '@environmentId',
                 id: '@metricId'
             }, {
                 put: {
                     method: 'PUT'
+                },
+                relationships: {
+                    method: 'GET',
+                    url: url + '/:environmentId/metrics/:metricId/relationships'
+                }
+            });
+            factory.FeedMetric = $resource(url + '/:environmentId/:feedId/metrics/:metricId', {
+                environmentId: '@environmentId',
+                feedId: '@feedId',
+                id: '@metricId'
+            }, {
+                put: {
+                    method: 'PUT'
+                },
+                relationships: {
+                    method: 'GET',
+                    url: url + '/:environmentId/:feedId/metrics/:metricId/relationships'
                 }
             });
             return factory;
