@@ -7,7 +7,7 @@ describe('Provider: Hawkular live REST', function() {
   var httpReal;
   var $http;
 
-  var debug = true;
+  var debug = false;
   var suffix = '-test-' + new Date().getTime();
   var tId;
   var typeId = 'type' + suffix;
@@ -78,11 +78,14 @@ describe('Provider: Hawkular live REST', function() {
           id: rId,
           resourceTypeId: typeId
         };
-
+        
+        var deleteTenant = function() {
+          debug && dump('deleting auto-created tenant..');
+          return HawkularInventory.Tenant.delete({}).$promise;
+        };
         var getTenant = function() {
-          debug && dump('retrieving tenant..');
-          //curl 'http://jdoe:password@localhost:8080/hawkular/inventory/tenant'
-          return HawkularInventory.Tenant.query().$promise;
+          debug && dump('retrieving auto-created tenant..');
+          return HawkularInventory.Tenant.get({}).$promise;
         };
         var createEnv = function() {
           debug && dump('creating environment..', environment);
@@ -105,7 +108,8 @@ describe('Provider: Hawkular live REST', function() {
           resolved = true;
         };
 
-        result = getTenant()
+        result = deleteTenant()
+        .then(getTenant())
         .then(function(tenant) {
           tId = tenant.id;
           createEnv();
@@ -363,7 +367,7 @@ describe('Provider: Hawkular live REST', function() {
         var environment = {
           id: eId + 2
         };
-        debug && dump('creating environment ' + mId2 + '..');
+        debug && dump('creating environment ' + eId + 2 + '..');
         result = HawkularInventory.Environment.save({}, environment);
         restResolve(result, done);
       });
@@ -383,9 +387,10 @@ describe('Provider: Hawkular live REST', function() {
         restResolve(result, done);
       });
 
-      it('there should be 2 of them', function() {
+      it('there should be 3 of them', function() {
+        // 2 manually created + 1 auto created
         expect(result.$resolved).toBeTruthy();
-        expect(result.length).toEqual(2);
+        expect(result.length).toEqual(3);
       });
     });
 
@@ -413,9 +418,9 @@ describe('Provider: Hawkular live REST', function() {
         restResolve(result, done);
       });
 
-      it('there should be still one left', function() {
+      it('there should be still two left', function() {
         expect(result.$resolved).toBeTruthy();
-        expect(result.length).toEqual(1);
+        expect(result.length).toEqual(2);
       });
     });
 
@@ -459,9 +464,9 @@ describe('Provider: Hawkular live REST', function() {
         restResolve(result, done);
       });
 
-      it('there should be no environments in non-existent tenant', function() {
+      it('there should be one predefined environment in the auto-created tenant', function() {
         expect(result.$resolved).toBeTruthy();
-        expect(result.length).toEqual(0);
+        expect(result.length).toEqual(1);
       });
     });
 
@@ -474,7 +479,7 @@ describe('Provider: Hawkular live REST', function() {
         restResolve(result, done);
       });
 
-      it('there should be no resources in non-existent tenant', function() {
+      it('there should be no resources in it', function() {
         expect(result.$resolved).toBeTruthy();
         expect(result.length).toEqual(0);
       });
