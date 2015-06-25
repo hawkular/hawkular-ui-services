@@ -78,23 +78,26 @@ describe('Provider: Hawkular live REST', function() {
           id: rId,
           resourceTypeId: typeId
         };
-
+        
+        var deleteTenant = function() {
+          debug && dump('deleting auto-created tenant..');
+          return HawkularInventory.Tenant.delete({}).$promise;
+        };
         var getTenant = function() {
-          debug && dump('retrieving tenant..');
-          //curl 'http://jdoe:password@localhost:8080/hawkular/inventory/tenant'
-          return HawkularInventory.Tenant.query().$promise;
+          debug && dump('retrieving auto-created tenant..');
+          return HawkularInventory.Tenant.get({}).$promise;
         };
         var createEnv = function() {
           debug && dump('creating environment..', environment);
-          return HawkularInventory.Environment.save({tenantId: tId}, environment).$promise;
+          return HawkularInventory.Environment.save({}, environment).$promise;
         };
         var createResourceType = function() {
           debug && dump('creating resource type..', resourceType);
-          return HawkularInventory.ResourceType.save({tenantId: tId}, resourceType).$promise;
+          return HawkularInventory.ResourceType.save({}, resourceType).$promise;
         };
         var createResource = function() {
           debug && dump('creating resource' + rId + '..');
-          return HawkularInventory.Resource.save({tenantId: tId, environmentId: eId}, resource).$promise;
+          return HawkularInventory.Resource.save({environmentId: eId}, resource).$promise;
         };
         var err = function(fault) {
           debug && dump('call failed with: ' + JSON.stringify(fault));
@@ -105,7 +108,8 @@ describe('Provider: Hawkular live REST', function() {
           resolved = true;
         };
 
-        result = getTenant()
+        result = deleteTenant()
+        .then(getTenant())
         .then(function(tenant) {
           tId = tenant.id;
           createEnv();
@@ -127,7 +131,7 @@ describe('Provider: Hawkular live REST', function() {
 
       beforeEach(function(done) {
         debug && dump('querying resource ' + rId + '..');
-        result = HawkularInventory.Resource.query({tenantId: tId, environmentId: eId});
+        result = HawkularInventory.Resource.query({environmentId: eId});
         restResolve(result, done);
       });
       it('should get previously created resource', function() {
@@ -147,7 +151,7 @@ describe('Provider: Hawkular live REST', function() {
           resourceTypeId: typeId
         };
         debug && dump('creating resource ' + rId2 + '..');
-        result = HawkularInventory.Resource.save({tenantId: tId, environmentId: eId}, resource);
+        result = HawkularInventory.Resource.save({environmentId: eId}, resource);
         restResolve(result, done);
       });
 
@@ -161,7 +165,7 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Resource.query({tenantId: tId, environmentId: eId});
+        result = HawkularInventory.Resource.query({environmentId: eId});
         restResolve(result, done);
       });
 
@@ -176,7 +180,7 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Resource.get({tenantId: tId, environmentId: eId, resourceId: rId2});
+        result = HawkularInventory.Resource.get({environmentId: eId, resourceId: rId2});
         restResolve(result, done);
       });
 
@@ -192,7 +196,7 @@ describe('Provider: Hawkular live REST', function() {
 
       beforeEach(function(done) {
         debug && dump('deleting resource ' + rId2 + '..');
-        result = HawkularInventory.Resource.delete({tenantId: tId, environmentId: eId, resourceId: rId2});
+        result = HawkularInventory.Resource.delete({environmentId: eId, resourceId: rId2});
         restResolve(result, done);
       });
 
@@ -206,7 +210,7 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Resource.query({tenantId: tId, environmentId: eId});
+        result = HawkularInventory.Resource.query({environmentId: eId});
         restResolve(result, done);
       });
 
@@ -227,7 +231,7 @@ describe('Provider: Hawkular live REST', function() {
         };
 
         debug && dump('creating resource ' + rId3 + '..');
-        result = HawkularInventory.Resource.save({tenantId: tId, environmentId: eId}, resource);
+        result = HawkularInventory.Resource.save({environmentId: eId}, resource);
         restResolve(result, done);
       });
 
@@ -256,15 +260,15 @@ describe('Provider: Hawkular live REST', function() {
 
         var createMetricType = function() {
           debug && dump('creating metric type ' + mtId + '..');
-          return HawkularInventory.MetricType.save({tenantId: tId}, metricType).$promise;
+          return HawkularInventory.MetricType.save({}, metricType).$promise;
         };
         var createMetric = function() {
           debug && dump('creating metric ' + mId1 + '..');
-          return HawkularInventory.Metric.save({tenantId: tId, environmentId: eId}, metric).$promise;
+          return HawkularInventory.Metric.save({environmentId: eId}, metric).$promise;
         };
         var associateMetric = function() {
           debug && dump('associating metric ' + mId1 + ' with resource ' + rId3 + '..');
-          return HawkularInventory.ResourceMetric.save({tenantId: tId, environmentId: eId, resourceId: rId3}, [mId1]).$promise;
+          return HawkularInventory.ResourceMetric.save({environmentId: eId, resourceId: rId3}, [mId1]).$promise;
         };
         var err = function(fault) {
           debug && dump('call failed with: ' + JSON.stringify(fault));
@@ -289,7 +293,7 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.ResourceMetric.query({tenantId: tId, environmentId: eId, resourceId: rId3});
+        result = HawkularInventory.ResourceMetric.query({environmentId: eId, resourceId: rId3});
         restResolve(result, done);
       });
 
@@ -305,7 +309,7 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Metric.get({tenantId: tId, environmentId: eId, metricId: mId1});
+        result = HawkularInventory.Metric.get({environmentId: eId, metricId: mId1});
         restResolve(result, done);
       });
 
@@ -326,7 +330,7 @@ describe('Provider: Hawkular live REST', function() {
           metricTypeId: mtId
         };
         debug && dump('creating metric ' + mId2 + '..');
-        result = HawkularInventory.Metric.save({tenantId: tId, environmentId: eId}, metric);
+        result = HawkularInventory.Metric.save({environmentId: eId}, metric);
         restResolve(result, done);
       });
 
@@ -340,7 +344,7 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Metric.get({tenantId: tId, environmentId: eId, metricId: mId2});
+        result = HawkularInventory.Metric.get({environmentId: eId, metricId: mId2});
         restResolve(result, done);
       });
 
@@ -363,8 +367,8 @@ describe('Provider: Hawkular live REST', function() {
         var environment = {
           id: eId + 2
         };
-        debug && dump('creating environment ' + mId2 + '..');
-        result = HawkularInventory.Environment.save({tenantId: tId}, environment);
+        debug && dump('creating environment ' + eId + 2 + '..');
+        result = HawkularInventory.Environment.save({}, environment);
         restResolve(result, done);
       });
 
@@ -379,13 +383,14 @@ describe('Provider: Hawkular live REST', function() {
 
       beforeEach(function(done) {
         debug && dump('creating metric ' + mId2 + '..');
-        result = HawkularInventory.Environment.query({tenantId: tId});
+        result = HawkularInventory.Environment.query({});
         restResolve(result, done);
       });
 
-      it('there should be 2 of them', function() {
+      it('there should be 3 of them', function() {
+        // 2 manually created + 1 auto created
         expect(result.$resolved).toBeTruthy();
-        expect(result.length).toEqual(2);
+        expect(result.length).toEqual(3);
       });
     });
 
@@ -395,7 +400,7 @@ describe('Provider: Hawkular live REST', function() {
 
       beforeEach(function(done) {
         debug && dump('deleting environment ' + eId + '..');
-        result = HawkularInventory.Environment.delete({tenantId: tId, environmentId: eId});
+        result = HawkularInventory.Environment.delete({environmentId: eId});
         restResolve(result, done);
       });
 
@@ -409,13 +414,13 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Environment.query({tenantId: tId});
+        result = HawkularInventory.Environment.query({});
         restResolve(result, done);
       });
 
-      it('there should be still one left', function() {
+      it('there should be still two left', function() {
         expect(result.$resolved).toBeTruthy();
-        expect(result.length).toEqual(1);
+        expect(result.length).toEqual(2);
       });
     });
 
@@ -424,7 +429,7 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Resource.query({tenantId: tId, environmentId: eId});
+        result = HawkularInventory.Resource.query({environmentId: eId});
         restResolve(result, done);
       });
 
@@ -441,7 +446,7 @@ describe('Provider: Hawkular live REST', function() {
 
       beforeEach(function(done) {
         debug && dump('deleting tenant ' + tId + '..');
-        result = HawkularInventory.Tenant.delete({tenantId: tId});
+        result = HawkularInventory.Tenant.delete({});
         restResolve(result, done);
       });
 
@@ -455,13 +460,13 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Environment.query({tenantId: tId});
+        result = HawkularInventory.Environment.query({});
         restResolve(result, done);
       });
 
-      it('there should be no environments in non-existent tenant', function() {
+      it('there should be one predefined environment in the auto-created tenant', function() {
         expect(result.$resolved).toBeTruthy();
-        expect(result.length).toEqual(0);
+        expect(result.length).toEqual(1);
       });
     });
 
@@ -470,11 +475,11 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Resource.query({tenantId: tId, environmentId: eId});
+        result = HawkularInventory.Resource.query({environmentId: eId});
         restResolve(result, done);
       });
 
-      it('there should be no resources in non-existent tenant', function() {
+      it('there should be no resources in it', function() {
         expect(result.$resolved).toBeTruthy();
         expect(result.length).toEqual(0);
       });
