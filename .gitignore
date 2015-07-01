@@ -2,5 +2,15 @@ node_modules/
 lib/
 .sass-cache/
 .tmp/
-.idea/
 .bower/
+
+# Idea
+.idea/
+*.ipr
+*.iws
+*.iml
+
+# Eclipse
+.project
+.classpath
+.settings
