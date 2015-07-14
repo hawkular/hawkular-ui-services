@@ -71,14 +71,13 @@ describe('Provider: Hawkular live REST', function() {
           id: eId
         };
         var resourceType = {
-          id: typeId,
-          version: '1.0'
+          id: typeId
         };
         var resource = {
           id: rId,
           resourceTypeId: typeId
         };
-        
+
         var deleteTenant = function() {
           debug && dump('deleting auto-created tenant..');
           return HawkularInventory.Tenant.delete({}).$promise;

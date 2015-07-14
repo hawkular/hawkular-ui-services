@@ -232,8 +232,7 @@ var hawkularRest;
                 }
             });
             factory.ResourceType = $resource(url + '/resourceTypes/:resourceTypeId', {
-                id: '@resourceTypeId',
-                version: '1.0'
+                id: '@resourceTypeId'
             }, {
                 relationships: {
                     method: 'GET',
