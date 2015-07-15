@@ -54,10 +54,6 @@ describe('Provider: Hawkular live REST', function() {
     // it assumes we are running the tests against the hawkular built with -Pdev profile
     // 'amRvZTpwYXNzd29yZA==' ~ jdoe:password in base64
     $http.defaults.headers.common['Authorization'] = 'Basic amRvZTpwYXNzd29yZA==';
-
-    // current rest implementation doesn't allow for different origins (despite the fact the
-    // 'Access-Control-Allow-Origin: *' header is set)
-    // $http.defaults.headers.common['Origin'] = 'http://127.0.0.1:8080';
   }));
 
   describe('Resources: ', function() {
@@ -75,7 +71,7 @@ describe('Provider: Hawkular live REST', function() {
         };
         var resource = {
           id: rId,
-          resourceTypeId: typeId
+          resourceTypePath: '/' + typeId
         };
 
         var deleteTenant = function() {
@@ -147,7 +143,7 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
         var resource = {
           id: rId2,
-          resourceTypeId: typeId
+          resourceTypePath: '/' + typeId
         };
         debug && dump('creating resource ' + rId2 + '..');
         result = HawkularInventory.Resource.save({environmentId: eId}, resource);
@@ -226,7 +222,7 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
         var resource = {
           id: rId3,
-          resourceTypeId: typeId
+          resourceTypePath: '/' + typeId
         };
 
         debug && dump('creating resource ' + rId3 + '..');
@@ -254,7 +250,7 @@ describe('Provider: Hawkular live REST', function() {
         };
         var metric = {
           id: mId1,
-          metricTypeId: mtId
+          metricTypePath: '../' + mtId
         };
 
         var createMetricType = function() {
@@ -267,7 +263,7 @@ describe('Provider: Hawkular live REST', function() {
         };
         var associateMetric = function() {
           debug && dump('associating metric ' + mId1 + ' with resource ' + rId3 + '..');
-          return HawkularInventory.ResourceMetric.save({environmentId: eId, resourceId: rId3}, [mId1]).$promise;
+          return HawkularInventory.ResourceMetric.save({environmentId: eId, resourceId: rId3}, ['../' + mId1]).$promise;
         };
         var err = function(fault) {
           debug && dump('call failed with: ' + JSON.stringify(fault));
@@ -326,7 +322,7 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
         var metric = {
           id: mId2,
-          metricTypeId: mtId
+          metricTypePath: '../' + mtId
         };
         debug && dump('creating metric ' + mId2 + '..');
         result = HawkularInventory.Metric.save({environmentId: eId}, metric);
@@ -454,20 +450,20 @@ describe('Provider: Hawkular live REST', function() {
       });
     });
 
-    describe('after deleting the tenant', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+    // describe('after deleting the tenant', function() {
+    //   var result;
+    //   jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
-      beforeEach(function(done) {
-        result = HawkularInventory.Environment.query({});
-        restResolve(result, done);
-      });
+    //   beforeEach(function(done) {
+    //     result = HawkularInventory.Environment.query({});
+    //     restResolve(result, done);
+    //   });
 
-      it('there should be one predefined environment in the auto-created tenant', function() {
-        expect(result.$resolved).toBeTruthy();
-        expect(result.length).toEqual(1);
-      });
-    });
+    //   it('there should be one predefined environment in the auto-created tenant', function() {
+    //     expect(result.$resolved).toBeTruthy();
+    //     expect(result.length).toEqual(1);
+    //   });
+    // });
 
     describe('after deleting the tenant', function() {
       var result;
