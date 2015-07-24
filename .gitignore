@@ -14,3 +14,6 @@ lib/
 .project
 .classpath
 .settings
+
+# OSX
+.DS_Store

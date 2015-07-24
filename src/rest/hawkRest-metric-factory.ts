@@ -56,6 +56,12 @@ module hawkularRest {
             params: { type: 'gauge' },
             headers: {'Hawkular-Tenant': tenantId}
           },
+          queryCounters: {
+            method: 'GET',
+            isArray: true,
+            params: { type: 'counter' },
+            headers: {'Hawkular-Tenant': tenantId}
+          },
           queryAvailability: {
             method: 'GET',
             isArray: true,
@@ -112,6 +118,70 @@ module hawkularRest {
       factory.GaugeMetricMultiple = function(tenantId) {
         return $resource(url + '/gauges/data', {
           gaugeId : '@gaugeId'
+        }, {
+          get: {
+            method:'GET',
+            headers: {'Hawkular-Tenant': tenantId}
+            ,
+            query: {
+              method:'GET',
+              isArray:true,
+              headers: {'Hawkular-Tenant': tenantId}
+            }},
+          save: {
+            method:'POST',
+            headers: {'Hawkular-Tenant': tenantId}
+          }
+        });
+      };
+
+      factory.CounterMetric = function(tenantId){
+        return $resource(url + '/counters', null, {
+          get: {
+            method:'GET',
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          query: {
+            method:'GET',
+            isArray:true,
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          save: {
+            method:'POST',
+            headers: {'Hawkular-Tenant': tenantId}
+          }
+        });
+      };
+
+      factory.CounterMetricData = function(tenantId) {
+        return $resource(url + '/counters/:counterId/data', {
+          counterId: '@counterId'
+        }, {
+          queryMetrics: {
+            method: 'GET',
+            isArray: true,
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          queryMetricsTimeRange: {
+            method: 'GET',
+            isArray: true,
+            params: {buckets: 60, start: '@startTimestamp', end: '@endTimestamp'},
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          get: {
+            method:'GET',
+            headers: {'Hawkular-Tenant': tenantId}
+          },
+          save: {
+            method:'POST',
+            headers: {'Hawkular-Tenant': tenantId}
+          }
+        });
+      };
+
+      factory.CounterMetricMultiple = function(tenantId) {
+        return $resource(url + '/counters/data', {
+          counterId : '@counterId'
         }, {
           get: {
             method:'GET',
