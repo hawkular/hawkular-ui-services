@@ -8,6 +8,7 @@ describe('Provider: Hawkular live REST', function() {
   var tenantId1 = 'com.acme.sk' + suffix;
   var tenantId2 = 'com.acme.sk2' + suffix;
   var metricId = 'mymetric' + suffix;
+  var counterId = 'mycounter' + suffix;
 
   var arrayContainsField = function(array, field, value) {
     for (var i = 0; i < array.length; i++) {
@@ -261,6 +262,131 @@ describe('Provider: Hawkular live REST', function() {
     });
 
     /*
+     Counter
+     */
+
+    describe('creating a counter metric', function() {
+      var result;
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+      beforeEach(function(done) {
+
+        var metric = {
+          id: counterId
+        };
+
+        debug && dump('creating counter metric..', metric);
+        result = HawkularMetric.CounterMetric(tenantId1).save(metric);
+        httpReal.submit();
+
+        result.$promise.then(function(){
+        }, function(error){
+          fail(errorFn(error));
+        }).finally(function(){
+          done();
+        });
+      });
+
+      it('should resolve', function() {
+        expect(result.$resolved).toEqual(true);
+      });
+    });
+
+    describe('querying a gauge metric', function() {
+      var result;
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+      beforeEach(function(done) {
+
+        debug && dump('querying counter metric..');
+        result = HawkularMetric.Metric(tenantId1).queryCounters();
+        httpReal.submit();
+
+        result.$promise.then(function(){
+        }, function(error){
+          fail(errorFn(error));
+        }).finally(function(){
+          done();
+        });
+      });
+
+      it('should get previously created counter metrics only', function() {
+        expect(result.$resolved).toBe(true);
+        expect(arrayContainsField(result, 'id', counterId)).toBe(true);
+      });
+    });
+
+    describe('creating a counter metric data for single metric', function() {
+      var result;
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+      beforeEach(function(done) {
+
+        var data = [
+          {"timestamp": 1437751962019, "value": 21.0},
+          {"timestamp": 1456857688195, "value": 22.5},
+          {"timestamp": 1476857688195, "value": 23.9}
+        ];
+
+
+        debug && dump('creating counter metric data..', data);
+        result = HawkularMetric.CounterMetricData(tenantId1).save({ counterId: counterId }, data);
+        httpReal.submit();
+
+        result.$promise.then(function(){
+        }, function(error){
+          fail(errorFn(error));
+        }).finally(function(){
+          done();
+        });
+      });
+
+      it('should resolve', function() {
+        expect(result.$resolved).toEqual(true);
+      });
+    });
+
+    describe('creating data for multiple counter metrics', function() {
+      var result;
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+      beforeEach(function(done) {
+
+        var data = [
+          {
+            "id": "appsrv1.request_time",
+            "data": [
+              {"timestamp": 1437751962019, "value": 21.0},
+              {"timestamp": 1457751962019, "value": 22.5}
+            ]
+          },
+          {
+            "id": "appsrv1.response_time",
+            "data": [
+              {"timestamp": 1437751962019, "value": 22.5},
+              {"timestamp": 1457751962019, "value": 23.9}
+            ]
+          }
+        ];
+
+        debug && dump('creating counter metric multiple data..', data);
+        result = HawkularMetric.CounterMetricMultiple(tenantId1).save(data);
+        httpReal.submit();
+
+        result.$promise.then(function(){
+        }, function(error){
+          fail(errorFn(error));
+        }).finally(function(){
+          done();
+        });
+      });
+
+      it('should resolve', function() {
+        expect(result.$resolved).toEqual(true);
+      });
+    });
+
+    /*
      Availability
      */
 
@@ -301,7 +427,7 @@ describe('Provider: Hawkular live REST', function() {
 
       beforeEach(function(done) {
 
-        debug && dump('qyerying availability metric..');
+        debug && dump('querying availability metric..');
         result = HawkularMetric.Metric(tenantId1).queryAvailability();
         httpReal.submit();
 
