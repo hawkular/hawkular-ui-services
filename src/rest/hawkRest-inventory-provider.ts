@@ -25,6 +25,11 @@ module hawkularRest {
 
   _module.provider('HawkularInventory', function() {
 
+    this.setProtocol = function(protocol) {
+      this.protocol = protocol;
+      return this;
+    };
+
     this.setHost = function(host) {
       this.host = host;
       return this;
@@ -39,10 +44,11 @@ module hawkularRest {
 
       // If available, used pre-configured values, otherwise use values from current browser location of fallback to
       // defaults
+      this.setProtocol(this.protocol || $location.protocol() || 'http');
       this.setHost(this.host || $location.host() || 'localhost');
       this.setPort(this.port || $location.port() || 8080);
 
-      var prefix = 'http://' + this.host + ':' + this.port;
+      var prefix = this.protocol + '://' + this.host + ':' + this.port;
       var inventoryUrlPart = '/hawkular/inventory';
       var url = prefix + inventoryUrlPart;
       var factory: any = {};

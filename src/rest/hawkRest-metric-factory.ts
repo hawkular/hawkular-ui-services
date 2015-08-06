@@ -25,6 +25,11 @@ module hawkularRest {
 
   _module.provider('HawkularMetric', function() {
 
+    this.setProtocol = function(protocol) {
+      this.protocol = protocol;
+      return this;
+    };
+
     this.setHost = function(host) {
       this.host = host;
       return this;
@@ -38,10 +43,11 @@ module hawkularRest {
     this.$get = ['$resource', '$location', '$http', function($resource, $location) {
       // If available, used pre-configured values, otherwise use values from current browser location of fallback to
       // defaults
+      this.setProtocol(this.protocol || $location.protocol() || 'http');
       this.setHost(this.host || $location.host() || 'localhost');
       this.setPort(this.port || $location.port() || 8080);
 
-      var prefix = 'http://' + this.host + ':' + this.port;
+      var prefix = this.protocol + '://' + this.host + ':' + this.port;
       var metricUrlPart = '/hawkular/metrics';
       var url = prefix + metricUrlPart;
       var factory: any = {};
