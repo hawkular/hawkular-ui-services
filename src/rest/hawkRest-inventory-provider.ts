@@ -81,97 +81,185 @@ module hawkularRest {
       var url = prefix + inventoryUrlPart;
       var factory: any = {};
 
+
+      // helper methods for making the code DRY
+      var relsActionFor = (url: String): Object => {
+        return {
+          method: 'GET',
+          url: url + '/relationships'
+        };
+      };
+
+      var createDataActions = (urlPrefix: String, defaultDataType: String): Object => {
+        var urlForData = urlPrefix + '/data';
+        return {
+          relationships: relsActionFor(urlPrefix),
+          getData: {
+            method: 'GET',
+            params: {dataType: defaultDataType},
+            url: urlForData
+          },
+          createData: {
+            method: 'POST',
+            url: urlForData
+          },
+          updateData: {
+            method: 'POST',
+            params: {dataType: defaultDataType},
+          url: urlForData
+          },
+          deleteData: {
+            method: 'DELETE',
+            params: {dataType: defaultDataType},
+            url: urlForData
+          }
+        };
+      };
+
+      var createResourceActions = (urlPrefix: String, defaultDataType: String): Object => {
+        var dataActions = createDataActions(urlPrefix, defaultDataType);
+        dataActions['getChildren'] = {
+          method: 'GET',
+          url: urlPrefix + '/children'
+        };
+        dataActions['getParents'] = {
+          method: 'GET',
+          url: urlPrefix + '/parents'
+        };
+        dataActions['getParent'] = {
+          method: 'GET',
+          url: urlPrefix + '/parent'
+        };
+        return dataActions;
+      };
+
+      // ngResources
+      // Often there are X and XUnderFeed variants, this is because of the fact that inventory
+      // allows to store the entities in the graph db either under the environment of under the feed
+      // that is also under the environment. In a way, entities under the feeds allow for finer grade
+      // structure, while things stored under environment are more suitable for things shared across
+      // multiple feeds (note: name must be unique within the parent node (feed/environment)).
+
+      // Tenants CRUD
       factory.Tenant = $resource(url + '/tenant', {
         put: {
           method: 'PUT'
         }
       });
 
-      factory.Environment = $resource(url + '/environments/:environmentId', null, {
+      // Environments CRUD
+      var environmentUrl = url + '/environments/:environmentId';
+      factory.Environment = $resource(environmentUrl, null, {
         put: {
           method: 'PUT'
         },
-        relationships: {
-          method: 'GET',
-          url: url + '/environments/:environmentId/relationships'
-        }
+        relationships: relsActionFor(environmentUrl)
       });
 
-      factory.Feed = $resource(url + '/:environmentId/feeds/:feedId', null, {
+      // Feeds CRUD
+      var feedUrl = url + '/:environmentId/feeds/:feedId';
+      factory.Feed = $resource(feedUrl, null, {
         put: {
           method: 'PUT'
         },
-        relationships: {
-          method: 'GET',
-          url: url + '/:environmentId/feeds/:feedId/relationships'
-        }
+        relationships: relsActionFor(feedUrl)
       });
 
-      factory.Resource = $resource(url + '/:environmentId/resources/:resourceId', null, {
-        relationships: {
-          method: 'GET',
-          url: url + '/:environmentId/resources/:resourceId/relationships'
-        }
-      });
+      // Resources CRUD
+      var resourceUrl = url + '/:environmentId/resources/:resourcePath';
+      factory.Resource = $resource(resourceUrl, null, createResourceActions(resourceUrl, 'configuration'));
 
-      factory.FeedResource = $resource(url + '/:environmentId/:feedId/resources/:resourceId', null, {
-        relationships: {
-          method: 'GET',
-          url: url + '/:environmentId/:feedId/resources/:resourceId/relationships'
-        }
-      });
+      // Resources located under the feed CRUD
+      var feedResourceUrl = url + '/:environmentId/:feedId/resources/:resourcePath';
+      factory.ResourceUnderFeed = $resource(feedResourceUrl, null,
+        createResourceActions(feedResourceUrl, 'configuration'));
 
-      factory.ResourceType = $resource(url + '/resourceTypes/:resourceTypeId', null, {
-        relationships: {
-          method: 'GET',
-          url: url + '/resourceTypes/:resourceTypeId/relationships'
-        }
-      });
+      // Resources Types
+      var resourceTypeUrl = url + '/resourceTypes/:resourceTypeId';
+      factory.ResourceType = $resource(resourceTypeUrl, null,
+        createDataActions(resourceTypeUrl, 'configurationSchema'));
 
-      factory.MetricType = $resource(url + '/metricTypes/:metricTypeId', null, {
+      var feedResourceTypeUrl = url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId';
+      factory.ResourceTypeUnderFeed = $resource(feedResourceTypeUrl, null,
+        createDataActions(feedResourceTypeUrl, 'configurationSchema'));
+
+      // Metric Types
+      var metricTypeUrl = url + '/metricTypes/:metricTypeId';
+      factory.MetricType = $resource(metricTypeUrl, null, {
         put: {
           method: 'PUT'
         },
-        relationships: {
-          method: 'GET',
-          url: url + '/metricTypes/:metricTypeId/relationships'
-        }
+        relationships: relsActionFor(metricTypeUrl)
       });
 
-      factory.ResourceMetric = $resource(url + '/:environmentId/resources/:resourceId/metrics/:metricId', null, {
+      var feedMetricTypeUrl = url + '/:environmentId/:feedId/metricTypes/:metricTypeId';
+      factory.MetricTypeUnderFeed = $resource(feedMetricTypeUrl, null, {
+        put: {
+          method: 'PUT'
+        },
+        relationships: relsActionFor(feedMetricTypeUrl)
+      });
+
+      // Metrics belonging to given resource
+      var resourceMetricUrl = url + '/:environmentId/resources/:resourceId/metrics/:metricId';
+      factory.MetricOfResource = $resource(resourceMetricUrl, null, {
         put: {
           method: 'PUT'
         }
       });
 
-      factory.ResourceMetricType = $resource(url + '/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId', null, {
-        relationships: {
-          method: 'GET',
-          url: url + '/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId/relationships'
+      var feedResourceMetricUrl = url + '/:environmentId/:feedId/resources/:resourceId/metrics/:metricId';
+      factory.MetricOfResourceUnderFeed = $resource(resourceMetricUrl, null, {
+        put: {
+          method: 'PUT'
         }
       });
 
+      // Metric types belonging to a given resource type
+      var metricTypeOfResourceTypeUrl = url + '/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId';
+      factory.MetricTypeOfResourceType = $resource(metricTypeOfResourceTypeUrl, null, {
+        relationships: relsActionFor(metricTypeOfResourceTypeUrl)
+      });
+
+      var feedMetricTypeOfResourceTypeUrl =
+        url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId';
+      factory.MetricTypeOfResourceTypeUnderFeed = $resource(feedMetricTypeOfResourceTypeUrl, null, {
+        relationships: relsActionFor(feedMetricTypeOfResourceTypeUrl)
+      });
+
+      // Resources of a given type
       factory.ResourceOfType = $resource(url + '/resourceTypes/:resourceTypeId/resources');
+      factory.ResourceOfTypeUnderFeed =
+        $resource(url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId/resources');
 
-      factory.Metric = $resource(url + '/:environmentId/metrics/:metricId', null, {
+      // Returns all the resources under the resource given by the :resourcePath respecting the resource hierarchy
+      // ?typeId=fooResourceType query param can be used
+      factory.ResourceRecursiveChildren = $resource(url + '/:environmentId/resources/:resourcePath/recursiveChildren');
+
+      // same as ^ but it's for the resources under the feed additional optional query param called 'feedlessType'
+      // can be used. It denotes whether to use the resource type located under the env (true) or not which is default
+      factory.ResourceRecursiveChildrenUnderFeed =
+      $resource(url + '/:environmentId/:feedId/resources/:resourcePath/recursiveChildren');
+
+      // Metrics      
+      var metricUrl = url + '/:environmentId/metrics/:metricId';
+      factory.Metric = $resource(metricUrl, null, {
         put: {
           method: 'PUT'
         },
-        relationships: {
-          method: 'GET',
-          url: url + '/:environmentId/metrics/:metricId/relationships'
-        }
+        relationships: relsActionFor(metricUrl)
       });
 
-      factory.FeedMetric = $resource(url + '/:environmentId/:feedId/metrics/:metricId', null, {
+      var feedMetricUrl = url + '/:environmentId/:feedId/metrics/:metricId';
+      factory.MetricUnderFeed = $resource(feedMetricUrl, null, {
         put: {
           method: 'PUT'
         },
-        relationships: {
-          method: 'GET',
-          url: url + '/:environmentId/:feedId/metrics/:metricId/relationships'
-        }
+        relationships: relsActionFor(feedMetricUrl)
       });
+
+      // Get whole graph (read-only)
+      factory.Graph = $resource(url + '/graph');
 
       return factory;
     }];
