@@ -58,6 +58,7 @@ module hawkularRest {
       var relsActionFor = (url: String): Object => {
         return {
           method: 'GET',
+          isArray: true,
           url: url + '/relationships'
         };
       };
@@ -76,7 +77,7 @@ module hawkularRest {
             url: urlForData
           },
           updateData: {
-            method: 'POST',
+            method: 'PUT',
             params: {dataType: defaultDataType},
           url: urlForData
           },
@@ -92,10 +93,12 @@ module hawkularRest {
         var dataActions = createDataActions(urlPrefix, defaultDataType);
         dataActions['getChildren'] = {
           method: 'GET',
+          isArray: true,
           url: urlPrefix + '/children'
         };
         dataActions['getParents'] = {
           method: 'GET',
+          isArray: true,
           url: urlPrefix + '/parents'
         };
         dataActions['getParent'] = {
@@ -173,14 +176,14 @@ module hawkularRest {
       });
 
       // Metrics belonging to given resource
-      var resourceMetricUrl = url + '/:environmentId/resources/:resourceId/metrics/:metricId';
+      var resourceMetricUrl = url + '/:environmentId/resources/:resourcePath/metrics/:metricId';
       factory.MetricOfResource = $resource(resourceMetricUrl, null, {
         put: {
           method: 'PUT'
         }
       });
 
-      var feedResourceMetricUrl = url + '/:environmentId/:feedId/resources/:resourceId/metrics/:metricId';
+      var feedResourceMetricUrl = url + '/:environmentId/:feedId/resources/:resourcePath/metrics/:metricId';
       factory.MetricOfResourceUnderFeed = $resource(resourceMetricUrl, null, {
         put: {
           method: 'PUT'
