@@ -246,7 +246,8 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
         var metricType = {
           id: mtId,
-          unit: 'SECONDS'
+          unit: 'SECONDS',
+          type: 'GAUGE'
         };
         var metric = {
           id: mId1,
@@ -288,7 +289,7 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.ResourceMetric.query({environmentId: eId, resourceId: rId3});
+        result = HawkularInventory.MetricOfResource.query({environmentId: eId, resourceId: rId3});
         restResolve(result, done);
       });
 
