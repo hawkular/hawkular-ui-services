@@ -23,6 +23,38 @@
 
 module hawkularRest {
 
+  _module.constant("inventoryInterceptULRS",
+      [new RegExp('.+/inventory/.+/resources/.+%2F.+')]);
+
+  _module.config(['$httpProvider', 'inventoryInterceptULRS', function($httpProvider, inventoryInterceptULRS) {
+    var ENCODED_SLASH = new RegExp("%2F", 'g');
+
+    /**
+     * Replace %2F by / in path parameters, encoded by $resource
+     * @see https://github.com/angular/angular.js/issues/1388
+     */
+    $httpProvider.interceptors.push(function ($q) {
+      return {
+        'request': function (config) {
+          var url = config.url;
+
+          for (var i = 0; i < inventoryInterceptULRS.length; i++) {
+            var regex = inventoryInterceptULRS[i];
+            if (url.match(regex)) {
+              url = url.replace(ENCODED_SLASH, "/");
+
+              // end there is only one matching url
+              break;
+            }
+          }
+
+          config.url = url;
+          return config || $q.when(config);
+        }
+      };
+    });
+  }]);
+
   _module.provider('HawkularInventory', function() {
 
     this.setProtocol = function(protocol) {
