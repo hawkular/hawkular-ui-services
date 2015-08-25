@@ -177,6 +177,25 @@ var hawkularRest;
 
 var hawkularRest;
 (function (hawkularRest) {
+    hawkularRest._module.constant("inventoryInterceptURLS", [new RegExp('.+/inventory/.+/resources/.+%2F.+')]);
+    hawkularRest._module.config(['$httpProvider', 'inventoryInterceptURLS', function ($httpProvider, inventoryInterceptURLS) {
+        var ENCODED_SLASH = new RegExp("%2F", 'g');
+        $httpProvider.interceptors.push(function ($q) {
+            return {
+                'request': function (config) {
+                    var url = config.url;
+                    for (var i = 0; i < inventoryInterceptURLS.length; i++) {
+                        if (url.match(inventoryInterceptURLS[i])) {
+                            url = url.replace(ENCODED_SLASH, "/");
+                            break;
+                        }
+                    }
+                    config.url = url;
+                    return config || $q.when(config);
+                }
+            };
+        });
+    }]);
     hawkularRest._module.provider('HawkularInventory', function () {
         this.setProtocol = function (protocol) {
             this.protocol = protocol;
