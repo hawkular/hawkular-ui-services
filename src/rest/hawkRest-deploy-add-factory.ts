@@ -15,15 +15,15 @@
 
 /**
  * @ngdoc provider
- * @name hawkular.rest.HawkularOps
+ * @name hawkular.rest.HawkularAddDeploymentOps
  * @description
  * # HawkularOps
- * Asynchronous operations support
+ * Asynchronous Deployment Add operations
  */
 
 module hawkularRest {
 
-  _module.provider('HawkularOps', function () {
+  _module.provider('HawkularAddDeploymentOps', function () {
 
     this.setHost = function (host) {
       this.host = host;
@@ -52,28 +52,30 @@ module hawkularRest {
       var responseHandlers = [{
         prefix: 'GenericSuccessResponse=',
         handle: function (operationResponse) {
-          console.log('Operation request delivery: ', operationResponse.message);
+          console.log('Operation Deployment Request : ', operationResponse.message);
           // Probably makes no sense to show this in the UI
-          NotificationService.info('Operation request delivery: ' + operationResponse.message);
+          NotificationService.info('Operation Deployment Request : ' + operationResponse.message);
         }
       }, {
-        prefix: 'ExecuteOperationResponse=',
-        handle: function (operationResponse) {
-          if (operationResponse.status === "OK") {
+        prefix: 'DeploymentOperationResponse=',
+        handle: function (deploymentResponse) {
 
-            NotificationService.success('Operation "' + operationResponse.operationName + '" on resource "'
-              + operationResponse.resourceId + '" succeeded.');
-          } else if (operationResponse.status === "ERROR") {
-            NotificationService.error('Operation "' + operationResponse.operationName + '" on resource "'
-              + operationResponse.resourceId + '" failed: ' + operationResponse.message);
+          console.warn("Hey New Add Deployment works!!!");
+
+          if (deploymentResponse.status === "OK") {
+            NotificationService.success('Deployment "' + deploymentResponse.destinationFileName + '" on resource "'
+              + deploymentResponse.resourcePath + '" succeeded.');
+          } else if (deploymentResponse.status === "ERROR") {
+            NotificationService.error('Deployment File: "' + deploymentResponse.destinationFileName + '" on resource "'
+              + deploymentResponse.resourcePath + '" failed: ' + deploymentResponse.message);
           } else {
-            console.log('Unexpected operationResponse: ', operationResponse);
+            console.log('Unexpected deploymentOperationResponse: ', deploymentResponse);
           }
         }
       }, {
         prefix: 'GenericErrorResponse=',
         handle: function (operationResponse) {
-          NotificationService.error('Operation failed: ' + operationResponse.message);
+          NotificationService.error('Operation Deployment Add failed: ' + operationResponse.message);
         }
       }];
 
@@ -99,9 +101,13 @@ module hawkularRest {
         NotificationService = ns;
       };
 
-      factory.performOperation = function (operation) {
-        ws.send('ExecuteOperationRequest=' + JSON.stringify(operation));
+      factory.performOperation = function (resourcePath, destinationFileName) {
+        var json = 'DeployApplicationRequest={\"resourcePath\": \"'+resourcePath+'\", \"destinationFileName\":\"'+destinationFileName+'\" }';
+        console.log('DeployApplicationRequest: ' + json);
+        ws.send(json);
+
       };
+
 
       return factory;
     }];

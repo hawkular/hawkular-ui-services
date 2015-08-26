@@ -177,6 +177,81 @@ var hawkularRest;
 
 var hawkularRest;
 (function (hawkularRest) {
+    hawkularRest._module.provider('HawkularAddDeploymentOps', function () {
+        this.setHost = function (host) {
+            this.host = host;
+            return this;
+        };
+        this.setPort = function (port) {
+            this.port = port;
+            return this;
+        };
+        this.$get = ['$location', '$http', function ($location) {
+            this.setHost(this.host || $location.host() || 'localhost');
+            this.setPort(this.port || $location.port() || 8080);
+            var prefix = 'ws://' + this.host + ':' + this.port;
+            var opsUrlPart = '/hawkular/feed-comm/ui/ws';
+            var url = prefix + opsUrlPart;
+            var factory = {};
+            var NotificationService;
+            var ws = new WebSocket(url);
+            var responseHandlers = [{
+                prefix: 'GenericSuccessResponse=',
+                handle: function (operationResponse) {
+                    console.log('Operation Deployment Request : ', operationResponse.message);
+                    NotificationService.info('Operation Deployment Request : ' + operationResponse.message);
+                }
+            }, {
+                prefix: 'DeploymentOperationResponse=',
+                handle: function (deploymentResponse) {
+                    console.warn("Hey New Add Deployment works!!!");
+                    if (deploymentResponse.status === "OK") {
+                        NotificationService.success('Deployment "' + deploymentResponse.destinationFileName + '" on resource "' + deploymentResponse.resourcePath + '" succeeded.');
+                    }
+                    else if (deploymentResponse.status === "ERROR") {
+                        NotificationService.error('Deployment File: "' + deploymentResponse.destinationFileName + '" on resource "' + deploymentResponse.resourcePath + '" failed: ' + deploymentResponse.message);
+                    }
+                    else {
+                        console.log('Unexpected deploymentOperationResponse: ', deploymentResponse);
+                    }
+                }
+            }, {
+                prefix: 'GenericErrorResponse=',
+                handle: function (operationResponse) {
+                    NotificationService.error('Operation Deployment Add failed: ' + operationResponse.message);
+                }
+            }];
+            ws.onopen = function () {
+                console.log('Socket has been opened!');
+            };
+            ws.onmessage = function (message) {
+                console.log('WebSocket received:', message);
+                var data = message.data;
+                for (var i = 0; i < responseHandlers.length; i++) {
+                    var h = responseHandlers[i];
+                    if (data.indexOf(h.prefix) === 0) {
+                        var opResult = JSON.parse(data.substring(h.prefix.length));
+                        h.handle(opResult);
+                        return;
+                    }
+                }
+                console.log('Unexpected WebSocket message: ', message);
+            };
+            factory.init = function (ns) {
+                NotificationService = ns;
+            };
+            factory.performOperation = function (resourcePath, destinationFileName) {
+                var json = 'DeployApplicationRequest={\"resourcePath\": \"' + resourcePath + '\", \"destinationFileName\":\"' + destinationFileName + '\" }';
+                console.log('DeployApplicationRequest: ' + json);
+                ws.send(json);
+            };
+            return factory;
+        }];
+    });
+})(hawkularRest || (hawkularRest = {}));
+
+var hawkularRest;
+(function (hawkularRest) {
     hawkularRest._module.constant("inventoryInterceptURLS", [new RegExp('.+/inventory/.+/resources/.+%2F.+')]);
     hawkularRest._module.config(['$httpProvider', 'inventoryInterceptURLS', function ($httpProvider, inventoryInterceptURLS) {
         var ENCODED_SLASH = new RegExp("%2F", 'g');
@@ -552,6 +627,7 @@ var hawkularRest;
                 prefix: 'GenericSuccessResponse=',
                 handle: function (operationResponse) {
                     console.log('Operation request delivery: ', operationResponse.message);
+                    NotificationService.info('Operation request delivery: ' + operationResponse.message);
                 }
             }, {
                 prefix: 'ExecuteOperationResponse=',
@@ -576,7 +652,7 @@ var hawkularRest;
                 console.log('Socket has been opened!');
             };
             ws.onmessage = function (message) {
-                console.log('WebSocket recevied:', message);
+                console.log('WebSocket received:', message);
                 var data = message.data;
                 for (var i = 0; i < responseHandlers.length; i++) {
                     var h = responseHandlers[i];
