@@ -195,6 +195,7 @@ var hawkularRest;
             var factory = {};
             var NotificationService;
             var ws = new WebSocket(url);
+            ws.binaryType = 'arraybuffer';
             var responseHandlers = [{
                 prefix: 'GenericSuccessResponse=',
                 handle: function (operationResponse) {
@@ -240,10 +241,11 @@ var hawkularRest;
             factory.init = function (ns) {
                 NotificationService = ns;
             };
-            factory.performOperation = function (resourcePath, destinationFileName) {
+            factory.performOperation = function (resourcePath, destinationFileName, fileBinaryContent) {
                 var json = 'DeployApplicationRequest={\"resourcePath\": \"' + resourcePath + '\", \"destinationFileName\":\"' + destinationFileName + '\" }';
+                var binaryblob = new Blob([json, fileBinaryContent], { type: 'application/octet-stream' });
                 console.log('DeployApplicationRequest: ' + json);
-                ws.send(json);
+                ws.send(binaryblob);
             };
             return factory;
         }];

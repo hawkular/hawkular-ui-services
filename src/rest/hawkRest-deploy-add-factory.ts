@@ -17,7 +17,7 @@
  * @ngdoc provider
  * @name hawkular.rest.HawkularAddDeploymentOps
  * @description
- * # HawkularOps
+ * # HawkularAddDeploymentOps
  * Asynchronous Deployment Add operations
  */
 
@@ -48,6 +48,7 @@ module hawkularRest {
       var NotificationService:any;
 
       var ws = new WebSocket(url);
+      ws.binaryType = 'arraybuffer';
 
       var responseHandlers = [{
         prefix: 'GenericSuccessResponse=',
@@ -59,9 +60,7 @@ module hawkularRest {
       }, {
         prefix: 'DeploymentOperationResponse=',
         handle: function (deploymentResponse) {
-
-          console.warn("Hey New Add Deployment works!!!");
-
+          console.log('Add Deployment Response');
           if (deploymentResponse.status === "OK") {
             NotificationService.success('Deployment "' + deploymentResponse.destinationFileName + '" on resource "'
               + deploymentResponse.resourcePath + '" succeeded.');
@@ -84,7 +83,7 @@ module hawkularRest {
       };
 
       ws.onmessage = function (message) {
-        console.log('WebSocket received:', message);
+        console.log('Deployment WebSocket received:', message);
         var data = message.data;
         for (var i = 0; i < responseHandlers.length; i++) {
           var h = responseHandlers[i];
@@ -101,11 +100,11 @@ module hawkularRest {
         NotificationService = ns;
       };
 
-      factory.performOperation = function (resourcePath, destinationFileName) {
+      factory.performOperation = function (resourcePath, destinationFileName, fileBinaryContent) {
         var json = 'DeployApplicationRequest={\"resourcePath\": \"'+resourcePath+'\", \"destinationFileName\":\"'+destinationFileName+'\" }';
+        var binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
         console.log('DeployApplicationRequest: ' + json);
-        ws.send(json);
-
+        ws.send(binaryblob);
       };
 
 
