@@ -294,86 +294,133 @@ var hawkularRest;
             var inventoryUrlPart = '/hawkular/inventory';
             var url = prefix + inventoryUrlPart;
             var factory = {};
+            var relsActionFor = function (url) {
+                return {
+                    method: 'GET',
+                    url: url + '/relationships'
+                };
+            };
+            var createDataActions = function (urlPrefix, defaultDataType) {
+                var urlForData = urlPrefix + '/data';
+                return {
+                    relationships: relsActionFor(urlPrefix),
+                    getData: {
+                        method: 'GET',
+                        params: { dataType: defaultDataType },
+                        url: urlForData
+                    },
+                    createData: {
+                        method: 'POST',
+                        url: urlForData
+                    },
+                    updateData: {
+                        method: 'POST',
+                        params: { dataType: defaultDataType },
+                        url: urlForData
+                    },
+                    deleteData: {
+                        method: 'DELETE',
+                        params: { dataType: defaultDataType },
+                        url: urlForData
+                    }
+                };
+            };
+            var createResourceActions = function (urlPrefix, defaultDataType) {
+                var dataActions = createDataActions(urlPrefix, defaultDataType);
+                dataActions['getChildren'] = {
+                    method: 'GET',
+                    url: urlPrefix + '/children'
+                };
+                dataActions['getParents'] = {
+                    method: 'GET',
+                    url: urlPrefix + '/parents'
+                };
+                dataActions['getParent'] = {
+                    method: 'GET',
+                    url: urlPrefix + '/parent'
+                };
+                return dataActions;
+            };
             factory.Tenant = $resource(url + '/tenant', {
                 put: {
                     method: 'PUT'
                 }
             });
-            factory.Environment = $resource(url + '/environments/:environmentId', null, {
+            var environmentUrl = url + '/environments/:environmentId';
+            factory.Environment = $resource(environmentUrl, null, {
                 put: {
                     method: 'PUT'
                 },
-                relationships: {
-                    method: 'GET',
-                    url: url + '/environments/:environmentId/relationships'
-                }
+                relationships: relsActionFor(environmentUrl)
             });
-            factory.Feed = $resource(url + '/:environmentId/feeds/:feedId', null, {
+            var feedUrl = url + '/:environmentId/feeds/:feedId';
+            factory.Feed = $resource(feedUrl, null, {
                 put: {
                     method: 'PUT'
                 },
-                relationships: {
-                    method: 'GET',
-                    url: url + '/:environmentId/feeds/:feedId/relationships'
-                }
+                relationships: relsActionFor(feedUrl)
             });
-            factory.Resource = $resource(url + '/:environmentId/resources/:resourceId', null, {
-                relationships: {
-                    method: 'GET',
-                    url: url + '/:environmentId/resources/:resourceId/relationships'
-                }
-            });
-            factory.FeedResource = $resource(url + '/:environmentId/:feedId/resources/:resourceId', null, {
-                relationships: {
-                    method: 'GET',
-                    url: url + '/:environmentId/:feedId/resources/:resourceId/relationships'
-                }
-            });
-            factory.ResourceType = $resource(url + '/resourceTypes/:resourceTypeId', null, {
-                relationships: {
-                    method: 'GET',
-                    url: url + '/resourceTypes/:resourceTypeId/relationships'
-                }
-            });
-            factory.MetricType = $resource(url + '/metricTypes/:metricTypeId', null, {
+            var resourceUrl = url + '/:environmentId/resources/:resourcePath';
+            factory.Resource = $resource(resourceUrl, null, createResourceActions(resourceUrl, 'configuration'));
+            var feedResourceUrl = url + '/:environmentId/:feedId/resources/:resourcePath';
+            factory.ResourceUnderFeed = $resource(feedResourceUrl, null, createResourceActions(feedResourceUrl, 'configuration'));
+            var resourceTypeUrl = url + '/resourceTypes/:resourceTypeId';
+            factory.ResourceType = $resource(resourceTypeUrl, null, createDataActions(resourceTypeUrl, 'configurationSchema'));
+            var feedResourceTypeUrl = url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId';
+            factory.ResourceTypeUnderFeed = $resource(feedResourceTypeUrl, null, createDataActions(feedResourceTypeUrl, 'configurationSchema'));
+            var metricTypeUrl = url + '/metricTypes/:metricTypeId';
+            factory.MetricType = $resource(metricTypeUrl, null, {
                 put: {
                     method: 'PUT'
                 },
-                relationships: {
-                    method: 'GET',
-                    url: url + '/metricTypes/:metricTypeId/relationships'
-                }
+                relationships: relsActionFor(metricTypeUrl)
             });
-            factory.ResourceMetric = $resource(url + '/:environmentId/resources/:resourceId/metrics/:metricId', null, {
+            var feedMetricTypeUrl = url + '/:environmentId/:feedId/metricTypes/:metricTypeId';
+            factory.MetricTypeUnderFeed = $resource(feedMetricTypeUrl, null, {
+                put: {
+                    method: 'PUT'
+                },
+                relationships: relsActionFor(feedMetricTypeUrl)
+            });
+            var resourceMetricUrl = url + '/:environmentId/resources/:resourceId/metrics/:metricId';
+            factory.MetricOfResource = $resource(resourceMetricUrl, null, {
                 put: {
                     method: 'PUT'
                 }
             });
-            factory.ResourceMetricType = $resource(url + '/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId', null, {
-                relationships: {
-                    method: 'GET',
-                    url: url + '/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId/relationships'
+            var feedResourceMetricUrl = url + '/:environmentId/:feedId/resources/:resourceId/metrics/:metricId';
+            factory.MetricOfResourceUnderFeed = $resource(resourceMetricUrl, null, {
+                put: {
+                    method: 'PUT'
                 }
+            });
+            var metricTypeOfResourceTypeUrl = url + '/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId';
+            factory.MetricTypeOfResourceType = $resource(metricTypeOfResourceTypeUrl, null, {
+                relationships: relsActionFor(metricTypeOfResourceTypeUrl)
+            });
+            var feedMetricTypeOfResourceTypeUrl = url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId';
+            factory.MetricTypeOfResourceTypeUnderFeed = $resource(feedMetricTypeOfResourceTypeUrl, null, {
+                relationships: relsActionFor(feedMetricTypeOfResourceTypeUrl)
             });
             factory.ResourceOfType = $resource(url + '/resourceTypes/:resourceTypeId/resources');
-            factory.Metric = $resource(url + '/:environmentId/metrics/:metricId', null, {
+            factory.ResourceOfTypeUnderFeed = $resource(url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId/resources');
+            factory.ResourceRecursiveChildren = $resource(url + '/:environmentId/resources/:resourcePath/recursiveChildren');
+            factory.ResourceRecursiveChildrenUnderFeed = $resource(url + '/:environmentId/:feedId/resources/:resourcePath/recursiveChildren');
+            var metricUrl = url + '/:environmentId/metrics/:metricId';
+            factory.Metric = $resource(metricUrl, null, {
                 put: {
                     method: 'PUT'
                 },
-                relationships: {
-                    method: 'GET',
-                    url: url + '/:environmentId/metrics/:metricId/relationships'
-                }
+                relationships: relsActionFor(metricUrl)
             });
-            factory.FeedMetric = $resource(url + '/:environmentId/:feedId/metrics/:metricId', null, {
+            var feedMetricUrl = url + '/:environmentId/:feedId/metrics/:metricId';
+            factory.MetricUnderFeed = $resource(feedMetricUrl, null, {
                 put: {
                     method: 'PUT'
                 },
-                relationships: {
-                    method: 'GET',
-                    url: url + '/:environmentId/:feedId/metrics/:metricId/relationships'
-                }
+                relationships: relsActionFor(feedMetricUrl)
             });
+            factory.Graph = $resource(url + '/graph');
             return factory;
         }];
     });
