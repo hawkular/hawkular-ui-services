@@ -243,7 +243,7 @@ var hawkularRest;
             this.port = port;
             return this;
         };
-        this.$get = ['$location', '$http', function ($location) {
+        this.$get = ['$location', '$rootScope', function ($location, $rootScope) {
                 this.setHost(this.host || $location.host() || 'localhost');
                 this.setPort(this.port || $location.port() || 8080);
                 var prefix = 'ws://' + this.host + ':' + this.port;
@@ -262,17 +262,24 @@ var hawkularRest;
                     }, {
                         prefix: 'DeploymentOperationResponse=',
                         handle: function (deploymentResponse) {
+                            var message;
                             console.log('Add Deployment Response');
                             if (deploymentResponse.status === "OK") {
-                                NotificationService.success('Deployment "' + deploymentResponse.destinationFileName + '" on resource "'
-                                    + deploymentResponse.resourcePath + '" succeeded.');
+                                message =
+                                    'Deployment "' + deploymentResponse.destinationFileName + '" on resource "'
+                                        + deploymentResponse.resourcePath + '" succeeded.';
+                                NotificationService.success(message);
+                                $rootScope.$broadcast('DeploymentAddSuccess', message);
                             }
                             else if (deploymentResponse.status === "ERROR") {
-                                NotificationService.error('Deployment File: "' + deploymentResponse.destinationFileName + '" on resource "'
-                                    + deploymentResponse.resourcePath + '" failed: ' + deploymentResponse.message);
+                                message = 'Deployment File: "' + deploymentResponse.destinationFileName + '" on resource "'
+                                    + deploymentResponse.resourcePath + '" failed: ' + deploymentResponse.message;
+                                NotificationService.error(message);
+                                $rootScope.$broadcast('DeploymentAddError', message);
                             }
                             else {
-                                console.log('Unexpected deploymentOperationResponse: ', deploymentResponse);
+                                console.error('Unexpected deploymentOperationResponse: ', deploymentResponse);
+                                $rootScope.$broadcast('DeploymentAddError', message);
                             }
                         }
                     }, {

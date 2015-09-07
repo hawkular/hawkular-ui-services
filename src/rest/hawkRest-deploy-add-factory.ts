@@ -35,7 +35,7 @@ module hawkularRest {
       return this;
     };
 
-    this.$get = ['$location', '$http', function ($location) {
+    this.$get = ['$location', '$rootScope', function ($location, $rootScope) {
       // If available, used pre-configured values, otherwise use values from current browser location of fallback to
       // defaults
       this.setHost(this.host || $location.host() || 'localhost');
@@ -60,15 +60,29 @@ module hawkularRest {
       }, {
         prefix: 'DeploymentOperationResponse=',
         handle: function (deploymentResponse) {
+          var message;
+
           console.log('Add Deployment Response');
+
           if (deploymentResponse.status === "OK") {
-            NotificationService.success('Deployment "' + deploymentResponse.destinationFileName + '" on resource "'
-              + deploymentResponse.resourcePath + '" succeeded.');
+            message =
+              'Deployment "' + deploymentResponse.destinationFileName + '" on resource "'
+              + deploymentResponse.resourcePath + '" succeeded.';
+
+            NotificationService.success(message);
+
+            $rootScope.$broadcast('DeploymentAddSuccess', message);
+
           } else if (deploymentResponse.status === "ERROR") {
-            NotificationService.error('Deployment File: "' + deploymentResponse.destinationFileName + '" on resource "'
-              + deploymentResponse.resourcePath + '" failed: ' + deploymentResponse.message);
+            message = 'Deployment File: "' + deploymentResponse.destinationFileName + '" on resource "'
+              + deploymentResponse.resourcePath + '" failed: ' + deploymentResponse.message;
+
+            NotificationService.error(message);
+
+            $rootScope.$broadcast('DeploymentAddError', message);
           } else {
-            console.log('Unexpected deploymentOperationResponse: ', deploymentResponse);
+            console.error('Unexpected deploymentOperationResponse: ', deploymentResponse);
+            $rootScope.$broadcast('DeploymentAddError', message);
           }
         }
       }, {
@@ -101,7 +115,7 @@ module hawkularRest {
       };
 
       factory.performOperation = function (resourcePath, destinationFileName, fileBinaryContent) {
-        var json = 'DeployApplicationRequest={\"resourcePath\": \"'+resourcePath+'\", \"destinationFileName\":\"'+destinationFileName+'\" }';
+        var json = 'DeployApplicationRequest={\"resourcePath\": \"' + resourcePath + '\", \"destinationFileName\":\"' + destinationFileName + '\" }';
         var binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
         console.log('DeployApplicationRequest: ' + json);
         ws.send(binaryblob);
