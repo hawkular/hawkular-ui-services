@@ -51,8 +51,8 @@ module hawkularRest {
             var prefix = this.protocol + '://' + this.host + ':' + this.port;
             var factory: any = {};
 
-            factory.Organization = $resource(prefix + '/hawkular-accounts/organizations/:id', {id:'@id'});
-            factory.Persona = $resource(prefix + '/hawkular-accounts/personas/:id', {id:'@id'});
+            factory.Organization = $resource(prefix + '/hawkular/accounts/organizations/:id', {id:'@id'});
+            factory.Persona = $resource(prefix + '/hawkular/accounts/personas/:id', {id:'@id'});
 
             return factory;
         }];
