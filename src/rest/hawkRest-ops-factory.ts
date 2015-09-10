@@ -42,7 +42,7 @@ module hawkularRest {
       this.setPort(this.port || $location.port() || 8080);
 
       var prefix = 'ws://' + this.host + ':' + this.port;
-      var opsUrlPart = '/hawkular/feed-comm/ui/ws';
+      var opsUrlPart = '/hawkular/command-gateway/ui/ws';
       var url = prefix + opsUrlPart;
       var factory:any = {};
       var NotificationService:any;
