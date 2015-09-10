@@ -40,7 +40,7 @@ module hawkularRest {
       return this;
     };
 
-    this.$get = ['$resource', '$location', '$http', function($resource, $location) {
+    this.$get = ['$resource', '$location', function($resource, $location) {
       // If available, used pre-configured values, otherwise use values from current browser location of fallback to
       // defaults
       this.setProtocol(this.protocol || $location.protocol() || 'http');
