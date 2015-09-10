@@ -101,31 +101,22 @@ module hawkularRest {
         }
       });
 
-      factory.Condition = $resource(prefix + '/hawkular/alerts/triggers/:triggerId/conditions/:conditionId', {
-        triggerId: '@triggerId',
-        conditionId: '@conditionId'
+      factory.Conditions = $resource(prefix + '/hawkular/alerts/triggers/:triggerId/conditions/', {
+        triggerId: '@triggerId'
       }, {
-        get: {
-          method: 'GET',
-          url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/:conditionId'
-        },
         save: {
-          method: 'POST',
-          isArray: true,
-          url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/'
-        },
-        put: {
           method: 'PUT',
-          isArray: true
+          isArray: true,
+          url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/:triggerMode',
+          params: {
+            triggerId: '@triggerId',
+            triggerMode: '@triggerMode'
+          }
         },
         query: {
           method: 'GET',
           isArray: true,
           url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/'
-        },
-        delete: {
-          method: 'DELETE',
-          isArray: true
         }
       });
 
