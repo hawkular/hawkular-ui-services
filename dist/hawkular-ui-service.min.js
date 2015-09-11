@@ -666,18 +666,19 @@ var hawkularRest;
 var hawkularRest;
 (function (hawkularRest) {
     hawkularRest._module.provider('HawkularOps', function () {
+        var _this = this;
         this.setHost = function (host) {
-            this.host = host;
-            return this;
+            _this.host = host;
+            return _this;
         };
         this.setPort = function (port) {
-            this.port = port;
-            return this;
+            _this.port = port;
+            return _this;
         };
         this.$get = ['$location', '$rootScope', function ($location, $rootScope) {
-                this.setHost(this.host || $location.host() || 'localhost');
-                this.setPort(this.port || $location.port() || 8080);
-                var prefix = 'ws://' + this.host + ':' + this.port;
+                _this.setHost(_this.host || $location.host() || 'localhost');
+                _this.setPort(_this.port || $location.port() || 8080);
+                var prefix = 'ws://' + _this.host + ':' + _this.port;
                 var opsUrlPart = '/hawkular/command-gateway/ui/ws';
                 var url = prefix + opsUrlPart;
                 var factory = {};
