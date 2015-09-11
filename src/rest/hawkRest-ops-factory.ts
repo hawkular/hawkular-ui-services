@@ -25,40 +25,40 @@ module hawkularRest {
 
   _module.provider('HawkularOps', function () {
 
-    this.setHost = function (host) {
+    this.setHost = (host) => {
       this.host = host;
       return this;
     };
 
-    this.setPort = function (port) {
+    this.setPort = (port) => {
       this.port = port;
       return this;
     };
 
-    this.$get = ['$location', '$rootScope', function ($location, $rootScope) {
+    this.$get = ['$location', '$rootScope', ($location, $rootScope) => {
       // If available, used pre-configured values, otherwise use values from current browser location of fallback to
       // defaults
       this.setHost(this.host || $location.host() || 'localhost');
       this.setPort(this.port || $location.port() || 8080);
 
-      var prefix = 'ws://' + this.host + ':' + this.port;
-      var opsUrlPart = '/hawkular/command-gateway/ui/ws';
-      var url = prefix + opsUrlPart;
-      var factory:any = {};
-      var NotificationService:any;
+      const prefix = 'ws://' + this.host + ':' + this.port;
+      const opsUrlPart = '/hawkular/command-gateway/ui/ws';
+      const url = prefix + opsUrlPart;
+      let factory:any = {};
+      let NotificationService:any;
 
-      var ws = new WebSocket(url);
+      let ws = new WebSocket(url);
 
-      var responseHandlers = [{
+      let responseHandlers = [{
         prefix: 'GenericSuccessResponse=',
-        handle: function (operationResponse) {
+        handle: (operationResponse:any) => {
           console.log('Execution Operation request delivery: ', operationResponse.message);
           // Probably makes no sense to show this in the UI
           NotificationService.info('Execution Ops request delivery: ' + operationResponse.message);
         }
       }, {
         prefix: 'ExecuteOperationResponse=',
-        handle: function (operationResponse) {
+        handle: (operationResponse:any) => {
           console.log('Handling ExecuteOperationResponse');
           if (operationResponse.status === "OK") {
 
@@ -74,8 +74,8 @@ module hawkularRest {
       },
         {
           prefix: 'DeployApplicationResponse=',
-          handle: function (deploymentResponse) {
-            var message;
+          handle: (deploymentResponse)  => {
+            let message;
 
             if (deploymentResponse.status === "OK") {
               message =
@@ -99,23 +99,23 @@ module hawkularRest {
         },
         {
           prefix: 'GenericErrorResponse=',
-          handle: function (operationResponse) {
+          handle: (operationResponse) => {
             NotificationService.error('Operation failed: ' + operationResponse.message);
           }
         }];
 
-      ws.onopen = function () {
+      ws.onopen = () => {
         console.log('Execution Ops Socket has been opened!');
       };
 
-      ws.onmessage = function (message) {
+      ws.onmessage = (message:any) => {
         console.log('Execution Ops WebSocket received:', message);
-        var data = message.data;
+        let data = message.data;
 
-        for (var i = 0; i < responseHandlers.length; i++) {
-          var h = responseHandlers[i];
+        for (let i = 0; i < responseHandlers.length; i++) {
+          let h = responseHandlers[i];
           if (data.indexOf(h.prefix) === 0) {
-            var opResult = JSON.parse(data.substring(h.prefix.length));
+            let opResult = JSON.parse(data.substring(h.prefix.length));
             h.handle(opResult);
             break;
           }
@@ -123,19 +123,19 @@ module hawkularRest {
         console.info('Unexpected WebSocket Execution Ops message: ', message);
       };
 
-      factory.init = function (ns) {
+      factory.init = (ns:any) => {
         NotificationService = ns;
       };
 
-      factory.performOperation = function (operation) {
+      factory.performOperation = (operation:any) => {
         ws.send('ExecuteOperationRequest=' + JSON.stringify(operation));
       };
 
-      factory.performAddDeployOperation = function (resourcePath, destinationFileName, fileBinaryContent, authToken) {
-        var json = `DeployApplicationRequest={"resourcePath": "${resourcePath}",
+      factory.performAddDeployOperation = (resourcePath:string, destinationFileName:string, fileBinaryContent:any, authToken:string) => {
+        let json = `DeployApplicationRequest={"resourcePath": "${resourcePath}",
         "destinationFileName":"${destinationFileName}"
           "authentication:"{"token":"${authToken}"} }`;
-        var binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
+        let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
         console.log('DeployApplicationRequest: ' + json);
         ws.send(binaryblob);
       };
