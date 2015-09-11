@@ -131,10 +131,14 @@ module hawkularRest {
         ws.send('ExecuteOperationRequest=' + JSON.stringify(operation));
       };
 
-      factory.performAddDeployOperation = (resourcePath:string, destinationFileName:string, fileBinaryContent:any, authToken:string) => {
+      factory.performAddDeployOperation = (resourcePath:string,
+                                           destinationFileName:string,
+                                           fileBinaryContent:any,
+                                           authToken:string,
+                                           personaId:string) => {
         let json = `DeployApplicationRequest={"resourcePath": "${resourcePath}",
-        "destinationFileName":"${destinationFileName}"
-          "authentication:"{"token":"${authToken}"} }`;
+        "destinationFileName":"${destinationFileName}",
+          "authentication": {"token":"${authToken}", "persona":"${personaId}" } }`;
         let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
         console.log('DeployApplicationRequest: ' + json);
         ws.send(binaryblob);

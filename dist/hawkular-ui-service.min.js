@@ -758,8 +758,8 @@ var hawkularRest;
                 factory.performOperation = function (operation) {
                     ws.send('ExecuteOperationRequest=' + JSON.stringify(operation));
                 };
-                factory.performAddDeployOperation = function (resourcePath, destinationFileName, fileBinaryContent, authToken) {
-                    var json = "DeployApplicationRequest={\"resourcePath\": \"" + resourcePath + "\",\n        \"destinationFileName\":\"" + destinationFileName + "\"\n          \"authentication:\"{\"token\":\"" + authToken + "\"} }";
+                factory.performAddDeployOperation = function (resourcePath, destinationFileName, fileBinaryContent, authToken, personaId) {
+                    var json = "DeployApplicationRequest={\"resourcePath\": \"" + resourcePath + "\",\n        \"destinationFileName\":\"" + destinationFileName + "\",\n          \"authentication\": {\"token\":\"" + authToken + "\", \"persona\":\"" + personaId + "\" } }";
                     var binaryblob = new Blob([json, fileBinaryContent], { type: 'application/octet-stream' });
                     console.log('DeployApplicationRequest: ' + json);
                     ws.send(binaryblob);
