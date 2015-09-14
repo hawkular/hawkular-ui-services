@@ -54,13 +54,30 @@ module hawkularRest {
       factory.Alert = $resource(prefix + '/hawkular/alerts', {
 
       }, {
+        query: {
+          method: 'GET',
+          isArray: true,
+          url: prefix + '/hawkular/alerts'
+        },
+        delete: {
+          method: 'PUT',
+          url: prefix + '/hawkular/alerts/delete'
+        },
         reload: {
           method: 'GET',
           url: prefix + '/hawkular/alerts/reload'
         },
+        ack: {
+          method: 'PUT',
+          url: prefix + '/hawkular/alerts/ack'
+        },
         resolve: {
           method: 'PUT',
           url: prefix + '/hawkular/alerts/resolve'
+        },
+        send: {
+          method: 'POST',
+          url: prefix + '/hawkular/alerts/data'
         }
       });
 

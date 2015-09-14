@@ -45,10 +45,10 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
     var newDampening = {
       triggerId: newTrigger.id,
       triggerMode: 'FIRING',
-      type: 'STRICT_TIME',
-      evalTrueSetting: 0,
-      evalTotalSetting: 0,
-      evalTimeSetting: 10000
+      type: 'STRICT',
+      evalTrueSetting: 1,
+      evalTotalSetting: 1,
+      evalTimeSetting: 0
     };
 
     var newFiringConditions = [
@@ -542,6 +542,121 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
 
   });
 
+  // Perform alert tests before the action tests because we don't really want to deal with e-mail
+  describe('Generate an Alert', function() {
+
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+    var triggerId = 'thevault~local-jvm-garbage-collection-trigger';
+    var dataId    = 'thevault~local-jvm-garbage-collection-data-id';
+
+    var mixedData = {
+            numericData : [
+              {
+                id: dataId,
+                timestamp: 1,
+                value: 5000
+              }
+            ]
+          };
+
+    beforeEach(function(done) {
+
+      // Delete previous test data
+      HawkularAlert.Alert.delete({triggerIds: triggerId}).$promise.finally(function() {
+
+        HawkularAlert.Trigger.get({triggerId: triggerId}).$promise.then(
+          // Successful Trigger get
+          function(trigger) {
+            debug && dump(JSON.stringify(trigger));
+            trigger.enabled = true;
+            return HawkularAlert.Trigger.put({triggerId: triggerId}, trigger).$promise;
+          },
+          // Error Trigger get
+          function(errorTrigger) {
+            debug && dump(errorFn(errorTrigger));
+            return $q.reject('Error on Trigger query');
+          }
+        ).then(
+          // Successful Trigger enable (update)
+          function() {
+            return HawkularAlert.Alert.send(mixedData).$promise;
+          },
+          // Error Trigger enable
+          function(errorUpdate) {
+            errorFn(errorUpdate);
+            return $q.reject('Error on Trigger Update');
+          }
+        ).then(
+          // Successful data send
+          function() {
+              // nothing to do
+          },
+          // Error data send
+          function(errorSend) {
+            errorFn(errorSend);
+            return $q.reject('Error on Data Send');
+          }
+        ).finally(function() {
+          done();
+        });
+      });
+
+      httpReal.submit();
+    });
+
+    it('should retrieve full trigger correctly', function() {
+      // nothing to doc
+      });
+
+  });
+
+  describe('Fetch an Alert', function() {
+
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+      var triggerId = 'thevault~local-jvm-garbage-collection-trigger';
+      var resultPage;
+
+      beforeEach(function(done) {
+
+          console.log("Pausing 5s for alert generation...");
+          var now = Date.now();
+          var step = now;
+          var then = now + 5000;
+          while ( now < then ) {
+              now = Date.now();
+              if (( now - step ) > 1000 ) {
+                  //console.log("now=" + now + ", then=" + then);
+                  step = now;
+              }
+          }
+          console.log("Continuing...");
+
+          HawkularAlert.Alert.query({thin:true, triggerIds:triggerId}).$promise.then(
+            // Success, fetch
+            function(alerts) {
+              debug && dump(JSON.stringify(alerts));
+              resultPage = alerts;
+            },
+            // Error, fetch
+            function (errorFetch) {
+              errorFn(errorfetch);
+              return $q.reject('Error on Alert Fetch');
+            }
+          ).finally(function() {
+            done();
+          });
+
+          httpReal.submit();
+      });
+
+      it ('should get list of single alert', function() {
+        expect(resultPage.length).toBeGreaterThan(0);
+      });
+
+    });
+
   describe('Get a list of ActionPlugins', function() {
 
     jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
@@ -549,6 +664,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
     var resultPlugins;
 
     beforeEach(function(done) {
+
       HawkularAlert.ActionPlugin.query().$promise.then(
         // Successful ActionPlugin query
         function(plugins) {
@@ -571,6 +687,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
     });
 
   });
+
 
   describe('Get a specific ActionPlugin', function() {
 
@@ -748,5 +865,5 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       expect(resultActionsId.length).toBeGreaterThan(0);
     });
   });
-  
-});
+
+  });
