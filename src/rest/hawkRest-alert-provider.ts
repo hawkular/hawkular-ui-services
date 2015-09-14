@@ -69,9 +69,17 @@ module hawkularRest {
         },
         ack: {
           method: 'PUT',
+          url: prefix + '/hawkular/alerts/ack/:alertId'
+        },
+        ackmany: {
+          method: 'PUT',
           url: prefix + '/hawkular/alerts/ack'
         },
         resolve: {
+          method: 'PUT',
+          url: prefix + '/hawkular/alerts/resolve/:alertId'
+        },
+        resolvemany: {
           method: 'PUT',
           url: prefix + '/hawkular/alerts/resolve'
         },

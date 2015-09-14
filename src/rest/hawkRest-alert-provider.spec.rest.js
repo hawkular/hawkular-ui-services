@@ -543,7 +543,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
   });
 
   // Perform alert tests before the action tests because we don't really want to deal with e-mail
-  describe('Generate an Alert', function() {
+  describe('Enable Trigger and Generate an Alert', function() {
 
     jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
@@ -653,6 +653,199 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
 
       it ('should get list of single alert', function() {
         expect(resultPage.length).toBeGreaterThan(0);
+      });
+
+    });
+
+  describe('Ack an Alert', function() {
+
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+      var triggerId = 'thevault~local-jvm-garbage-collection-trigger';
+      var alert;
+
+      beforeEach(function(done) {
+
+          HawkularAlert.Alert.query({thin:true, triggerIds:triggerId}).$promise.then(
+            // Success, fetch open
+            function(alerts) {
+              debug && dump(JSON.stringify(alerts));
+              if ( alerts.length != 1 ) {
+                  return $q.reject('Alert not found');
+              }
+              alert = alerts[0];
+              if ( alert.status != 'OPEN' ) {
+                  return $q.reject('Should be Open');
+              }
+              return HawkularAlert.Alert.ack({alertId:alert.alertId,ackBy:'ackBy',ackNotes:'ackNotes'},null).$promise;
+            },
+            // Error, fetch open
+            function (errorFetch) {
+              errorFn(errorfetch);
+              return $q.reject('Error on OPEN Alert Fetch');
+            }
+          ).then(
+            // Successful Ack
+            function() {
+              return HawkularAlert.Alert.query({thin:true, triggerIds:triggerId, statuses:'ACKNOWLEDGED'}).$promise;
+            },
+            // Error ack
+            function(errorAck) {
+              errorFn(errorAck);
+              return $q.reject('Error on ACK');
+            }
+          ).then(
+            // Success, fetch ack
+            function(alerts) {
+              debug && dump(JSON.stringify(alerts));
+              if ( alerts.length != 1 ) {
+                return $q.reject('Ack Alert not found');
+              }
+              alert = alerts[0];
+              if ( alert.status != 'ACKNOWLEDGED' ) {
+                  return $q.reject('Should be Open');
+              }
+              // try the ackmany endpoint
+              return HawkularAlert.Alert.ackmany(
+                      {alertIds:alert.alertId,ackBy:'ackBy',ackNotes:'ackNotes'},null).$promise;
+            },
+            // Error, fetch ack
+            function (errorFetch) {
+              errorFn(errorFetch);
+              return $q.reject('Error on ACK Alert Fetch');
+            }
+          ).then(
+            // Successful Ackmany
+            function() {
+              return HawkularAlert.Alert.query({thin:true, triggerIds:triggerId, statuses:'ACKNOWLEDGED'}).$promise;
+            },
+            // Error ackmany
+            function(errorAckmany) {
+              errorFn(errorAckmany);
+              return $q.reject('Error on ACK many');
+            }
+          ).then(
+            // Success, fetch ack
+            function(alerts) {
+              debug && dump(JSON.stringify(alerts));
+              if ( alerts.length != 1 ) {
+                return $q.reject('Ack Alert not found');
+              }
+              alert = alerts[0];
+            },
+            // Error, fetch ack
+            function (errorFetch) {
+              errorFn(errorFetch);
+              return $q.reject('Error on ACK Alert Fetch');
+            }
+          ).finally(function() {
+            done();
+          });
+
+          httpReal.submit();
+      });
+
+      it ('should get acknowledged alert', function() {
+        expect(alert.status).toEqual('ACKNOWLEDGED');
+        expect(alert.ackBy).toEqual('ackBy');
+        expect(alert.ackNotes).toEqual('ackNotes');
+      });
+
+    });
+
+  describe('Resolve an Alert', function() {
+
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+      var triggerId = 'thevault~local-jvm-garbage-collection-trigger';
+      var alert;
+
+      beforeEach(function(done) {
+
+          HawkularAlert.Alert.query({thin:true, triggerIds:triggerId, statuses:'ACKNOWLEDGED'}).$promise.then(
+            // Success, fetch ack
+            function(alerts) {
+              debug && dump(JSON.stringify(alerts));
+              if ( alerts.length != 1 ) {
+                  return $q.reject('Alert not found');
+              }
+              alert = alerts[0];
+              if ( alert.status != 'ACKNOWLEDGED' ) {
+                  return $q.reject('Should be Ackd');
+              }
+              return HawkularAlert.Alert.resolve(
+                      {alertId:alert.alertId,resolvedBy:'resolvedBy',resolvedNotes:'resolvedNotes'},null).$promise;
+            },
+            // Error, fetch open
+            function (errorFetch) {
+              errorFn(errorfetch);
+              return $q.reject('Error on ACK Alert Fetch');
+            }
+          ).then(
+            // Successful Resolve
+            function() {
+              return HawkularAlert.Alert.query({thin:true, triggerIds:triggerId, statuses:'RESOLVED'}).$promise;
+            },
+            // Error resolve
+            function(errorResolve) {
+              errorFn(errorResolve);
+              return $q.reject('Error on RESOLVE');
+            }
+          ).then(
+            // Success, fetch resolve
+            function(alerts) {
+              debug && dump(JSON.stringify(alerts));
+              if ( alerts.length != 1 ) {
+                return $q.reject('Resolved Alert not found');
+              }
+              alert = alerts[0];
+              if ( alert.status != 'RESOLVED' ) {
+                  return $q.reject('Should be Open');
+              }
+              // try the resolvemany endpoint
+              return HawkularAlert.Alert.resolvemany(
+                      {alertIds:alert.alertId,resolvedBy:'resolvedBy',resolvedNotes:'resolvedNotes'},null).$promise;
+            },
+            // Error, fetch resolve
+            function (errorFetch) {
+              errorFn(errorFetch);
+              return $q.reject('Error on RESOLVED Alert Fetch');
+            }
+          ).then(
+            // Successful resolvemany
+            function() {
+              return HawkularAlert.Alert.query({thin:true, triggerIds:triggerId, statuses:'RESOLVED'}).$promise;
+            },
+            // Error resolvemany
+            function(errorResolvemany) {
+              errorFn(errorResolvemany);
+              return $q.reject('Error on RESOLVE many');
+            }
+          ).then(
+            // Success, fetch resolve
+            function(alerts) {
+              debug && dump(JSON.stringify(alerts));
+              if ( alerts.length != 1 ) {
+                return $q.reject('Resolved Alert not found');
+              }
+              alert = alerts[0];
+            },
+            // Error, fetch resolve
+            function (errorFetch) {
+              errorFn(errorFetch);
+              return $q.reject('Error on Resolved Alert Fetch');
+            }
+          ).finally(function() {
+            done();
+          });
+
+          httpReal.submit();
+      });
+
+      it ('should get resolved alert', function() {
+        expect(alert.status).toEqual('RESOLVED');
+        expect(alert.resolvedBy).toEqual('resolvedBy');
+        expect(alert.resolvedNotes).toEqual('resolvedNotes');
       });
 
     });
