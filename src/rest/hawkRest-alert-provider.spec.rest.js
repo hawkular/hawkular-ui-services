@@ -616,7 +616,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       var triggerId = 'thevault~local-jvm-garbage-collection-trigger';
-      var resultPage;
+      var alert;
 
       beforeEach(function(done) {
 
@@ -637,12 +637,30 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
             // Success, fetch
             function(alerts) {
               debug && dump(JSON.stringify(alerts));
-              resultPage = alerts;
+              if ( alerts.length != 1 ) {
+                  return $q.reject('Alert not found');
+              }
+              var alert = alerts[0];
+              return HawkularAlert.Alert.get({alertId:alert.alertId}).$promise;
             },
             // Error, fetch
             function (errorFetch) {
               errorFn(errorfetch);
               return $q.reject('Error on Alert Fetch');
+            }
+          ).then(
+            // Success, get
+            function(singleAlert) {
+              debug && dump(JSON.stringify(singleAlert));
+              if ( null == singleAlert ) {
+                return $q.reject('Alert not found');
+              }
+              alert = singleAlert;
+            },
+            // Error, get
+            function (errorFetch) {
+              errorFn(errorFetch);
+              return $q.reject('Error on Alert Get');
             }
           ).finally(function() {
             done();
@@ -652,7 +670,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       });
 
       it ('should get list of single alert', function() {
-        expect(resultPage.length).toBeGreaterThan(0);
+        expect(alert.status).toEqual('OPEN');
       });
 
     });

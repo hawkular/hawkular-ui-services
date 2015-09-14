@@ -51,8 +51,8 @@ module hawkularRest {
       var prefix = this.protocol + '://' + this.host + ':' + this.port;
       var factory: any = {};
 
-      factory.Alert = $resource(prefix + '/hawkular/alerts', {
-
+      factory.Alert = $resource(prefix + '/hawkular/alerts/alert/:alertId', {
+        alertId: '@alertId'
       }, {
         query: {
           method: 'GET',
@@ -62,10 +62,6 @@ module hawkularRest {
         delete: {
           method: 'PUT',
           url: prefix + '/hawkular/alerts/delete'
-        },
-        reload: {
-          method: 'GET',
-          url: prefix + '/hawkular/alerts/reload'
         },
         ack: {
           method: 'PUT',
@@ -98,13 +94,6 @@ module hawkularRest {
         },
         put: {
           method: 'PUT'
-        },
-        reload: {
-          method: 'GET',
-          url: prefix + '/hawkular/alerts/reload/:triggerId',
-          params: {
-            triggerId: '@triggerId'
-          }
         }
       });
 
