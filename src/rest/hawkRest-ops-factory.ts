@@ -135,9 +135,10 @@ module hawkularRest {
                                            destinationFileName:string,
                                            fileBinaryContent:any,
                                            authToken:string,
-                                           personaId:string) => {
+                                           personaId:string,
+                                           enabled:boolean = true) => {
         let json = `DeployApplicationRequest={"resourcePath": "${resourcePath}",
-        "destinationFileName":"${destinationFileName}",
+        "destinationFileName":"${destinationFileName}", "enabled":"${enabled}",
           "authentication": {"token":"${authToken}", "persona":"${personaId}" } }`;
         let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
         console.log('DeployApplicationRequest: ' + json);
