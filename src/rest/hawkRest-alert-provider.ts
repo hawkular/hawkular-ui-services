@@ -51,16 +51,37 @@ module hawkularRest {
       var prefix = this.protocol + '://' + this.host + ':' + this.port;
       var factory: any = {};
 
-      factory.Alert = $resource(prefix + '/hawkular/alerts', {
-
+      factory.Alert = $resource(prefix + '/hawkular/alerts/alert/:alertId', {
+        alertId: '@alertId'
       }, {
-        reload: {
+        query: {
           method: 'GET',
-          url: prefix + '/hawkular/alerts/reload'
+          isArray: true,
+          url: prefix + '/hawkular/alerts'
+        },
+        delete: {
+          method: 'PUT',
+          url: prefix + '/hawkular/alerts/delete'
+        },
+        ack: {
+          method: 'PUT',
+          url: prefix + '/hawkular/alerts/ack/:alertId'
+        },
+        ackmany: {
+          method: 'PUT',
+          url: prefix + '/hawkular/alerts/ack'
         },
         resolve: {
           method: 'PUT',
+          url: prefix + '/hawkular/alerts/resolve/:alertId'
+        },
+        resolvemany: {
+          method: 'PUT',
           url: prefix + '/hawkular/alerts/resolve'
+        },
+        send: {
+          method: 'POST',
+          url: prefix + '/hawkular/alerts/data'
         }
       });
 
@@ -73,13 +94,6 @@ module hawkularRest {
         },
         put: {
           method: 'PUT'
-        },
-        reload: {
-          method: 'GET',
-          url: prefix + '/hawkular/alerts/reload/:triggerId',
-          params: {
-            triggerId: '@triggerId'
-          }
         }
       });
 
@@ -101,31 +115,22 @@ module hawkularRest {
         }
       });
 
-      factory.Condition = $resource(prefix + '/hawkular/alerts/triggers/:triggerId/conditions/:conditionId', {
-        triggerId: '@triggerId',
-        conditionId: '@conditionId'
+      factory.Conditions = $resource(prefix + '/hawkular/alerts/triggers/:triggerId/conditions/', {
+        triggerId: '@triggerId'
       }, {
-        get: {
-          method: 'GET',
-          url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/:conditionId'
-        },
         save: {
-          method: 'POST',
-          isArray: true,
-          url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/'
-        },
-        put: {
           method: 'PUT',
-          isArray: true
+          isArray: true,
+          url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/:triggerMode',
+          params: {
+            triggerId: '@triggerId',
+            triggerMode: '@triggerMode'
+          }
         },
         query: {
           method: 'GET',
           isArray: true,
           url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/'
-        },
-        delete: {
-          method: 'DELETE',
-          isArray: true
         }
       });
 
