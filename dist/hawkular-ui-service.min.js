@@ -109,14 +109,37 @@ var hawkularRest;
                 this.setPort(this.port || $location.port() || 8080);
                 var prefix = this.protocol + '://' + this.host + ':' + this.port;
                 var factory = {};
-                factory.Alert = $resource(prefix + '/hawkular/alerts', {}, {
-                    reload: {
+                factory.Alert = $resource(prefix + '/hawkular/alerts/alert/:alertId', {
+                    alertId: '@alertId'
+                }, {
+                    query: {
                         method: 'GET',
-                        url: prefix + '/hawkular/alerts/reload'
+                        isArray: true,
+                        url: prefix + '/hawkular/alerts'
+                    },
+                    delete: {
+                        method: 'PUT',
+                        url: prefix + '/hawkular/alerts/delete'
+                    },
+                    ack: {
+                        method: 'PUT',
+                        url: prefix + '/hawkular/alerts/ack/:alertId'
+                    },
+                    ackmany: {
+                        method: 'PUT',
+                        url: prefix + '/hawkular/alerts/ack'
                     },
                     resolve: {
                         method: 'PUT',
+                        url: prefix + '/hawkular/alerts/resolve/:alertId'
+                    },
+                    resolvemany: {
+                        method: 'PUT',
                         url: prefix + '/hawkular/alerts/resolve'
+                    },
+                    send: {
+                        method: 'POST',
+                        url: prefix + '/hawkular/alerts/data'
                     }
                 });
                 factory.Trigger = $resource(prefix + '/hawkular/alerts/triggers/:triggerId', {
@@ -128,13 +151,6 @@ var hawkularRest;
                     },
                     put: {
                         method: 'PUT'
-                    },
-                    reload: {
-                        method: 'GET',
-                        url: prefix + '/hawkular/alerts/reload/:triggerId',
-                        params: {
-                            triggerId: '@triggerId'
-                        }
                     }
                 });
                 factory.Dampening = $resource(prefix + '/hawkular/alerts/triggers/:triggerId/dampenings/:dampeningId', {
@@ -154,31 +170,22 @@ var hawkularRest;
                         url: prefix + '/hawkular/alerts/triggers/:triggerId/dampenings/'
                     }
                 });
-                factory.Condition = $resource(prefix + '/hawkular/alerts/triggers/:triggerId/conditions/:conditionId', {
-                    triggerId: '@triggerId',
-                    conditionId: '@conditionId'
+                factory.Conditions = $resource(prefix + '/hawkular/alerts/triggers/:triggerId/conditions/', {
+                    triggerId: '@triggerId'
                 }, {
-                    get: {
-                        method: 'GET',
-                        url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/:conditionId'
-                    },
                     save: {
-                        method: 'POST',
-                        isArray: true,
-                        url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/'
-                    },
-                    put: {
                         method: 'PUT',
-                        isArray: true
+                        isArray: true,
+                        url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/:triggerMode',
+                        params: {
+                            triggerId: '@triggerId',
+                            triggerMode: '@triggerMode'
+                        }
                     },
                     query: {
                         method: 'GET',
                         isArray: true,
                         url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/'
-                    },
-                    delete: {
-                        method: 'DELETE',
-                        isArray: true
                     }
                 });
                 factory.ActionPlugin = $resource(prefix + '/hawkular/alerts/plugins/:actionPlugin', {
