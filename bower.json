@@ -1,7 +1,7 @@
 {
   "name": "hawkular-ui-services",
   "description": "WIP:Angular Services for the Hawkular Console.",
-  "version": "0.8.1",
+  "version": "0.8.2",
   "keywords": [
     "hawkular-console",
     "hawkular-ui"
