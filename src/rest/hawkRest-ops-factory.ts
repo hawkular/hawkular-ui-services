@@ -44,6 +44,13 @@ module hawkularRest {
     message?: string;
   }
 
+  interface IExportJdrResponse {
+    status: string;
+    resourcePath: string;
+    fileName?: string;
+    message?: string;
+  }
+
   interface IAddDatasourceResponse {
     status: string;
     resourcePath: string;
@@ -58,7 +65,7 @@ module hawkularRest {
 
   interface IWebSocketResponseHandler {
     prefix: string;
-    handle: (any) => void;
+    handle: (any, binaryData?:Blob) => void;
   }
 
 
@@ -90,14 +97,14 @@ module hawkularRest {
 
       const responseHandlers:IWebSocketResponseHandler[] = [{
         prefix: 'GenericSuccessResponse=',
-        handle: (operationResponse) => {
+        handle: (operationResponse, binaryData:Blob) => {
           $log.log('Execution Operation request delivery: ', operationResponse.message);
           // Probably makes no sense to show this in the UI
           NotificationService.info('Execution Ops request delivery: ' + operationResponse.message);
         }
       }, {
         prefix: 'ExecuteOperationResponse=',
-        handle: (operationResponse:IExecutionOperationResponse) => {
+        handle: (operationResponse:IExecutionOperationResponse, binaryData:Blob) => {
           $log.log('Handling ExecuteOperationResponse');
           if (operationResponse.status === "OK") {
 
@@ -113,7 +120,7 @@ module hawkularRest {
       },
         {
           prefix: 'DeployApplicationResponse=',
-          handle: (deploymentResponse:IDeployApplicationResponse)  => {
+          handle: (deploymentResponse:IDeployApplicationResponse, binaryData:Blob)  => {
             let message;
 
             if (deploymentResponse.status === "OK") {
@@ -138,7 +145,7 @@ module hawkularRest {
         },
         {
           prefix: 'AddJdbcDriverResponse=',
-          handle: (addDriverResponse:IAddJdbcDriverResponse)  => {
+          handle: (addDriverResponse:IAddJdbcDriverResponse, binaryData:Blob)  => {
             let message;
 
             if (addDriverResponse.status === "OK") {
@@ -161,8 +168,42 @@ module hawkularRest {
           }
         },
         {
+          prefix: 'ExportJdrResponse=',
+          handle: (jdrResponse:IExportJdrResponse, binaryData:Blob)  => {
+            let message;
+
+            if (jdrResponse.status === "OK") {
+              message = 'JDR generated';
+              let reportFileName:string = jdrResponse.fileName;
+
+              // TODO: this could be extracted into a function, if other handlers also need to offer a download feature
+              var a = document.createElement("a");
+              document.body.appendChild(a);
+              a.style.display = "none";
+              var url = URL.createObjectURL(binaryData);
+              a.href = url;
+              a['download'] = reportFileName;
+              a.click();
+              setTimeout(function(){
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+              }, 100);
+
+              $rootScope.$broadcast('ExportJDRSuccess', message);
+
+            } else if (jdrResponse.status === "ERROR") {
+              message = 'Export of JDR failed: ' + jdrResponse.message;
+              $rootScope.$broadcast('ExportJDRError', message);
+            } else {
+              message = 'Export of JDR failed: ' + jdrResponse.message;
+              console.error('Unexpected ExportJdrResponse: ', jdrResponse);
+              $rootScope.$broadcast('ExportJDRError', message);
+            }
+          }
+        },
+        {
           prefix: 'GenericErrorResponse=',
-          handle: (operationResponse:IGenericErrorResponse) => {
+          handle: (operationResponse:IGenericErrorResponse, binaryData:Blob) => {
             $log.warn('Unexpected AddJdbcDriverOperationResponse: ', operationResponse.errorMessage);
             NotificationService.info('Operation failed: ' + operationResponse.errorMessage);
           }
@@ -182,16 +223,59 @@ module hawkularRest {
         $log.log('Execution Ops WebSocket received:', message);
         let data = message.data;
 
+        if (data instanceof Blob) {
+          let reader = new FileReader();
+          reader.addEventListener("loadend", () => {
+            let textPart:string = "";
+            let content:any = reader.result;
+            let counter:number = 0;
+            let started:boolean = false;
+            let lastPartOfText:number;
+
+            for (lastPartOfText = 0 ; lastPartOfText < content.length ; lastPartOfText++) {
+              if (content.charAt(lastPartOfText) === '{') {
+                counter++;
+                started = true;
+              }
+
+              if (content.charAt(lastPartOfText) === '}') {
+                counter--;
+              }
+
+              textPart += content.charAt(lastPartOfText);
+
+              if (started && counter === 0) {
+                // chopping off the content, starting from the end of the text part, up to the end
+                data = data.slice(lastPartOfText+1);
+
+                // we have read already a json, and it's completely closed now
+                break;
+              }
+            }
+            dispatchToHandlers(textPart, data);
+          });
+          reader.readAsText(data);
+        } else {
+          dispatchToHandlers(data);
+        }
+      };
+
+      function dispatchToHandlers(message:string, binaryData?:Blob) {
+        let handlerFound:boolean = false;
         for (let i = 0; i < responseHandlers.length; i++) {
           let h = responseHandlers[i];
-          if (data.indexOf(h.prefix) === 0) {
-            let opResult = JSON.parse(data.substring(h.prefix.length));
-            h.handle(opResult);
+          if (message.indexOf(h.prefix) === 0) {
+            handlerFound = true;
+            let opResult = JSON.parse(message.substring(h.prefix.length));
+            h.handle(opResult, binaryData);
             break;
           }
         }
-        $log.info('Unexpected WebSocket Execution Ops message: ', message);
-      };
+
+        if (!handlerFound) {
+          $log.info('Unexpected WebSocket Execution Ops message: ', message);
+        }
+      }
 
       factory.init = (ns:any) => {
         NotificationService = ns;
@@ -249,6 +333,19 @@ module hawkularRest {
         let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
         $log.log('AddJDBCDriverRequest: ' + json);
         ws.send(binaryblob);
+      };
+
+      factory.performExportJDROperation = (resourcePath:string, authToken:string, personaId:string) => {
+        let operation = {
+          "resourcePath": resourcePath,
+          "authentication": {
+            "token": authToken,
+            "persona": personaId
+          }
+        };
+        let json = JSON.stringify(operation);
+        $log.log('ExportJdrRequest=' + json);
+        ws.send('ExportJdrRequest=' + json);
       };
 
       return factory;
