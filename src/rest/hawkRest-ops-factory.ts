@@ -98,6 +98,30 @@ module hawkularRest {
           }
         },
         {
+          prefix: 'AddJdbcDriverResponse=',
+          handle: (addDriverResponse)  => {
+            let message;
+
+            if (addDriverResponse.status === "OK") {
+              message =
+                addDriverResponse.message + '" on resource "' + addDriverResponse.resourcePath + '" with success.';
+
+              $rootScope.$broadcast('JDBCDriverAddSuccess', message);
+
+            } else if (addDriverResponse.status === "ERROR") {
+              message = 'Add JBDC Driver on resource "'
+                + addDriverResponse.resourcePath + '" failed: ' + addDriverResponse.message;
+
+              $rootScope.$broadcast('JDBCDriverAddError', message);
+            } else {
+              message = 'Add JBDC Driver on resource "'
+                + addDriverResponse.resourcePath + '" failed: ' + addDriverResponse.message;
+              console.error('Unexpected AddJdbcDriverOperationResponse: ', addDriverResponse);
+              $rootScope.$broadcast('JDBCDriverAddError', message);
+            }
+          }
+        },
+        {
           prefix: 'GenericErrorResponse=',
           handle: (operationResponse) => {
             NotificationService.error('Operation failed: ' + operationResponse.message);
@@ -142,6 +166,22 @@ module hawkularRest {
           "authentication": {"token":"${authToken}", "persona":"${personaId}" } }`;
         let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
         console.log('DeployApplicationRequest: ' + json);
+        ws.send(binaryblob);
+      };
+
+      factory.performAddJDBCDriverOperation = (resourcePath: string,
+                                               driverJarName: string,
+                                               driverName: string,
+                                               moduleName: string,
+                                               driverClass: string,
+                                               fileBinaryContent:any,
+                                               authToken:string,
+                                               personaId:string) => {
+        let json = `AddJdbcDriverRequest={"resourcePath": "${resourcePath}",
+        "driverJarName":"${driverJarName}", "driverName":"${driverName}", "moduleName":"${moduleName}",
+        "driverClass":"${driverClass}", "authentication": {"token":"${authToken}", "persona":"${personaId}" } }`;
+        let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
+        console.log('AddJDBCDriverRequest: ' + json);
         ws.send(binaryblob);
       };
 
