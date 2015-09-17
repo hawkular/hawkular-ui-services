@@ -738,6 +738,28 @@ var hawkularRest;
                         }
                     },
                     {
+                        prefix: 'AddJdbcDriverResponse=',
+                        handle: function (addDriverResponse) {
+                            var message;
+                            if (addDriverResponse.status === "OK") {
+                                message =
+                                    addDriverResponse.message + '" on resource "' + addDriverResponse.resourcePath + '" with success.';
+                                $rootScope.$broadcast('JDBCDriverAddSuccess', message);
+                            }
+                            else if (addDriverResponse.status === "ERROR") {
+                                message = 'Add JBDC Driver on resource "'
+                                    + addDriverResponse.resourcePath + '" failed: ' + addDriverResponse.message;
+                                $rootScope.$broadcast('JDBCDriverAddError', message);
+                            }
+                            else {
+                                message = 'Add JBDC Driver on resource "'
+                                    + addDriverResponse.resourcePath + '" failed: ' + addDriverResponse.message;
+                                console.error('Unexpected AddJdbcDriverOperationResponse: ', addDriverResponse);
+                                $rootScope.$broadcast('JDBCDriverAddError', message);
+                            }
+                        }
+                    },
+                    {
                         prefix: 'GenericErrorResponse=',
                         handle: function (operationResponse) {
                             NotificationService.error('Operation failed: ' + operationResponse.message);
@@ -770,6 +792,12 @@ var hawkularRest;
                     var json = "DeployApplicationRequest={\"resourcePath\": \"" + resourcePath + "\",\n        \"destinationFileName\":\"" + destinationFileName + "\", \"enabled\":\"" + enabled + "\",\n          \"authentication\": {\"token\":\"" + authToken + "\", \"persona\":\"" + personaId + "\" } }";
                     var binaryblob = new Blob([json, fileBinaryContent], { type: 'application/octet-stream' });
                     console.log('DeployApplicationRequest: ' + json);
+                    ws.send(binaryblob);
+                };
+                factory.performAddJDBCDriverOperation = function (resourcePath, driverJarName, driverName, moduleName, driverClass, fileBinaryContent, authToken, personaId) {
+                    var json = "AddJdbcDriverRequest={\"resourcePath\": \"" + resourcePath + "\",\n        \"driverJarName\":\"" + driverJarName + "\", \"driverName\":\"" + driverName + "\", \"moduleName\":\"" + moduleName + "\",\n        \"driverClass\":\"" + driverClass + "\", \"authentication\": {\"token\":\"" + authToken + "\", \"persona\":\"" + personaId + "\" } }";
+                    var binaryblob = new Blob([json, fileBinaryContent], { type: 'application/octet-stream' });
+                    console.log('AddJDBCDriverRequest: ' + json);
                     ws.send(binaryblob);
                 };
                 return factory;
