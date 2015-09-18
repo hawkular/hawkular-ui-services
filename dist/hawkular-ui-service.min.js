@@ -682,7 +682,7 @@ var hawkularRest;
             _this.port = port;
             return _this;
         };
-        this.$get = ['$location', '$rootScope', function ($location, $rootScope) {
+        this.$get = ['$location', '$rootScope', '$log', function ($location, $rootScope, $log) {
                 _this.setHost(_this.host || $location.host() || 'localhost');
                 _this.setPort(_this.port || $location.port() || 8080);
                 var prefix = 'ws://' + _this.host + ':' + _this.port;
@@ -694,13 +694,13 @@ var hawkularRest;
                 var responseHandlers = [{
                         prefix: 'GenericSuccessResponse=',
                         handle: function (operationResponse) {
-                            console.log('Execution Operation request delivery: ', operationResponse.message);
+                            $log.log('Execution Operation request delivery: ', operationResponse.message);
                             NotificationService.info('Execution Ops request delivery: ' + operationResponse.message);
                         }
                     }, {
                         prefix: 'ExecuteOperationResponse=',
                         handle: function (operationResponse) {
-                            console.log('Handling ExecuteOperationResponse');
+                            $log.log('Handling ExecuteOperationResponse');
                             if (operationResponse.status === "OK") {
                                 NotificationService.success('Operation "' + operationResponse.operationName + '" on resource "'
                                     + operationResponse.resourceId + '" succeeded.');
@@ -710,7 +710,7 @@ var hawkularRest;
                                     + operationResponse.resourceId + '" failed: ' + operationResponse.message);
                             }
                             else {
-                                console.log('Unexpected operationResponse: ', operationResponse);
+                                $log.log('Unexpected operationResponse: ', operationResponse);
                             }
                         }
                     },
@@ -732,7 +732,7 @@ var hawkularRest;
                             else {
                                 message = 'Deployment File: "' + deploymentResponse.destinationFileName + '" on resource "'
                                     + deploymentResponse.resourcePath + '" failed: ' + deploymentResponse.message;
-                                console.error('Unexpected AddDeploymentOperationResponse: ', deploymentResponse);
+                                $log.warn('Unexpected AddDeploymentOperationResponse: ', deploymentResponse);
                                 $rootScope.$broadcast('DeploymentAddError', message);
                             }
                         }
@@ -754,7 +754,7 @@ var hawkularRest;
                             else {
                                 message = 'Add JBDC Driver on resource "'
                                     + addDriverResponse.resourcePath + '" failed: ' + addDriverResponse.message;
-                                console.error('Unexpected AddJdbcDriverOperationResponse: ', addDriverResponse);
+                                $log.warn('Unexpected AddJdbcDriverOperationResponse: ', addDriverResponse);
                                 $rootScope.$broadcast('JDBCDriverAddError', message);
                             }
                         }
@@ -762,14 +762,20 @@ var hawkularRest;
                     {
                         prefix: 'GenericErrorResponse=',
                         handle: function (operationResponse) {
-                            NotificationService.error('Operation failed: ' + operationResponse.message);
+                            $log.warn('Unexpected AddJdbcDriverOperationResponse: ', operationResponse.message);
+                            NotificationService.info('Operation failed: ' + operationResponse.message);
                         }
                     }];
                 ws.onopen = function () {
-                    console.log('Execution Ops Socket has been opened!');
+                    $log.log('Execution Ops Socket has been opened!');
+                };
+                ws.onclose = function (event) {
+                    $log.warn('Execution Ops Socket closed!');
+                    NotificationService.error('Execution Ops socket closed: ' + event.reason);
+                    $rootScope.$broadcast('WebSocketClosed', event.reason);
                 };
                 ws.onmessage = function (message) {
-                    console.log('Execution Ops WebSocket received:', message);
+                    $log.log('Execution Ops WebSocket received:', message);
                     var data = message.data;
                     for (var i = 0; i < responseHandlers.length; i++) {
                         var h = responseHandlers[i];
@@ -779,7 +785,7 @@ var hawkularRest;
                             break;
                         }
                     }
-                    console.info('Unexpected WebSocket Execution Ops message: ', message);
+                    $log.info('Unexpected WebSocket Execution Ops message: ', message);
                 };
                 factory.init = function (ns) {
                     NotificationService = ns;
@@ -791,13 +797,13 @@ var hawkularRest;
                     if (enabled === void 0) { enabled = true; }
                     var json = "DeployApplicationRequest={\"resourcePath\": \"" + resourcePath + "\",\n        \"destinationFileName\":\"" + destinationFileName + "\", \"enabled\":\"" + enabled + "\",\n          \"authentication\": {\"token\":\"" + authToken + "\", \"persona\":\"" + personaId + "\" } }";
                     var binaryblob = new Blob([json, fileBinaryContent], { type: 'application/octet-stream' });
-                    console.log('DeployApplicationRequest: ' + json);
+                    $log.log('DeployApplicationRequest: ' + json);
                     ws.send(binaryblob);
                 };
                 factory.performAddJDBCDriverOperation = function (resourcePath, driverJarName, driverName, moduleName, driverClass, fileBinaryContent, authToken, personaId) {
                     var json = "AddJdbcDriverRequest={\"resourcePath\": \"" + resourcePath + "\",\n        \"driverJarName\":\"" + driverJarName + "\", \"driverName\":\"" + driverName + "\", \"moduleName\":\"" + moduleName + "\",\n        \"driverClass\":\"" + driverClass + "\", \"authentication\": {\"token\":\"" + authToken + "\", \"persona\":\"" + personaId + "\" } }";
                     var binaryblob = new Blob([json, fileBinaryContent], { type: 'application/octet-stream' });
-                    console.log('AddJDBCDriverRequest: ' + json);
+                    $log.log('AddJDBCDriverRequest: ' + json);
                     ws.send(binaryblob);
                 };
                 return factory;
