@@ -23,6 +23,45 @@
 
 module hawkularRest {
 
+  // Schema definitions from: https://github.com/hawkular/hawkular-command-gateway/tree/master/hawkular-command-gateway-api/src/main/resources/schema
+  interface ICommonResponse {
+    message: string;
+    status: string;
+    resourcePath: string;
+  }
+
+  interface IExecutionOperationResponse extends ICommonResponse {
+    operationName: string;
+  }
+
+  interface IDeployApplicationResponse extends ICommonResponse {
+    destinationFileName: string;
+  }
+
+  interface IAddJdbcDriverResponse {
+    status: string;
+    resourcePath: string;
+    message?: string;
+  }
+
+  interface IAddDatasourceResponse {
+    status: string;
+    resourcePath: string;
+    message?: string;
+  }
+
+  interface IGenericErrorResponse {
+    errorMessage: string;
+    stackTrace: string;
+  }
+
+
+  interface IWebSocketResponseHandler {
+    prefix: string;
+    handle: (any) => void;
+  }
+
+
   _module.provider('HawkularOps', function () {
 
     this.setHost = (host) => {
@@ -35,7 +74,7 @@ module hawkularRest {
       return this;
     };
 
-    this.$get = ['$location', '$rootScope','$log',  ($location, $rootScope, $log) => {
+    this.$get = ['$location', '$rootScope', '$log', ($location, $rootScope, $log) => {
       // If available, used pre-configured values, otherwise use values from current browser location of fallback to
       // defaults
       this.setHost(this.host || $location.host() || 'localhost');
@@ -49,24 +88,24 @@ module hawkularRest {
 
       let ws = new WebSocket(url);
 
-      let responseHandlers = [{
+      const responseHandlers:IWebSocketResponseHandler[] = [{
         prefix: 'GenericSuccessResponse=',
-        handle: (operationResponse:any) => {
+        handle: (operationResponse) => {
           $log.log('Execution Operation request delivery: ', operationResponse.message);
           // Probably makes no sense to show this in the UI
           NotificationService.info('Execution Ops request delivery: ' + operationResponse.message);
         }
       }, {
         prefix: 'ExecuteOperationResponse=',
-        handle: (operationResponse:any) => {
+        handle: (operationResponse:IExecutionOperationResponse) => {
           $log.log('Handling ExecuteOperationResponse');
           if (operationResponse.status === "OK") {
 
             NotificationService.success('Operation "' + operationResponse.operationName + '" on resource "'
-              + operationResponse.resourceId + '" succeeded.');
+              + operationResponse.resourcePath + '" succeeded.');
           } else if (operationResponse.status === "ERROR") {
             NotificationService.error('Operation "' + operationResponse.operationName + '" on resource "'
-              + operationResponse.resourceId + '" failed: ' + operationResponse.message);
+              + operationResponse.resourcePath + '" failed: ' + operationResponse.message);
           } else {
             $log.log('Unexpected operationResponse: ', operationResponse);
           }
@@ -74,7 +113,7 @@ module hawkularRest {
       },
         {
           prefix: 'DeployApplicationResponse=',
-          handle: (deploymentResponse)  => {
+          handle: (deploymentResponse:IDeployApplicationResponse)  => {
             let message;
 
             if (deploymentResponse.status === "OK") {
@@ -99,7 +138,7 @@ module hawkularRest {
         },
         {
           prefix: 'AddJdbcDriverResponse=',
-          handle: (addDriverResponse)  => {
+          handle: (addDriverResponse:IAddJdbcDriverResponse)  => {
             let message;
 
             if (addDriverResponse.status === "OK") {
@@ -123,9 +162,9 @@ module hawkularRest {
         },
         {
           prefix: 'GenericErrorResponse=',
-          handle: (operationResponse) => {
-            $log.warn('Unexpected AddJdbcDriverOperationResponse: ', operationResponse.message);
-            NotificationService.info('Operation failed: ' + operationResponse.message);
+          handle: (operationResponse:IGenericErrorResponse) => {
+            $log.warn('Unexpected AddJdbcDriverOperationResponse: ', operationResponse.errorMessage);
+            NotificationService.info('Operation failed: ' + operationResponse.errorMessage);
           }
         }];
 
@@ -171,18 +210,19 @@ module hawkularRest {
         let json = `DeployApplicationRequest={"resourcePath": "${resourcePath}",
         "destinationFileName":"${destinationFileName}", "enabled":"${enabled}",
           "authentication": {"token":"${authToken}", "persona":"${personaId}" } }`;
+
         let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
         $log.log('DeployApplicationRequest: ' + json);
         ws.send(binaryblob);
       };
 
-      factory.performAddJDBCDriverOperation = (resourcePath: string,
-                                               driverJarName: string,
-                                               driverName: string,
-                                               moduleName: string,
-                                               driverClass: string,
-                                               driverMajorVersion: number,
-                                               driverMinorVersion: number,
+      factory.performAddJDBCDriverOperation = (resourcePath:string,
+                                               driverJarName:string,
+                                               driverName:string,
+                                               moduleName:string,
+                                               driverClass:string,
+                                               driverMajorVersion:number,
+                                               driverMinorVersion:number,
                                                fileBinaryContent:any,
                                                authToken:string,
                                                personaId:string) => {
@@ -198,8 +238,12 @@ module hawkularRest {
           }
         };
 
-        if (driverMajorVersion) { driverObject.driverMajorVersion = driverMajorVersion; }
-        if (driverMinorVersion) { driverObject.driverMinorVersion = driverMinorVersion; }
+        if (driverMajorVersion) {
+          driverObject.driverMajorVersion = driverMajorVersion;
+        }
+        if (driverMinorVersion) {
+          driverObject.driverMinorVersion = driverMinorVersion;
+        }
 
         let json = `AddJdbcDriverRequest=${JSON.stringify(driverObject)}`;
         let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
