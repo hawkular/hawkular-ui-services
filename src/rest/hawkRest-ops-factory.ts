@@ -35,7 +35,7 @@ module hawkularRest {
       return this;
     };
 
-    this.$get = ['$location', '$rootScope', ($location, $rootScope) => {
+    this.$get = ['$location', '$rootScope','$log',  ($location, $rootScope, $log) => {
       // If available, used pre-configured values, otherwise use values from current browser location of fallback to
       // defaults
       this.setHost(this.host || $location.host() || 'localhost');
@@ -52,14 +52,14 @@ module hawkularRest {
       let responseHandlers = [{
         prefix: 'GenericSuccessResponse=',
         handle: (operationResponse:any) => {
-          console.log('Execution Operation request delivery: ', operationResponse.message);
+          $log.log('Execution Operation request delivery: ', operationResponse.message);
           // Probably makes no sense to show this in the UI
           NotificationService.info('Execution Ops request delivery: ' + operationResponse.message);
         }
       }, {
         prefix: 'ExecuteOperationResponse=',
         handle: (operationResponse:any) => {
-          console.log('Handling ExecuteOperationResponse');
+          $log.log('Handling ExecuteOperationResponse');
           if (operationResponse.status === "OK") {
 
             NotificationService.success('Operation "' + operationResponse.operationName + '" on resource "'
@@ -68,7 +68,7 @@ module hawkularRest {
             NotificationService.error('Operation "' + operationResponse.operationName + '" on resource "'
               + operationResponse.resourceId + '" failed: ' + operationResponse.message);
           } else {
-            console.log('Unexpected operationResponse: ', operationResponse);
+            $log.log('Unexpected operationResponse: ', operationResponse);
           }
         }
       },
@@ -92,7 +92,7 @@ module hawkularRest {
             } else {
               message = 'Deployment File: "' + deploymentResponse.destinationFileName + '" on resource "'
                 + deploymentResponse.resourcePath + '" failed: ' + deploymentResponse.message;
-              console.error('Unexpected AddDeploymentOperationResponse: ', deploymentResponse);
+              $log.warn('Unexpected AddDeploymentOperationResponse: ', deploymentResponse);
               $rootScope.$broadcast('DeploymentAddError', message);
             }
           }
@@ -116,7 +116,7 @@ module hawkularRest {
             } else {
               message = 'Add JBDC Driver on resource "'
                 + addDriverResponse.resourcePath + '" failed: ' + addDriverResponse.message;
-              console.error('Unexpected AddJdbcDriverOperationResponse: ', addDriverResponse);
+              $log.warn('Unexpected AddJdbcDriverOperationResponse: ', addDriverResponse);
               $rootScope.$broadcast('JDBCDriverAddError', message);
             }
           }
@@ -124,16 +124,23 @@ module hawkularRest {
         {
           prefix: 'GenericErrorResponse=',
           handle: (operationResponse) => {
-            NotificationService.error('Operation failed: ' + operationResponse.message);
+            $log.warn('Unexpected AddJdbcDriverOperationResponse: ', operationResponse.message);
+            NotificationService.info('Operation failed: ' + operationResponse.message);
           }
         }];
 
       ws.onopen = () => {
-        console.log('Execution Ops Socket has been opened!');
+        $log.log('Execution Ops Socket has been opened!');
+      };
+
+      ws.onclose = (event) => {
+        $log.warn('Execution Ops Socket closed!');
+        NotificationService.error('Execution Ops socket closed: ' + event.reason);
+        $rootScope.$broadcast('WebSocketClosed', event.reason);
       };
 
       ws.onmessage = (message:any) => {
-        console.log('Execution Ops WebSocket received:', message);
+        $log.log('Execution Ops WebSocket received:', message);
         let data = message.data;
 
         for (let i = 0; i < responseHandlers.length; i++) {
@@ -144,7 +151,7 @@ module hawkularRest {
             break;
           }
         }
-        console.info('Unexpected WebSocket Execution Ops message: ', message);
+        $log.info('Unexpected WebSocket Execution Ops message: ', message);
       };
 
       factory.init = (ns:any) => {
@@ -165,7 +172,7 @@ module hawkularRest {
         "destinationFileName":"${destinationFileName}", "enabled":"${enabled}",
           "authentication": {"token":"${authToken}", "persona":"${personaId}" } }`;
         let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
-        console.log('DeployApplicationRequest: ' + json);
+        $log.log('DeployApplicationRequest: ' + json);
         ws.send(binaryblob);
       };
 
@@ -181,7 +188,7 @@ module hawkularRest {
         "driverJarName":"${driverJarName}", "driverName":"${driverName}", "moduleName":"${moduleName}",
         "driverClass":"${driverClass}", "authentication": {"token":"${authToken}", "persona":"${personaId}" } }`;
         let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
-        console.log('AddJDBCDriverRequest: ' + json);
+        $log.log('AddJDBCDriverRequest: ' + json);
         ws.send(binaryblob);
       };
 
