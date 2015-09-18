@@ -1,9 +1,9 @@
 language: node_js
 node_js:
-  - '0.10'
+  - '0.12.6'
 
 before_install:
   - 'npm install -g bower gulp typescript'
 
-script: 
-  - 'npm install && bower instal && gulp build'
+script:
+  - 'npm install && bower install && gulp build'
