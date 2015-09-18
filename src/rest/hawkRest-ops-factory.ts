@@ -181,12 +181,27 @@ module hawkularRest {
                                                driverName: string,
                                                moduleName: string,
                                                driverClass: string,
+                                               driverMajorVersion: number,
+                                               driverMinorVersion: number,
                                                fileBinaryContent:any,
                                                authToken:string,
                                                personaId:string) => {
-        let json = `AddJdbcDriverRequest={"resourcePath": "${resourcePath}",
-        "driverJarName":"${driverJarName}", "driverName":"${driverName}", "moduleName":"${moduleName}",
-        "driverClass":"${driverClass}", "authentication": {"token":"${authToken}", "persona":"${personaId}" } }`;
+        let driverObject:any = {
+          resourcePath,
+          driverJarName,
+          driverName,
+          moduleName,
+          driverClass,
+          authentication: {
+            token: authToken,
+            persona: personaId
+          }
+        };
+
+        if (driverMajorVersion) { driverObject.driverMajorVersion = driverMajorVersion; }
+        if (driverMinorVersion) { driverObject.driverMinorVersion = driverMinorVersion; }
+
+        let json = `AddJdbcDriverRequest=${JSON.stringify(driverObject)}`;
         let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
         $log.log('AddJDBCDriverRequest: ' + json);
         ws.send(binaryblob);
