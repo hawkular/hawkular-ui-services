@@ -800,8 +800,25 @@ var hawkularRest;
                     $log.log('DeployApplicationRequest: ' + json);
                     ws.send(binaryblob);
                 };
-                factory.performAddJDBCDriverOperation = function (resourcePath, driverJarName, driverName, moduleName, driverClass, fileBinaryContent, authToken, personaId) {
-                    var json = "AddJdbcDriverRequest={\"resourcePath\": \"" + resourcePath + "\",\n        \"driverJarName\":\"" + driverJarName + "\", \"driverName\":\"" + driverName + "\", \"moduleName\":\"" + moduleName + "\",\n        \"driverClass\":\"" + driverClass + "\", \"authentication\": {\"token\":\"" + authToken + "\", \"persona\":\"" + personaId + "\" } }";
+                factory.performAddJDBCDriverOperation = function (resourcePath, driverJarName, driverName, moduleName, driverClass, driverMajorVersion, driverMinorVersion, fileBinaryContent, authToken, personaId) {
+                    var driverObject = {
+                        resourcePath: resourcePath,
+                        driverJarName: driverJarName,
+                        driverName: driverName,
+                        moduleName: moduleName,
+                        driverClass: driverClass,
+                        authentication: {
+                            token: authToken,
+                            persona: personaId
+                        }
+                    };
+                    if (driverMajorVersion) {
+                        driverObject.driverMajorVersion = driverMajorVersion;
+                    }
+                    if (driverMinorVersion) {
+                        driverObject.driverMinorVersion = driverMinorVersion;
+                    }
+                    var json = "AddJdbcDriverRequest=" + JSON.stringify(driverObject);
                     var binaryblob = new Blob([json, fileBinaryContent], { type: 'application/octet-stream' });
                     $log.log('AddJDBCDriverRequest: ' + json);
                     ws.send(binaryblob);
