@@ -693,21 +693,21 @@ var hawkularRest;
                 var ws = new WebSocket(url);
                 var responseHandlers = [{
                         prefix: 'GenericSuccessResponse=',
-                        handle: function (operationResponse) {
+                        handle: function (operationResponse, binaryData) {
                             $log.log('Execution Operation request delivery: ', operationResponse.message);
                             NotificationService.info('Execution Ops request delivery: ' + operationResponse.message);
                         }
                     }, {
                         prefix: 'ExecuteOperationResponse=',
-                        handle: function (operationResponse) {
+                        handle: function (operationResponse, binaryData) {
                             $log.log('Handling ExecuteOperationResponse');
                             if (operationResponse.status === "OK") {
                                 NotificationService.success('Operation "' + operationResponse.operationName + '" on resource "'
-                                    + operationResponse.resourceId + '" succeeded.');
+                                    + operationResponse.resourcePath + '" succeeded.');
                             }
                             else if (operationResponse.status === "ERROR") {
                                 NotificationService.error('Operation "' + operationResponse.operationName + '" on resource "'
-                                    + operationResponse.resourceId + '" failed: ' + operationResponse.message);
+                                    + operationResponse.resourcePath + '" failed: ' + operationResponse.message);
                             }
                             else {
                                 $log.log('Unexpected operationResponse: ', operationResponse);
@@ -716,7 +716,7 @@ var hawkularRest;
                     },
                     {
                         prefix: 'DeployApplicationResponse=',
-                        handle: function (deploymentResponse) {
+                        handle: function (deploymentResponse, binaryData) {
                             var message;
                             if (deploymentResponse.status === "OK") {
                                 message =
@@ -739,7 +739,7 @@ var hawkularRest;
                     },
                     {
                         prefix: 'AddJdbcDriverResponse=',
-                        handle: function (addDriverResponse) {
+                        handle: function (addDriverResponse, binaryData) {
                             var message;
                             if (addDriverResponse.status === "OK") {
                                 message =
@@ -760,10 +760,41 @@ var hawkularRest;
                         }
                     },
                     {
+                        prefix: 'ExportJdrResponse=',
+                        handle: function (jdrResponse, binaryData) {
+                            var message;
+                            if (jdrResponse.status === "OK") {
+                                message = 'JDR generated';
+                                var reportFileName = jdrResponse.fileName;
+                                var a = document.createElement("a");
+                                document.body.appendChild(a);
+                                a.style.display = "none";
+                                var url = URL.createObjectURL(binaryData);
+                                a.href = url;
+                                a['download'] = reportFileName;
+                                a.click();
+                                setTimeout(function () {
+                                    document.body.removeChild(a);
+                                    URL.revokeObjectURL(url);
+                                }, 100);
+                                $rootScope.$broadcast('ExportJDRSuccess', message);
+                            }
+                            else if (jdrResponse.status === "ERROR") {
+                                message = 'Export of JDR failed: ' + jdrResponse.message;
+                                $rootScope.$broadcast('ExportJDRError', message);
+                            }
+                            else {
+                                message = 'Export of JDR failed: ' + jdrResponse.message;
+                                console.error('Unexpected ExportJdrResponse: ', jdrResponse);
+                                $rootScope.$broadcast('ExportJDRError', message);
+                            }
+                        }
+                    },
+                    {
                         prefix: 'GenericErrorResponse=',
-                        handle: function (operationResponse) {
-                            $log.warn('Unexpected AddJdbcDriverOperationResponse: ', operationResponse.message);
-                            NotificationService.info('Operation failed: ' + operationResponse.message);
+                        handle: function (operationResponse, binaryData) {
+                            $log.warn('Unexpected AddJdbcDriverOperationResponse: ', operationResponse.errorMessage);
+                            NotificationService.info('Operation failed: ' + operationResponse.errorMessage);
                         }
                     }];
                 ws.onopen = function () {
@@ -777,16 +808,51 @@ var hawkularRest;
                 ws.onmessage = function (message) {
                     $log.log('Execution Ops WebSocket received:', message);
                     var data = message.data;
+                    if (data instanceof Blob) {
+                        var reader = new FileReader();
+                        reader.addEventListener("loadend", function () {
+                            var textPart = "";
+                            var content = reader.result;
+                            var counter = 0;
+                            var started = false;
+                            var lastPartOfText;
+                            for (lastPartOfText = 0; lastPartOfText < content.length; lastPartOfText++) {
+                                if (content.charAt(lastPartOfText) === '{') {
+                                    counter++;
+                                    started = true;
+                                }
+                                if (content.charAt(lastPartOfText) === '}') {
+                                    counter--;
+                                }
+                                textPart += content.charAt(lastPartOfText);
+                                if (started && counter === 0) {
+                                    data = data.slice(lastPartOfText + 1);
+                                    break;
+                                }
+                            }
+                            dispatchToHandlers(textPart, data);
+                        });
+                        reader.readAsText(data);
+                    }
+                    else {
+                        dispatchToHandlers(data);
+                    }
+                };
+                function dispatchToHandlers(message, binaryData) {
+                    var handlerFound = false;
                     for (var i = 0; i < responseHandlers.length; i++) {
                         var h = responseHandlers[i];
-                        if (data.indexOf(h.prefix) === 0) {
-                            var opResult = JSON.parse(data.substring(h.prefix.length));
-                            h.handle(opResult);
+                        if (message.indexOf(h.prefix) === 0) {
+                            handlerFound = true;
+                            var opResult = JSON.parse(message.substring(h.prefix.length));
+                            h.handle(opResult, binaryData);
                             break;
                         }
                     }
-                    $log.info('Unexpected WebSocket Execution Ops message: ', message);
-                };
+                    if (!handlerFound) {
+                        $log.info('Unexpected WebSocket Execution Ops message: ', message);
+                    }
+                }
                 factory.init = function (ns) {
                     NotificationService = ns;
                 };
@@ -822,6 +888,18 @@ var hawkularRest;
                     var binaryblob = new Blob([json, fileBinaryContent], { type: 'application/octet-stream' });
                     $log.log('AddJDBCDriverRequest: ' + json);
                     ws.send(binaryblob);
+                };
+                factory.performExportJDROperation = function (resourcePath, authToken, personaId) {
+                    var operation = {
+                        "resourcePath": resourcePath,
+                        "authentication": {
+                            "token": authToken,
+                            "persona": personaId
+                        }
+                    };
+                    var json = JSON.stringify(operation);
+                    $log.log('ExportJdrRequest=' + json);
+                    ws.send('ExportJdrRequest=' + json);
                 };
                 return factory;
             }];
