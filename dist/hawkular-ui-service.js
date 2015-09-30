@@ -598,6 +598,23 @@ var hawkularRest;
                         }
                     });
                 };
+                factory.CounterMetricRate = function (tenantId) {
+                    return $resource(url + '/counters/:counterId/rate', {
+                        counterId: '@counterId'
+                    }, {
+                        queryMetrics: {
+                            method: 'GET',
+                            isArray: true,
+                            headers: { 'Hawkular-Tenant': tenantId }
+                        },
+                        queryMetricsTimeRange: {
+                            method: 'GET',
+                            isArray: true,
+                            params: { buckets: 60, start: '@startTimestamp', end: '@endTimestamp' },
+                            headers: { 'Hawkular-Tenant': tenantId }
+                        }
+                    });
+                };
                 factory.AvailabilityMetric = function (tenantId) {
                     return $resource(url + '/availability', null, {
                         get: {
