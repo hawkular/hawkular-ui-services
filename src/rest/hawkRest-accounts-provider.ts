@@ -53,6 +53,9 @@ module hawkularRest {
 
             factory.Organization = $resource(prefix + '/hawkular/accounts/organizations/:id', {id:'@id'});
             factory.Persona = $resource(prefix + '/hawkular/accounts/personas/:id', {id:'@id'});
+            factory.OrganizationMembership = $resource(
+              prefix + '/hawkular/accounts/organizationMemberships/:organizationId', {organizationId:'@organizationId'}
+            );
 
             return factory;
         }];
