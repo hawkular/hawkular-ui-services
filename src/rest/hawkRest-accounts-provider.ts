@@ -56,6 +56,11 @@ module hawkularRest {
             factory.OrganizationMembership = $resource(
               prefix + '/hawkular/accounts/organizationMemberships/:organizationId', {organizationId:'@organizationId'}
             );
+            factory.OrganizationInvitation = $resource(
+              prefix + '/hawkular/accounts/invitations/:id', null, {
+                'update': {method: 'PUT'}
+              }
+            );
 
             return factory;
         }];
