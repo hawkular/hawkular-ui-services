@@ -166,9 +166,18 @@ module hawkularRest {
           params: {
             actionPlugin: '@actionPlugin'
           }
+        },
+        queryHistory: {
+          method: 'GET',
+          isArray: true,
+          url: prefix + '/hawkular/alerts/actions/history'
+        },
+        deleteHistory: {
+          method: 'PUT',
+          isArray: true,
+          url: prefix + '/hawkular/alerts/actions/history/delete'
         }
       });
-
       return factory;
     }];
 

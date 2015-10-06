@@ -607,7 +607,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
 
     it('should retrieve full trigger correctly', function() {
       // nothing to doc
-      });
+    });
 
   });
 
@@ -1074,6 +1074,36 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
 
     it ('should get list of actions of email plugin', function() {
       expect(resultActionsId.length).toBeGreaterThan(0);
+    });
+  });
+
+  describe('Query Action History', function() {
+
+    jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+    var resultHistoryActions;
+
+    beforeEach(function(done) {
+      result = HawkularAlert.Action.queryHistory({}).$promise.then(
+        // Successful Action plugin
+        function(historyActions) {
+          debug && dump(JSON.stringify(historyActions));
+          resultHistoryActions = historyActions;
+        },
+        // Error Action plugin
+        function(errorHistoryActionsId) {
+          debug && dump(errorFn(errorHistoryActionsId));
+        }
+      ).finally(function() {
+          done();
+        });
+
+
+      httpReal.submit();
+    });
+
+    it ('should get list of history actions', function() {
+      expect(resultHistoryActions.length).toBeGreaterThan(0);
     });
   });
 
