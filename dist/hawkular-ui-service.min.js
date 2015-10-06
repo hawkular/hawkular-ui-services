@@ -69,6 +69,12 @@ var hawkularRest;
                 var factory = {};
                 factory.Organization = $resource(prefix + '/hawkular/accounts/organizations/:id', { id: '@id' });
                 factory.Persona = $resource(prefix + '/hawkular/accounts/personas/:id', { id: '@id' });
+                factory.Role = $resource(prefix + '/hawkular/accounts/roles/:id', { id: '@id' });
+                factory.Permission = $resource(prefix + '/hawkular/accounts/permissions/:id', { id: '@id' });
+                factory.OrganizationMembership = $resource(prefix + '/hawkular/accounts/organizationMemberships/:organizationId', { organizationId: '@organizationId' });
+                factory.OrganizationInvitation = $resource(prefix + '/hawkular/accounts/invitations/:id', null, {
+                    'update': { method: 'PUT' }
+                });
                 return factory;
             }];
     });
@@ -777,6 +783,28 @@ var hawkularRest;
                         }
                     },
                     {
+                        prefix: 'AddDatasourceResponse=',
+                        handle: function (addDatasourceResponse, binaryData) {
+                            var message;
+                            if (addDatasourceResponse.status === "OK") {
+                                message =
+                                    addDatasourceResponse.message + '" on resource "' + addDatasourceResponse.resourcePath + '" with success.';
+                                $rootScope.$broadcast('DatasourceAddSuccess', message);
+                            }
+                            else if (addDatasourceResponse.status === "ERROR") {
+                                message = 'Add Datasource on resource "'
+                                    + addDatasourceResponse.resourcePath + '" failed: ' + addDatasourceResponse.message;
+                                $rootScope.$broadcast('DatasourceAddError', message);
+                            }
+                            else {
+                                message = 'Add Datasource on resource "'
+                                    + addDatasourceResponse.resourcePath + '" failed: ' + addDatasourceResponse.message;
+                                $log.warn('Unexpected AddDatasourceOperationResponse: ', addDatasourceResponse);
+                                $rootScope.$broadcast('DatasourceAddError', message);
+                            }
+                        }
+                    },
+                    {
                         prefix: 'ExportJdrResponse=',
                         handle: function (jdrResponse, binaryData) {
                             var message;
@@ -905,6 +933,29 @@ var hawkularRest;
                     var binaryblob = new Blob([json, fileBinaryContent], { type: 'application/octet-stream' });
                     $log.log('AddJDBCDriverRequest: ' + json);
                     ws.send(binaryblob);
+                };
+                factory.performAddDatasourceOperation = function (resourcePath, authToken, personaId, xaDatasource, datasourceName, jndiName, driverName, driverClass, connectionUrl, xaDataSourceClass, datasourceProperties, userName, password, securityDomain) {
+                    var datasourceObject = {
+                        resourcePath: resourcePath,
+                        xaDatasource: xaDatasource,
+                        datasourceName: datasourceName,
+                        jndiName: jndiName,
+                        driverName: driverName,
+                        driverClass: driverClass,
+                        connectionUrl: connectionUrl,
+                        xaDataSourceClass: xaDataSourceClass,
+                        datasourceProperties: datasourceProperties,
+                        userName: userName,
+                        password: password,
+                        securityDomain: securityDomain,
+                        authentication: {
+                            token: authToken,
+                            persona: personaId
+                        }
+                    };
+                    var json = "AddDatasourceRequest=" + JSON.stringify(datasourceObject);
+                    $log.log('AddDatasourceRequest: ' + json);
+                    ws.send(json);
                 };
                 factory.performExportJDROperation = function (resourcePath, authToken, personaId) {
                     var operation = {

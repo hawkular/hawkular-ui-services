@@ -168,6 +168,30 @@ module hawkularRest {
           }
         },
         {
+          prefix: 'AddDatasourceResponse=',
+          handle: (addDatasourceResponse:IAddDatasourceResponse, binaryData:Blob)  => {
+            let message;
+
+            if (addDatasourceResponse.status === "OK") {
+              message =
+                addDatasourceResponse.message + '" on resource "' + addDatasourceResponse.resourcePath + '" with success.';
+
+              $rootScope.$broadcast('DatasourceAddSuccess', message);
+
+            } else if (addDatasourceResponse.status === "ERROR") {
+              message = 'Add Datasource on resource "'
+                + addDatasourceResponse.resourcePath + '" failed: ' + addDatasourceResponse.message;
+
+              $rootScope.$broadcast('DatasourceAddError', message);
+            } else {
+              message = 'Add Datasource on resource "'
+                + addDatasourceResponse.resourcePath + '" failed: ' + addDatasourceResponse.message;
+              $log.warn('Unexpected AddDatasourceOperationResponse: ', addDatasourceResponse);
+              $rootScope.$broadcast('DatasourceAddError', message);
+            }
+          }
+        },
+        {
           prefix: 'ExportJdrResponse=',
           handle: (jdrResponse:IExportJdrResponse, binaryData:Blob)  => {
             let message;
@@ -333,6 +357,45 @@ module hawkularRest {
         let binaryblob = new Blob([json, fileBinaryContent], {type: 'application/octet-stream'});
         $log.log('AddJDBCDriverRequest: ' + json);
         ws.send(binaryblob);
+      };
+
+      factory.performAddDatasourceOperation = (resourcePath:string,
+                                               authToken:string,
+                                               personaId:string,
+                                               xaDatasource:string,
+                                               datasourceName:string,
+                                               jndiName:string,
+                                               driverName:string,
+                                               driverClass:string,
+                                               connectionUrl: string,
+                                               xaDataSourceClass:string, // optional
+                                               datasourceProperties:any, // optional
+                                               userName:string, // optional
+                                               password:string, // optional
+                                               securityDomain:string // optional
+                                               ) => {
+        let datasourceObject:any = {
+          resourcePath,
+          xaDatasource,
+          datasourceName,
+          jndiName,
+          driverName,
+          driverClass,
+          connectionUrl,
+          xaDataSourceClass,
+          datasourceProperties,
+          userName,
+          password,
+          securityDomain,
+          authentication: {
+            token: authToken,
+            persona: personaId
+          }
+        };
+
+        let json = `AddDatasourceRequest=${JSON.stringify(datasourceObject)}`;
+        $log.log('AddDatasourceRequest: ' + json);
+        ws.send(json);
       };
 
       factory.performExportJDROperation = (resourcePath:string, authToken:string, personaId:string) => {
