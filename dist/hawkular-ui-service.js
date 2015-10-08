@@ -67,11 +67,19 @@ var hawkularRest;
                 this.setPort(this.port || $location.port() || 8080);
                 var prefix = this.protocol + '://' + this.host + ':' + this.port;
                 var factory = {};
-                factory.Organization = $resource(prefix + '/hawkular/accounts/organizations/:id', { id: '@id' });
                 factory.Persona = $resource(prefix + '/hawkular/accounts/personas/:id', { id: '@id' });
                 factory.Role = $resource(prefix + '/hawkular/accounts/roles/:id', { id: '@id' });
                 factory.Permission = $resource(prefix + '/hawkular/accounts/permissions/:id', { id: '@id' });
-                factory.OrganizationMembership = $resource(prefix + '/hawkular/accounts/organizationMemberships/:organizationId', { organizationId: '@organizationId' });
+                factory.Organization = $resource(prefix + '/hawkular/accounts/organizations/:id', {
+                    id: '@id'
+                }, {
+                    'update': { method: 'PUT' }
+                });
+                factory.OrganizationMembership = $resource(prefix + '/hawkular/accounts/organizationMemberships/:id', {
+                    id: '@id'
+                }, {
+                    'update': { method: 'PUT' }
+                });
                 factory.OrganizationInvitation = $resource(prefix + '/hawkular/accounts/invitations/:id', null, {
                     'update': { method: 'PUT' }
                 });
@@ -224,6 +232,16 @@ var hawkularRest;
                         params: {
                             actionPlugin: '@actionPlugin'
                         }
+                    },
+                    queryHistory: {
+                        method: 'GET',
+                        isArray: true,
+                        url: prefix + '/hawkular/alerts/actions/history'
+                    },
+                    deleteHistory: {
+                        method: 'PUT',
+                        isArray: true,
+                        url: prefix + '/hawkular/alerts/actions/history/delete'
                     }
                 });
                 return factory;
