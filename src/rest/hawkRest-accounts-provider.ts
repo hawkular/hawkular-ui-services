@@ -73,6 +73,11 @@ module hawkularRest {
                 'update': {method: 'PUT'}
               }
             );
+            factory.Settings = $resource(
+              prefix + '/hawkular/accounts/settings', null, {
+                'update': {method: 'PUT'}
+              }
+            );
 
             return factory;
         }];
