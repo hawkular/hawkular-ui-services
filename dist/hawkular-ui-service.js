@@ -83,6 +83,9 @@ var hawkularRest;
                 factory.OrganizationInvitation = $resource(prefix + '/hawkular/accounts/invitations/:id', null, {
                     'update': { method: 'PUT' }
                 });
+                factory.Settings = $resource(prefix + '/hawkular/accounts/settings', null, {
+                    'update': { method: 'PUT' }
+                });
                 return factory;
             }];
     });
