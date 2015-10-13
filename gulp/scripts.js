@@ -33,7 +33,7 @@ gulp.task('scripts', function () {
     .pipe($.header(license))
     .pipe(gulp.dest(paths.dist + '/'))
     .pipe($.concat('hawkular-ui-service.min.js'))
-    .pipe($.uglify())
+    //.pipe($.uglify())
     .pipe(gulp.dest(paths.dist + '/'));
 });
 
