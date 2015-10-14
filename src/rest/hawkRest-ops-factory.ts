@@ -57,6 +57,13 @@ module hawkularRest {
     message?: string;
   }
 
+  interface IRemoveDatasourceResponse {
+    resourcePath: string;
+    destinationSessionId: string;
+    status: string;
+    message?: string;
+  }
+
   interface IGenericErrorResponse {
     errorMessage: string;
     stackTrace: string;
@@ -192,6 +199,30 @@ module hawkularRest {
           }
         },
         {
+          prefix: 'RemoveDatasourceResponse=',
+          handle: (removeDatasourceResponse: IRemoveDatasourceResponse)  => {
+            let message;
+
+            if (removeDatasourceResponse.status === "OK") {
+              message =
+                removeDatasourceResponse.message + '" on resource "' + removeDatasourceResponse.resourcePath + '" with success.';
+
+              $rootScope.$broadcast('DatasourceRemoveSuccess', message);
+
+            } else if (removeDatasourceResponse.status === "ERROR") {
+              message = 'Remove Datasource on resource "'
+                + removeDatasourceResponse.resourcePath + '" failed: ' + removeDatasourceResponse.message;
+
+              $rootScope.$broadcast('DatasourceRemoveError', message);
+            } else {
+              message = 'Remove Datasource on resource "'
+                + removeDatasourceResponse.resourcePath + '" failed: ' + removeDatasourceResponse.message;
+              $log.warn('Unexpected RemoveDatasourceOperationResponse: ', removeDatasourceResponse);
+              $rootScope.$broadcast('DatasourceRemoveError', message);
+            }
+          }
+        },
+        {
           prefix: 'ExportJdrResponse=',
           handle: (jdrResponse:IExportJdrResponse, binaryData:Blob)  => {
             let message;
@@ -228,7 +259,7 @@ module hawkularRest {
         {
           prefix: 'GenericErrorResponse=',
           handle: (operationResponse:IGenericErrorResponse, binaryData:Blob) => {
-            $log.warn('Unexpected AddJdbcDriverOperationResponse: ', operationResponse.errorMessage);
+            $log.warn('Unexpected Error Response: ', operationResponse.errorMessage);
             NotificationService.info('Operation failed: ' + operationResponse.errorMessage);
           }
         }];
@@ -395,6 +426,23 @@ module hawkularRest {
 
         let json = `AddDatasourceRequest=${JSON.stringify(datasourceObject)}`;
         $log.log('AddDatasourceRequest: ' + json);
+        ws.send(json);
+      };
+
+      factory.performRemoveDatasourceOperation = (resourcePath:string,
+                                                  authToken:string,
+                                                  personaId:string
+                                                  ) => {
+        let datasourceObject:any = {
+          resourcePath,
+          authentication: {
+            token: authToken,
+            persona: personaId
+          }
+        };
+
+        let json = `RemoveDatasourceRequest=${JSON.stringify(datasourceObject)}`;
+        $log.log('RemoveDatasourceRequest: ' + json);
         ws.send(json);
       };
 

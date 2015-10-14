@@ -826,6 +826,28 @@ var hawkularRest;
                         }
                     },
                     {
+                        prefix: 'RemoveDatasourceResponse=',
+                        handle: function (removeDatasourceResponse) {
+                            var message;
+                            if (removeDatasourceResponse.status === "OK") {
+                                message =
+                                    removeDatasourceResponse.message + '" on resource "' + removeDatasourceResponse.resourcePath + '" with success.';
+                                $rootScope.$broadcast('DatasourceRemoveSuccess', message);
+                            }
+                            else if (removeDatasourceResponse.status === "ERROR") {
+                                message = 'Remove Datasource on resource "'
+                                    + removeDatasourceResponse.resourcePath + '" failed: ' + removeDatasourceResponse.message;
+                                $rootScope.$broadcast('DatasourceRemoveError', message);
+                            }
+                            else {
+                                message = 'Remove Datasource on resource "'
+                                    + removeDatasourceResponse.resourcePath + '" failed: ' + removeDatasourceResponse.message;
+                                $log.warn('Unexpected RemoveDatasourceOperationResponse: ', removeDatasourceResponse);
+                                $rootScope.$broadcast('DatasourceRemoveError', message);
+                            }
+                        }
+                    },
+                    {
                         prefix: 'ExportJdrResponse=',
                         handle: function (jdrResponse, binaryData) {
                             var message;
@@ -859,7 +881,7 @@ var hawkularRest;
                     {
                         prefix: 'GenericErrorResponse=',
                         handle: function (operationResponse, binaryData) {
-                            $log.warn('Unexpected AddJdbcDriverOperationResponse: ', operationResponse.errorMessage);
+                            $log.warn('Unexpected Error Response: ', operationResponse.errorMessage);
                             NotificationService.info('Operation failed: ' + operationResponse.errorMessage);
                         }
                     }];
@@ -976,6 +998,18 @@ var hawkularRest;
                     };
                     var json = "AddDatasourceRequest=" + JSON.stringify(datasourceObject);
                     $log.log('AddDatasourceRequest: ' + json);
+                    ws.send(json);
+                };
+                factory.performRemoveDatasourceOperation = function (resourcePath, authToken, personaId) {
+                    var datasourceObject = {
+                        resourcePath: resourcePath,
+                        authentication: {
+                            token: authToken,
+                            persona: personaId
+                        }
+                    };
+                    var json = "RemoveDatasourceRequest=" + JSON.stringify(datasourceObject);
+                    $log.log('RemoveDatasourceRequest: ' + json);
                     ws.send(json);
                 };
                 factory.performExportJDROperation = function (resourcePath, authToken, personaId) {
