@@ -36,6 +36,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       name: 'JVM Garbage Collection for thevault~Local',
       autoResolve: true,
       autoResolveAlerts: true,
+      actions: {'email': ['test@myorg.org']},
       context: {
         resourceType: 'App Server',
         resourceName: 'thevault~Local'
@@ -725,7 +726,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
               }
               // try the ackmany endpoint
               return HawkularAlert.Alert.ackmany(
-                      {alertIds:alert.alertId,ackBy:'ackBy',ackNotes:'ackNotes'},null).$promise;
+                      {alertIds:alert.alertId,ackBy:'ackBy',ackNotes:'ackManyNotes'},null).$promise;
             },
             // Error, fetch ack
             function (errorFetch) {
@@ -766,7 +767,8 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       it ('should get acknowledged alert', function() {
         expect(alert.status).toEqual('ACKNOWLEDGED');
         expect(alert.ackBy).toEqual('ackBy');
-        expect(alert.ackNotes).toEqual('ackNotes');
+        expect(alert.notes[0].text).toEqual('ackNotes');
+        expect(alert.notes[1].text).toEqual('ackManyNotes');
       });
 
     });
@@ -822,7 +824,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
               }
               // try the resolvemany endpoint
               return HawkularAlert.Alert.resolvemany(
-                      {alertIds:alert.alertId,resolvedBy:'resolvedBy',resolvedNotes:'resolvedNotes'},null).$promise;
+                      {alertIds:alert.alertId,resolvedBy:'resolvedBy',resolvedNotes:'resolvedManyNotes'},null).$promise;
             },
             // Error, fetch resolve
             function (errorFetch) {
@@ -863,7 +865,10 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       it ('should get resolved alert', function() {
         expect(alert.status).toEqual('RESOLVED');
         expect(alert.resolvedBy).toEqual('resolvedBy');
-        expect(alert.resolvedNotes).toEqual('resolvedNotes');
+        expect(alert.notes[0].text).toEqual('ackNotes');
+        expect(alert.notes[1].text).toEqual('ackManyNotes');
+        expect(alert.notes[2].text).toEqual('resolvedNotes');
+        expect(alert.notes[3].text).toEqual('resolvedManyNotes');
       });
 
     });
