@@ -27,7 +27,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
     $http.defaults.headers.common['Authorization'] = 'Basic amRvZTpwYXNzd29yZA==';
   }));
 
-  describe('Create a Garbage Collection Alert definition', function() {
+  describe('Create a Garbage Collection Trigger', function() {
 
     jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
@@ -40,7 +40,8 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       context: {
         resourceType: 'App Server',
         resourceName: 'thevault~Local'
-      }
+      },
+      tags: {'test-trigger': 'gc'}
     };
 
     var newDampening = {
@@ -152,7 +153,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
 
   });
 
-  describe('Create a JVM Alert definition with multiple conditions', function() {
+  describe('Create a JVM Trigger with multiple conditions', function() {
 
     jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
@@ -165,7 +166,8 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
         resourceType: 'App Server',
         resourceName: 'thevault~Local',
         category: 'JVM'
-      }
+      },
+      tags: {'test-trigger': 'JVM'}
     };
 
     var newDampening = {
@@ -542,6 +544,70 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
     });
 
   });
+
+  describe('Fetch existing definitions', function() {
+
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+      var existingTriggerId = 'thevault~local-web-multiple-jvm-metrics-trigger';
+
+      var resultTrigger = [];
+
+      beforeEach(function(done) {
+        HawkularAlert.Trigger.query({triggerIds:existingTriggerId}).$promise.then(
+          // Successful Trigger fetch by id
+          function(triggers) {
+            debug && dump(JSON.stringify(triggers));
+            if ( triggers.length != 1 ) {
+                return $q.reject('Trigger not found 1');
+            }
+            return HawkularAlert.Trigger.query({tags:'test-trigger|*'}).$promise;
+          },
+          // Error Trigger fetch
+          function(errorTriggers) {
+            debug && dump(errorFn(errorTriggers));
+            return $q.reject('Error on Triggers query 1');
+          }
+        ).then(
+          // Successful Trigger fetch by tag name
+          function(triggers) {
+            debug && dump(JSON.stringify(triggers));
+            if ( triggers.length != 2 ) {
+                return $q.reject('Triggers not found 2');
+            }
+            return HawkularAlert.Trigger.query({tags:'test-trigger|JVM'}).$promise;
+          },
+          // Error trigger fetch
+          function(errorTriggers) {
+              debug && dump(errorFn(errorTriggers));
+              return $q.reject('Error on Triggers query 2');
+            }
+        ).then(
+          // Successful Trigger fetch by tag name
+          function(triggers) {
+              debug && dump(JSON.stringify(triggers));
+              if ( triggers.length != 1 ) {
+                  return $q.reject('Triggers not found 3');
+              }
+              resultTrigger['trigger'] = triggers[0];
+          },
+          // Error trigger fetch
+          function(errorTriggers) {
+            debug && dump(errorFn(errorTriggers));
+            return $q.reject('Error on Triggers query 3');
+          }
+        ).finally(function() {
+          done();
+        });
+
+        httpReal.submit();
+      });
+
+      it('should retrieve full trigger correctly', function() {
+        expect(resultTrigger['trigger'].id).toEqual(existingTriggerId);
+      });
+
+    });
 
   // Perform alert tests before the action tests because we don't really want to deal with e-mail
   describe('Enable Trigger and Generate an Alert', function() {

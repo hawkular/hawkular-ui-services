@@ -162,6 +162,11 @@ var hawkularRest;
                 factory.Trigger = $resource(prefix + '/hawkular/alerts/triggers/:triggerId', {
                     triggerId: '@triggerId'
                 }, {
+                    query: {
+                        method: 'GET',
+                        isArray: true,
+                        url: prefix + '/hawkular/alerts/triggers'
+                    },
                     save: {
                         method: 'POST',
                         url: prefix + '/hawkular/alerts/triggers/'
