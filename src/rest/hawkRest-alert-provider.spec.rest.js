@@ -707,7 +707,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
               if ( alerts.length != 1 ) {
                   return $q.reject('Alert not found');
               }
-              var alert = alerts[0];
+              alert = alerts[0];
               return HawkularAlert.Alert.get({alertId:alert.alertId}).$promise;
             },
             // Error, fetch
@@ -715,6 +715,33 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
               errorFn(errorfetch);
               return $q.reject('Error on Alert Fetch');
             }
+          ).then(
+            // Success, get
+            function(singleAlert) {
+              debug && dump(JSON.stringify(singleAlert));
+              if ( null == singleAlert ) {
+                return $q.reject('Alert not found');
+              }
+              alert = singleAlert;
+              return HawkularAlert.Alert.note({alertId: alert.alertId, user: 'user1', text: 'user1notes'}).$promise;
+            },
+            // Error, get
+            function (errorFetch) {
+              errorFn(errorFetch);
+              return $q.reject('Error on Alert Get');
+            }
+          ).then(
+            // Sucess, note
+            function() {
+              debug && dump('Note should be added');
+              return HawkularAlert.Alert.get({alertId:alert.alertId}).$promise;
+            },
+            // Error, note
+            function (errorFetch) {
+              errorFn(errorFetch);
+              return $q.reject('Error on Alert Get');
+            }
+
           ).then(
             // Success, get
             function(singleAlert) {
@@ -738,6 +765,8 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
 
       it ('should get list of single alert', function() {
         expect(alert.status).toEqual('OPEN');
+        expect(alert.notes[0].user).toEqual('user1');
+        expect(alert.notes[0].text).toEqual('user1notes');
       });
 
     });
@@ -833,8 +862,9 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       it ('should get acknowledged alert', function() {
         expect(alert.status).toEqual('ACKNOWLEDGED');
         expect(alert.ackBy).toEqual('ackBy');
-        expect(alert.notes[0].text).toEqual('ackNotes');
-        expect(alert.notes[1].text).toEqual('ackManyNotes');
+        expect(alert.notes[0].text).toEqual('user1notes');
+        expect(alert.notes[1].text).toEqual('ackNotes');
+        expect(alert.notes[2].text).toEqual('ackManyNotes');
       });
 
     });
@@ -931,10 +961,11 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       it ('should get resolved alert', function() {
         expect(alert.status).toEqual('RESOLVED');
         expect(alert.resolvedBy).toEqual('resolvedBy');
-        expect(alert.notes[0].text).toEqual('ackNotes');
-        expect(alert.notes[1].text).toEqual('ackManyNotes');
-        expect(alert.notes[2].text).toEqual('resolvedNotes');
-        expect(alert.notes[3].text).toEqual('resolvedManyNotes');
+        expect(alert.notes[0].text).toEqual('user1notes');
+        expect(alert.notes[1].text).toEqual('ackNotes');
+        expect(alert.notes[2].text).toEqual('ackManyNotes');
+        expect(alert.notes[3].text).toEqual('resolvedNotes');
+        expect(alert.notes[4].text).toEqual('resolvedManyNotes');
       });
 
     });
