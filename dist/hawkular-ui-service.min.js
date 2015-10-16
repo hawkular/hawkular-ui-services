@@ -570,6 +570,20 @@ var hawkularRest;
                         }
                     });
                 };
+                factory.GaugeMetricMultipleStats = function (tenantId) {
+                    var metrics = '@metrics';
+                    var myRequest = $resource(url + '/gauges/data', {
+                        buckets: '@buckets'
+                    }, {
+                        get: {
+                            method: 'GET',
+                            headers: { 'Hawkular-Tenant': tenantId },
+                            isArray: true,
+                            params: { metrics: metrics }
+                        }
+                    });
+                    return myRequest;
+                };
                 factory.CounterMetric = function (tenantId) {
                     return $resource(url + '/counters', null, {
                         get: {
