@@ -27,7 +27,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
     $http.defaults.headers.common['Authorization'] = 'Basic amRvZTpwYXNzd29yZA==';
   }));
 
-  describe('Create a Garbage Collection Alert definition', function() {
+  describe('Create a Garbage Collection Trigger', function() {
 
     jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
@@ -36,10 +36,12 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       name: 'JVM Garbage Collection for thevault~Local',
       autoResolve: true,
       autoResolveAlerts: true,
+      actions: {'email': ['test@myorg.org']},
       context: {
         resourceType: 'App Server',
         resourceName: 'thevault~Local'
-      }
+      },
+      tags: {'test-trigger': 'gc'}
     };
 
     var newDampening = {
@@ -151,7 +153,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
 
   });
 
-  describe('Create a JVM Alert definition with multiple conditions', function() {
+  describe('Create a JVM Trigger with multiple conditions', function() {
 
     jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
@@ -164,7 +166,8 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
         resourceType: 'App Server',
         resourceName: 'thevault~Local',
         category: 'JVM'
-      }
+      },
+      tags: {'test-trigger': 'JVM'}
     };
 
     var newDampening = {
@@ -542,6 +545,70 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
 
   });
 
+  describe('Fetch existing definitions', function() {
+
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+      var existingTriggerId = 'thevault~local-web-multiple-jvm-metrics-trigger';
+
+      var resultTrigger = [];
+
+      beforeEach(function(done) {
+        HawkularAlert.Trigger.query({triggerIds:existingTriggerId}).$promise.then(
+          // Successful Trigger fetch by id
+          function(triggers) {
+            debug && dump(JSON.stringify(triggers));
+            if ( triggers.length != 1 ) {
+                return $q.reject('Trigger not found 1');
+            }
+            return HawkularAlert.Trigger.query({tags:'test-trigger|*'}).$promise;
+          },
+          // Error Trigger fetch
+          function(errorTriggers) {
+            debug && dump(errorFn(errorTriggers));
+            return $q.reject('Error on Triggers query 1');
+          }
+        ).then(
+          // Successful Trigger fetch by tag name
+          function(triggers) {
+            debug && dump(JSON.stringify(triggers));
+            if ( triggers.length != 2 ) {
+                return $q.reject('Triggers not found 2');
+            }
+            return HawkularAlert.Trigger.query({tags:'test-trigger|JVM'}).$promise;
+          },
+          // Error trigger fetch
+          function(errorTriggers) {
+              debug && dump(errorFn(errorTriggers));
+              return $q.reject('Error on Triggers query 2');
+            }
+        ).then(
+          // Successful Trigger fetch by tag name
+          function(triggers) {
+              debug && dump(JSON.stringify(triggers));
+              if ( triggers.length != 1 ) {
+                  return $q.reject('Triggers not found 3');
+              }
+              resultTrigger['trigger'] = triggers[0];
+          },
+          // Error trigger fetch
+          function(errorTriggers) {
+            debug && dump(errorFn(errorTriggers));
+            return $q.reject('Error on Triggers query 3');
+          }
+        ).finally(function() {
+          done();
+        });
+
+        httpReal.submit();
+      });
+
+      it('should retrieve full trigger correctly', function() {
+        expect(resultTrigger['trigger'].id).toEqual(existingTriggerId);
+      });
+
+    });
+
   // Perform alert tests before the action tests because we don't really want to deal with e-mail
   describe('Enable Trigger and Generate an Alert', function() {
 
@@ -640,7 +707,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
               if ( alerts.length != 1 ) {
                   return $q.reject('Alert not found');
               }
-              var alert = alerts[0];
+              alert = alerts[0];
               return HawkularAlert.Alert.get({alertId:alert.alertId}).$promise;
             },
             // Error, fetch
@@ -648,6 +715,33 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
               errorFn(errorfetch);
               return $q.reject('Error on Alert Fetch');
             }
+          ).then(
+            // Success, get
+            function(singleAlert) {
+              debug && dump(JSON.stringify(singleAlert));
+              if ( null == singleAlert ) {
+                return $q.reject('Alert not found');
+              }
+              alert = singleAlert;
+              return HawkularAlert.Alert.note({alertId: alert.alertId, user: 'user1', text: 'user1notes'}).$promise;
+            },
+            // Error, get
+            function (errorFetch) {
+              errorFn(errorFetch);
+              return $q.reject('Error on Alert Get');
+            }
+          ).then(
+            // Sucess, note
+            function() {
+              debug && dump('Note should be added');
+              return HawkularAlert.Alert.get({alertId:alert.alertId}).$promise;
+            },
+            // Error, note
+            function (errorFetch) {
+              errorFn(errorFetch);
+              return $q.reject('Error on Alert Get');
+            }
+
           ).then(
             // Success, get
             function(singleAlert) {
@@ -671,6 +765,8 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
 
       it ('should get list of single alert', function() {
         expect(alert.status).toEqual('OPEN');
+        expect(alert.notes[0].user).toEqual('user1');
+        expect(alert.notes[0].text).toEqual('user1notes');
       });
 
     });
@@ -725,7 +821,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
               }
               // try the ackmany endpoint
               return HawkularAlert.Alert.ackmany(
-                      {alertIds:alert.alertId,ackBy:'ackBy',ackNotes:'ackNotes'},null).$promise;
+                      {alertIds:alert.alertId,ackBy:'ackBy',ackNotes:'ackManyNotes'},null).$promise;
             },
             // Error, fetch ack
             function (errorFetch) {
@@ -766,7 +862,9 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       it ('should get acknowledged alert', function() {
         expect(alert.status).toEqual('ACKNOWLEDGED');
         expect(alert.ackBy).toEqual('ackBy');
-        expect(alert.ackNotes).toEqual('ackNotes');
+        expect(alert.notes[0].text).toEqual('user1notes');
+        expect(alert.notes[1].text).toEqual('ackNotes');
+        expect(alert.notes[2].text).toEqual('ackManyNotes');
       });
 
     });
@@ -822,7 +920,7 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
               }
               // try the resolvemany endpoint
               return HawkularAlert.Alert.resolvemany(
-                      {alertIds:alert.alertId,resolvedBy:'resolvedBy',resolvedNotes:'resolvedNotes'},null).$promise;
+                      {alertIds:alert.alertId,resolvedBy:'resolvedBy',resolvedNotes:'resolvedManyNotes'},null).$promise;
             },
             // Error, fetch resolve
             function (errorFetch) {
@@ -863,7 +961,11 @@ describe('Provider: Hawkular Alerts live REST =>', function() {
       it ('should get resolved alert', function() {
         expect(alert.status).toEqual('RESOLVED');
         expect(alert.resolvedBy).toEqual('resolvedBy');
-        expect(alert.resolvedNotes).toEqual('resolvedNotes');
+        expect(alert.notes[0].text).toEqual('user1notes');
+        expect(alert.notes[1].text).toEqual('ackNotes');
+        expect(alert.notes[2].text).toEqual('ackManyNotes');
+        expect(alert.notes[3].text).toEqual('resolvedNotes');
+        expect(alert.notes[4].text).toEqual('resolvedManyNotes');
       });
 
     });

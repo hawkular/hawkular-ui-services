@@ -79,6 +79,14 @@ module hawkularRest {
           method: 'PUT',
           url: prefix + '/hawkular/alerts/resolve'
         },
+        note: {
+          method: 'PUT',
+          url: prefix + '/hawkular/alerts/note/:alertId',
+          params: {
+            user: '@user',
+            text: '@text'
+          }
+        },
         send: {
           method: 'POST',
           url: prefix + '/hawkular/alerts/data'
@@ -88,6 +96,11 @@ module hawkularRest {
       factory.Trigger = $resource(prefix + '/hawkular/alerts/triggers/:triggerId', {
         triggerId: '@triggerId'
       }, {
+        query: {
+          method: 'GET',
+          isArray: true,
+          url: prefix + '/hawkular/alerts/triggers'
+        },
         save: {
           method: 'POST',
           url: prefix + '/hawkular/alerts/triggers/'
