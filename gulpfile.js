@@ -13,6 +13,4 @@ require('require-dir')('./gulp');
 
 var $ = require('gulp-load-plugins')();
 
-gulp.task('default', ['clean'], function () {
-    gulp.start('build');
-});
+gulp.task('default', ['clean','build']);
