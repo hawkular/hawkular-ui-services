@@ -154,6 +154,14 @@ var hawkularRest;
                         method: 'PUT',
                         url: prefix + '/hawkular/alerts/resolve'
                     },
+                    note: {
+                        method: 'PUT',
+                        url: prefix + '/hawkular/alerts/note/:alertId',
+                        params: {
+                            user: '@user',
+                            text: '@text'
+                        }
+                    },
                     send: {
                         method: 'POST',
                         url: prefix + '/hawkular/alerts/data'
