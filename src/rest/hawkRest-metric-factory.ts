@@ -142,7 +142,8 @@ module hawkularRest {
       };
 
       factory.GaugeMetricMultipleStats = function (tenantId) {
-        let metrics = '@metrics';
+        let metrics = '@metrics'; // array of metric ids
+        let useStacked = '@stacked' || false;
         let myRequest = $resource(url + '/gauges/data', {
             buckets: '@buckets'
         }, {
@@ -150,7 +151,8 @@ module hawkularRest {
             method: 'GET',
             headers: {'Hawkular-Tenant': tenantId},
             isArray: true,
-            params: {metrics: metrics} // send metrics=id1,metrics=id2,...
+            params: {metrics: metrics, // send metrics=id1,metrics=id2,...
+              stacked:useStacked}
           }
         });
        return myRequest;
