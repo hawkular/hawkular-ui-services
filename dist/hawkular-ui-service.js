@@ -853,6 +853,28 @@ var hawkularRest;
                         }
                     },
                     {
+                        prefix: 'RemoveJdbcDriverResponse=',
+                        handle: function (removeJdbcDriverResponse) {
+                            var message;
+                            if (removeJdbcDriverResponse.status === "OK") {
+                                message =
+                                    removeJdbcDriverResponse.message + '" on resource "' + removeJdbcDriverResponse.resourcePath + '" with success.';
+                                $rootScope.$broadcast('JdbcDriverRemoveSuccess', message);
+                            }
+                            else if (removeJdbcDriverResponse.status === "ERROR") {
+                                message = 'Remove JDBC Driver on resource "'
+                                    + removeJdbcDriverResponse.resourcePath + '" failed: ' + removeJdbcDriverResponse.message;
+                                $rootScope.$broadcast('JdbcDriverRemoveError', message);
+                            }
+                            else {
+                                message = 'Remove JDBC Driver on resource "'
+                                    + removeJdbcDriverResponse.resourcePath + '" failed: ' + removeJdbcDriverResponse.message;
+                                $log.warn('Unexpected RemoveJdbcDriverOperationResponse: ', removeJdbcDriverResponse);
+                                $rootScope.$broadcast('JdbcDriverRemoveError', message);
+                            }
+                        }
+                    },
+                    {
                         prefix: 'RemoveDatasourceResponse=',
                         handle: function (removeDatasourceResponse) {
                             var message;
@@ -1003,6 +1025,18 @@ var hawkularRest;
                     var binaryblob = new Blob([json, fileBinaryContent], { type: 'application/octet-stream' });
                     $log.log('AddJDBCDriverRequest: ' + json);
                     ws.send(binaryblob);
+                };
+                factory.performRemoveJdbcDriverOperation = function (resourcePath, authToken, personaId) {
+                    var driverObject = {
+                        resourcePath: resourcePath,
+                        authentication: {
+                            token: authToken,
+                            persona: personaId
+                        }
+                    };
+                    var json = "RemoveJdbcDriverRequest=" + JSON.stringify(driverObject);
+                    $log.log('RemoveJdbcDriverRequest: ' + json);
+                    ws.send(json);
                 };
                 factory.performAddDatasourceOperation = function (resourcePath, authToken, personaId, xaDatasource, datasourceName, jndiName, driverName, driverClass, connectionUrl, xaDataSourceClass, datasourceProperties, userName, password, securityDomain) {
                     var datasourceObject = {
