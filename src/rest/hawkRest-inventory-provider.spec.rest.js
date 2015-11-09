@@ -299,8 +299,6 @@ describe('Provider: Hawkular live REST', function() {
           expect(result.length).toEqual(2);
           expect(result[0].id).toEqual(rId31);
           expect(result[1].id).toEqual(rId32);
-          expect(result[0].environmentId).toEqual(eId);
-          expect(result[1].environmentId).toEqual(eId);
         });
       });
 

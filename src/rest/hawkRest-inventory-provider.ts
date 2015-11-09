@@ -138,7 +138,7 @@ module hawkularRest {
 
       // ngResources
       // Often there are X and XUnderFeed variants, this is because of the fact that inventory
-      // allows to store the entities in the graph db either under the environment of under the feed
+      // allows to store the entities in the graph db either under the environment or under the feed
       // that is also under the environment. In a way, entities under the feeds allow for finer grade
       // structure, while things stored under environment are more suitable for things shared across
       // multiple feeds (note: name must be unique within the parent node (feed/environment)).
@@ -160,7 +160,7 @@ module hawkularRest {
       });
 
       // Feeds CRUD
-      var feedUrl = url + '/:environmentId/feeds/:feedId';
+      var feedUrl = url + '/feeds/:feedId';
       factory.Feed = $resource(feedUrl, null, {
         put: {
           method: 'PUT'
@@ -173,7 +173,7 @@ module hawkularRest {
       factory.Resource = $resource(resourceUrl, null, createResourceActions(resourceUrl, 'configuration'));
 
       // Resources located under the feed CRUD
-      var feedResourceUrl = url + '/:environmentId/:feedId/resources/:resourcePath';
+      var feedResourceUrl = url + '/feeds/:feedId/resources/:resourcePath';
       factory.ResourceUnderFeed = $resource(feedResourceUrl, null,
         createResourceActions(feedResourceUrl, 'configuration'));
 
@@ -182,7 +182,7 @@ module hawkularRest {
       factory.ResourceType = $resource(resourceTypeUrl, null,
         createDataActions(resourceTypeUrl, 'configurationSchema'));
 
-      var feedResourceTypeUrl = url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId';
+      var feedResourceTypeUrl = url + '/feeds/:feedId/resourceTypes/:resourceTypeId';
       factory.ResourceTypeUnderFeed = $resource(feedResourceTypeUrl, null,
         createDataActions(feedResourceTypeUrl, 'configurationSchema'));
 
@@ -195,7 +195,7 @@ module hawkularRest {
         relationships: relsActionFor(metricTypeUrl)
       });
 
-      var feedMetricTypeUrl = url + '/:environmentId/:feedId/metricTypes/:metricTypeId';
+      var feedMetricTypeUrl = url + '/feeds/:feedId/metricTypes/:metricTypeId';
       factory.MetricTypeUnderFeed = $resource(feedMetricTypeUrl, null, {
         put: {
           method: 'PUT'
@@ -211,7 +211,7 @@ module hawkularRest {
         }
       });
 
-      var feedResourceMetricUrl = url + '/:environmentId/:feedId/resources/:resourcePath/metrics/:metricId';
+      var feedResourceMetricUrl = url + '/feeds/:feedId/resources/:resourcePath/metrics/:metricId';
       factory.MetricOfResourceUnderFeed = $resource(resourceMetricUrl, null, {
         put: {
           method: 'PUT'
@@ -225,7 +225,7 @@ module hawkularRest {
       });
 
       var feedMetricTypeOfResourceTypeUrl =
-        url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId';
+        url + '/feeds/:feedId/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId';
       factory.MetricTypeOfResourceTypeUnderFeed = $resource(feedMetricTypeOfResourceTypeUrl, null, {
         relationships: relsActionFor(feedMetricTypeOfResourceTypeUrl)
       });
@@ -233,7 +233,7 @@ module hawkularRest {
       // Resources of a given type
       factory.ResourceOfType = $resource(url + '/resourceTypes/:resourceTypeId/resources');
       factory.ResourceOfTypeUnderFeed =
-        $resource(url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId/resources');
+        $resource(url + '/feeds/:feedId/resourceTypes/:resourceTypeId/resources');
 
       // Returns all the resources under the resource given by the :resourcePath respecting the resource hierarchy
       // ?typeId=fooResourceType query param can be used
@@ -242,7 +242,7 @@ module hawkularRest {
       // same as ^ but it's for the resources under the feed additional optional query param called 'feedlessType'
       // can be used. It denotes whether to use the resource type located under the env (true) or not which is default
       factory.ResourceRecursiveChildrenUnderFeed =
-      $resource(url + '/:environmentId/:feedId/resources/:resourcePath/recursiveChildren');
+      $resource(url + '/feeds/:feedId/resources/:resourcePath/recursiveChildren');
 
       // Metrics      
       var metricUrl = url + '/:environmentId/metrics/:metricId';
@@ -253,7 +253,7 @@ module hawkularRest {
         relationships: relsActionFor(metricUrl)
       });
 
-      var feedMetricUrl = url + '/:environmentId/:feedId/metrics/:metricId';
+      var feedMetricUrl = url + '/feeds/:feedId/metrics/:metricId';
       factory.MetricUnderFeed = $resource(feedMetricUrl, null, {
         put: {
           method: 'PUT'
