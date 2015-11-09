@@ -580,6 +580,7 @@ var hawkularRest;
                 };
                 factory.GaugeMetricMultipleStats = function (tenantId) {
                     var metrics = '@metrics';
+                    var useStacked = '@stacked' || false;
                     var myRequest = $resource(url + '/gauges/data', {
                         buckets: '@buckets'
                     }, {
@@ -587,7 +588,8 @@ var hawkularRest;
                             method: 'GET',
                             headers: { 'Hawkular-Tenant': tenantId },
                             isArray: true,
-                            params: { metrics: metrics }
+                            params: { metrics: metrics,
+                                stacked: useStacked }
                         }
                     });
                     return myRequest;
