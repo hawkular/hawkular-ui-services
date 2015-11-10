@@ -383,7 +383,7 @@ var hawkularRest;
                     },
                     relationships: relsActionFor(environmentUrl)
                 });
-                var feedUrl = url + '/:environmentId/feeds/:feedId';
+                var feedUrl = url + '/feeds/:feedId';
                 factory.Feed = $resource(feedUrl, null, {
                     put: {
                         method: 'PUT'
@@ -392,11 +392,11 @@ var hawkularRest;
                 });
                 var resourceUrl = url + '/:environmentId/resources/:resourcePath';
                 factory.Resource = $resource(resourceUrl, null, createResourceActions(resourceUrl, 'configuration'));
-                var feedResourceUrl = url + '/:environmentId/:feedId/resources/:resourcePath';
+                var feedResourceUrl = url + '/feeds/:feedId/resources/:resourcePath';
                 factory.ResourceUnderFeed = $resource(feedResourceUrl, null, createResourceActions(feedResourceUrl, 'configuration'));
                 var resourceTypeUrl = url + '/resourceTypes/:resourceTypeId';
                 factory.ResourceType = $resource(resourceTypeUrl, null, createDataActions(resourceTypeUrl, 'configurationSchema'));
-                var feedResourceTypeUrl = url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId';
+                var feedResourceTypeUrl = url + '/feeds/:feedId/resourceTypes/:resourceTypeId';
                 factory.ResourceTypeUnderFeed = $resource(feedResourceTypeUrl, null, createDataActions(feedResourceTypeUrl, 'configurationSchema'));
                 var metricTypeUrl = url + '/metricTypes/:metricTypeId';
                 factory.MetricType = $resource(metricTypeUrl, null, {
@@ -405,7 +405,7 @@ var hawkularRest;
                     },
                     relationships: relsActionFor(metricTypeUrl)
                 });
-                var feedMetricTypeUrl = url + '/:environmentId/:feedId/metricTypes/:metricTypeId';
+                var feedMetricTypeUrl = url + '/feeds/:feedId/metricTypes/:metricTypeId';
                 factory.MetricTypeUnderFeed = $resource(feedMetricTypeUrl, null, {
                     put: {
                         method: 'PUT'
@@ -418,7 +418,7 @@ var hawkularRest;
                         method: 'PUT'
                     }
                 });
-                var feedResourceMetricUrl = url + '/:environmentId/:feedId/resources/:resourcePath/metrics/:metricId';
+                var feedResourceMetricUrl = url + '/feeds/:feedId/resources/:resourcePath/metrics/:metricId';
                 factory.MetricOfResourceUnderFeed = $resource(resourceMetricUrl, null, {
                     put: {
                         method: 'PUT'
@@ -428,16 +428,16 @@ var hawkularRest;
                 factory.MetricTypeOfResourceType = $resource(metricTypeOfResourceTypeUrl, null, {
                     relationships: relsActionFor(metricTypeOfResourceTypeUrl)
                 });
-                var feedMetricTypeOfResourceTypeUrl = url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId';
+                var feedMetricTypeOfResourceTypeUrl = url + '/feeds/:feedId/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId';
                 factory.MetricTypeOfResourceTypeUnderFeed = $resource(feedMetricTypeOfResourceTypeUrl, null, {
                     relationships: relsActionFor(feedMetricTypeOfResourceTypeUrl)
                 });
                 factory.ResourceOfType = $resource(url + '/resourceTypes/:resourceTypeId/resources');
                 factory.ResourceOfTypeUnderFeed =
-                    $resource(url + '/:environmentId/:feedId/resourceTypes/:resourceTypeId/resources');
+                    $resource(url + '/feeds/:feedId/resourceTypes/:resourceTypeId/resources');
                 factory.ResourceRecursiveChildren = $resource(url + '/:environmentId/resources/:resourcePath/recursiveChildren');
                 factory.ResourceRecursiveChildrenUnderFeed =
-                    $resource(url + '/:environmentId/:feedId/resources/:resourcePath/recursiveChildren');
+                    $resource(url + '/feeds/:feedId/resources/:resourcePath/recursiveChildren');
                 var metricUrl = url + '/:environmentId/metrics/:metricId';
                 factory.Metric = $resource(metricUrl, null, {
                     put: {
@@ -445,7 +445,7 @@ var hawkularRest;
                     },
                     relationships: relsActionFor(metricUrl)
                 });
-                var feedMetricUrl = url + '/:environmentId/:feedId/metrics/:metricId';
+                var feedMetricUrl = url + '/feeds/:feedId/metrics/:metricId';
                 factory.MetricUnderFeed = $resource(feedMetricUrl, null, {
                     put: {
                         method: 'PUT'
