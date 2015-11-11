@@ -770,7 +770,15 @@ var hawkularRest;
                             $log.log('Execution Operation request delivery: ', operationResponse.message);
                             NotificationService.info('Execution Ops request delivery: ' + operationResponse.message);
                         }
-                    }, {
+                    },
+                    {
+                        prefix: 'WelcomeResponse=',
+                        handle: function (welcomeResponse) {
+                            $log.log('Welcome Response Received, sessionId: ' + welcomeResponse.sessionId);
+                            $rootScope.$broadcast('WelcomeMessage', welcomeResponse.sessionId);
+                        }
+                    },
+                    {
                         prefix: 'ExecuteOperationResponse=',
                         handle: function (operationResponse, binaryData) {
                             $log.log('Handling ExecuteOperationResponse');

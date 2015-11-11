@@ -116,7 +116,15 @@ module hawkularRest {
           // Probably makes no sense to show this in the UI
           NotificationService.info('Execution Ops request delivery: ' + operationResponse.message);
         }
-      }, {
+      },
+        {
+          prefix: 'WelcomeResponse=',
+          handle: (welcomeResponse) => {
+            $log.log('Welcome Response Received, sessionId: '+welcomeResponse.sessionId);
+            $rootScope.$broadcast('WelcomeMessage', welcomeResponse.sessionId);
+          }
+        },
+        {
         prefix: 'ExecuteOperationResponse=',
         handle: (operationResponse:IExecutionOperationResponse, binaryData:Blob) => {
           $log.log('Handling ExecuteOperationResponse');
