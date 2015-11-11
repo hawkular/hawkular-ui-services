@@ -51,7 +51,7 @@ module hawkularRest {
       var prefix = this.protocol + '://' + this.host + ':' + this.port;
       var factory: any = {};
 
-      factory.Alert = $resource(prefix + '/hawkular/alerts/alert/:alertId', {
+      factory.Alert = $resource(prefix + '/hawkular/alerts', {
         alertId: '@alertId'
       }, {
         query: {
