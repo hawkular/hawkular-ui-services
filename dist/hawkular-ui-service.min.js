@@ -126,7 +126,7 @@ var hawkularRest;
                 this.setPort(this.port || $location.port() || 8080);
                 var prefix = this.protocol + '://' + this.host + ':' + this.port;
                 var factory = {};
-                factory.Alert = $resource(prefix + '/hawkular/alerts/alert/:alertId', {
+                factory.Alert = $resource(prefix + '/hawkular/alerts', {
                     alertId: '@alertId'
                 }, {
                     query: {
