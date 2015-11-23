@@ -841,6 +841,28 @@ var hawkularRest;
                         }
                     },
                     {
+                        prefix: 'RemoveJdbcDriverResponse=',
+                        handle: function (removeJdbcDriverResponse) {
+                            var message;
+                            if (removeJdbcDriverResponse.status === "OK") {
+                                message =
+                                    removeJdbcDriverResponse.message + '" on resource "' + removeJdbcDriverResponse.resourcePath + '" with success.';
+                                $rootScope.$broadcast('JdbcDriverRemoveSuccess', message);
+                            }
+                            else if (removeJdbcDriverResponse.status === "ERROR") {
+                                message = 'Remove JDBC Driver on resource "'
+                                    + removeJdbcDriverResponse.resourcePath + '" failed: ' + removeJdbcDriverResponse.message;
+                                $rootScope.$broadcast('JdbcDriverRemoveError', message);
+                            }
+                            else {
+                                message = 'Remove JDBC Driver on resource "'
+                                    + removeJdbcDriverResponse.resourcePath + '" failed: ' + removeJdbcDriverResponse.message;
+                                $log.warn('Unexpected RemoveJdbcDriverOperationResponse: ', removeJdbcDriverResponse);
+                                $rootScope.$broadcast('JdbcDriverRemoveError', message);
+                            }
+                        }
+                    },
+                    {
                         prefix: 'AddDatasourceResponse=',
                         handle: function (addDatasourceResponse, binaryData) {
                             var message;
@@ -863,24 +885,24 @@ var hawkularRest;
                         }
                     },
                     {
-                        prefix: 'RemoveJdbcDriverResponse=',
-                        handle: function (removeJdbcDriverResponse) {
+                        prefix: 'UpdateDatasourceResponse=',
+                        handle: function (updateDatasourceResponse, binaryData) {
                             var message;
-                            if (removeJdbcDriverResponse.status === "OK") {
+                            if (updateDatasourceResponse.status === "OK") {
                                 message =
-                                    removeJdbcDriverResponse.message + '" on resource "' + removeJdbcDriverResponse.resourcePath + '" with success.';
-                                $rootScope.$broadcast('JdbcDriverRemoveSuccess', message);
+                                    updateDatasourceResponse.message + '" on resource "' + updateDatasourceResponse.resourcePath + '" with success.';
+                                $rootScope.$broadcast('DatasourceUpdateSuccess', message);
                             }
-                            else if (removeJdbcDriverResponse.status === "ERROR") {
-                                message = 'Remove JDBC Driver on resource "'
-                                    + removeJdbcDriverResponse.resourcePath + '" failed: ' + removeJdbcDriverResponse.message;
-                                $rootScope.$broadcast('JdbcDriverRemoveError', message);
+                            else if (updateDatasourceResponse.status === "ERROR") {
+                                message = 'Update Datasource on resource "'
+                                    + updateDatasourceResponse.resourcePath + '" failed: ' + updateDatasourceResponse.message;
+                                $rootScope.$broadcast('DatasourceUpdateError', message);
                             }
                             else {
-                                message = 'Remove JDBC Driver on resource "'
-                                    + removeJdbcDriverResponse.resourcePath + '" failed: ' + removeJdbcDriverResponse.message;
-                                $log.warn('Unexpected RemoveJdbcDriverOperationResponse: ', removeJdbcDriverResponse);
-                                $rootScope.$broadcast('JdbcDriverRemoveError', message);
+                                message = 'Update Datasource on resource "'
+                                    + updateDatasourceResponse.resourcePath + '" failed: ' + updateDatasourceResponse.message;
+                                $log.warn('Unexpected UpdateDatasourceOperationResponse: ', updateDatasourceResponse);
+                                $rootScope.$broadcast('DatasourceUpdateError', message);
                             }
                         }
                     },
@@ -1069,6 +1091,28 @@ var hawkularRest;
                     };
                     var json = "AddDatasourceRequest=" + JSON.stringify(datasourceObject);
                     $log.log('AddDatasourceRequest: ' + json);
+                    ws.send(json);
+                };
+                factory.performUpdateDatasourceOperation = function (resourcePath, authToken, personaId, datasourceName, jndiName, driverName, driverClass, connectionUrl, xaDataSourceClass, datasourceProperties, userName, password, securityDomain) {
+                    var datasourceObject = {
+                        resourcePath: resourcePath,
+                        datasourceName: datasourceName,
+                        jndiName: jndiName,
+                        driverName: driverName,
+                        driverClass: driverClass,
+                        connectionUrl: connectionUrl,
+                        xaDataSourceClass: xaDataSourceClass,
+                        datasourceProperties: datasourceProperties,
+                        userName: userName,
+                        password: password,
+                        securityDomain: securityDomain,
+                        authentication: {
+                            token: authToken,
+                            persona: personaId
+                        }
+                    };
+                    var json = "UpdateDatasourceRequest=" + JSON.stringify(datasourceObject);
+                    $log.log('UpdateDatasourceRequest: ' + json);
                     ws.send(json);
                 };
                 factory.performRemoveDatasourceOperation = function (resourcePath, authToken, personaId) {
