@@ -64,6 +64,12 @@ module hawkularRest {
     message?: string;
   }
 
+  interface IUpdateDatasourceResponse {
+    status: string;
+    resourcePath: string;
+    message?: string;
+  }
+
   interface IRemoveDatasourceResponse {
     resourcePath: string;
     destinationSessionId: string;
@@ -190,6 +196,30 @@ module hawkularRest {
           }
         },
         {
+          prefix: 'RemoveJdbcDriverResponse=',
+          handle: (removeJdbcDriverResponse: IRemoveJdbcDriverResponse)  => {
+            let message;
+
+            if (removeJdbcDriverResponse.status === "OK") {
+              message =
+                removeJdbcDriverResponse.message + '" on resource "' + removeJdbcDriverResponse.resourcePath + '" with success.';
+
+              $rootScope.$broadcast('JdbcDriverRemoveSuccess', message);
+
+            } else if (removeJdbcDriverResponse.status === "ERROR") {
+              message = 'Remove JDBC Driver on resource "'
+                + removeJdbcDriverResponse.resourcePath + '" failed: ' + removeJdbcDriverResponse.message;
+
+              $rootScope.$broadcast('JdbcDriverRemoveError', message);
+            } else {
+              message = 'Remove JDBC Driver on resource "'
+                + removeJdbcDriverResponse.resourcePath + '" failed: ' + removeJdbcDriverResponse.message;
+              $log.warn('Unexpected RemoveJdbcDriverOperationResponse: ', removeJdbcDriverResponse);
+              $rootScope.$broadcast('JdbcDriverRemoveError', message);
+            }
+          }
+        },
+        {
           prefix: 'AddDatasourceResponse=',
           handle: (addDatasourceResponse:IAddDatasourceResponse, binaryData:Blob)  => {
             let message;
@@ -214,26 +244,26 @@ module hawkularRest {
           }
         },
         {
-          prefix: 'RemoveJdbcDriverResponse=',
-          handle: (removeJdbcDriverResponse: IRemoveJdbcDriverResponse)  => {
+          prefix: 'UpdateDatasourceResponse=',
+          handle: (updateDatasourceResponse:IUpdateDatasourceResponse, binaryData:Blob)  => {
             let message;
 
-            if (removeJdbcDriverResponse.status === "OK") {
+            if (updateDatasourceResponse.status === "OK") {
               message =
-                removeJdbcDriverResponse.message + '" on resource "' + removeJdbcDriverResponse.resourcePath + '" with success.';
+                updateDatasourceResponse.message + '" on resource "' + updateDatasourceResponse.resourcePath + '" with success.';
 
-              $rootScope.$broadcast('JdbcDriverRemoveSuccess', message);
+              $rootScope.$broadcast('DatasourceUpdateSuccess', message);
 
-            } else if (removeJdbcDriverResponse.status === "ERROR") {
-              message = 'Remove JDBC Driver on resource "'
-                + removeJdbcDriverResponse.resourcePath + '" failed: ' + removeJdbcDriverResponse.message;
+            } else if (updateDatasourceResponse.status === "ERROR") {
+              message = 'Update Datasource on resource "'
+                + updateDatasourceResponse.resourcePath + '" failed: ' + updateDatasourceResponse.message;
 
-              $rootScope.$broadcast('JdbcDriverRemoveError', message);
+              $rootScope.$broadcast('DatasourceUpdateError', message);
             } else {
-              message = 'Remove JDBC Driver on resource "'
-                + removeJdbcDriverResponse.resourcePath + '" failed: ' + removeJdbcDriverResponse.message;
-              $log.warn('Unexpected RemoveJdbcDriverOperationResponse: ', removeJdbcDriverResponse);
-              $rootScope.$broadcast('JdbcDriverRemoveError', message);
+              message = 'Update Datasource on resource "'
+                + updateDatasourceResponse.resourcePath + '" failed: ' + updateDatasourceResponse.message;
+              $log.warn('Unexpected UpdateDatasourceOperationResponse: ', updateDatasourceResponse);
+              $rootScope.$broadcast('DatasourceUpdateError', message);
             }
           }
         },
@@ -482,6 +512,43 @@ module hawkularRest {
 
         let json = `AddDatasourceRequest=${JSON.stringify(datasourceObject)}`;
         $log.log('AddDatasourceRequest: ' + json);
+        ws.send(json);
+      };
+
+      factory.performUpdateDatasourceOperation = (resourcePath:string,
+                                               authToken:string,
+                                               personaId:string,
+                                               datasourceName:string,
+                                               jndiName:string,
+                                               driverName:string,
+                                               driverClass:string,
+                                               connectionUrl: string,
+                                               xaDataSourceClass:string, // optional
+                                               datasourceProperties:any, // optional
+                                               userName:string, // optional
+                                               password:string, // optional
+                                               securityDomain:string // optional
+                                               ) => {
+        let datasourceObject:any = {
+          resourcePath,
+          datasourceName,
+          jndiName,
+          driverName,
+          driverClass,
+          connectionUrl,
+          xaDataSourceClass,
+          datasourceProperties,
+          userName,
+          password,
+          securityDomain,
+          authentication: {
+            token: authToken,
+            persona: personaId
+          }
+        };
+
+        let json = `UpdateDatasourceRequest=${JSON.stringify(datasourceObject)}`;
+        $log.log('UpdateDatasourceRequest: ' + json);
         ws.send(json);
       };
 
