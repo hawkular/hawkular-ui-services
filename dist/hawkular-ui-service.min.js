@@ -70,6 +70,7 @@ var hawkularRest;
                 factory.Persona = $resource(prefix + '/hawkular/accounts/personas/:id', { id: '@id' });
                 factory.Role = $resource(prefix + '/hawkular/accounts/roles/:id', { id: '@id' });
                 factory.Permission = $resource(prefix + '/hawkular/accounts/permissions/:id', { id: '@id' });
+                factory.Token = $resource(prefix + '/hawkular/secret-store/v1/tokens/:id', { id: '@id' });
                 factory.Organization = $resource(prefix + '/hawkular/accounts/organizations/:id', {
                     id: '@id'
                 }, {
@@ -281,16 +282,17 @@ var hawkularRest;
 /// limitations under the License.
 var hawkularRest;
 (function (hawkularRest) {
-    hawkularRest._module.constant("inventoryInterceptURLS", [new RegExp('.+/inventory/.+/resources/.+%2F.+')]);
+    hawkularRest._module.constant('inventoryInterceptURLS', [new RegExp('.+/inventory/.+/resources/.+%2F.+'), new RegExp('.+/inventory/.+/resources/.+%252F.+')]);
     hawkularRest._module.config(['$httpProvider', 'inventoryInterceptURLS', function ($httpProvider, inventoryInterceptURLS) {
-            var ENCODED_SLASH = new RegExp("%2F", 'g');
+            var ENCODED_SLASH = new RegExp('%2F', 'gi');
+            var DOUBLE_ENCODED_SLASH = new RegExp('%252F', 'gi');
             $httpProvider.interceptors.push(function ($q) {
                 return {
                     'request': function (config) {
                         var url = config.url;
                         for (var i = 0; i < inventoryInterceptURLS.length; i++) {
                             if (url.match(inventoryInterceptURLS[i])) {
-                                url = url.replace(ENCODED_SLASH, "/");
+                                url = url.replace(ENCODED_SLASH, '/').replace(DOUBLE_ENCODED_SLASH, ENCODED_SLASH);
                                 break;
                             }
                         }
