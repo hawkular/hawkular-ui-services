@@ -27,8 +27,8 @@ module hawkularRest {
       [new RegExp('.+/inventory/.+/resources/.+%2F.+'), new RegExp('.+/inventory/.+/resources/.+%252F.+')]);
 
   _module.config(['$httpProvider', 'inventoryInterceptURLS', function($httpProvider, inventoryInterceptURLS) {
-    var ENCODED_SLASH = new RegExp('%2F', 'g');
-    var DOUBLE_ENCODED_SLASH = new RegExp('%252F', 'g');
+    var ENCODED_SLASH = new RegExp('%2F', 'gi');
+    var DOUBLE_ENCODED_SLASH = new RegExp('%252F', 'gi');
 
     $httpProvider.interceptors.push(function ($q) {
       return {
