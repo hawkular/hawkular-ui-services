@@ -135,6 +135,10 @@ module hawkularRest {
           method: 'GET',
           url: urlPrefix + '/parent'
         };
+        dataActions['updateProperties'] = {
+          method: 'PUT',
+          url: urlPrefix
+        };
         return dataActions;
       };
 
@@ -246,7 +250,7 @@ module hawkularRest {
       factory.ResourceRecursiveChildrenUnderFeed =
       $resource(url + '/feeds/:feedId/resources/:resourcePath/recursiveChildren');
 
-      // Metrics      
+      // Metrics
       var metricUrl = url + '/:environmentId/metrics/:metricId';
       factory.Metric = $resource(metricUrl, null, {
         put: {

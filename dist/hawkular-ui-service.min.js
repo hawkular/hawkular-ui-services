@@ -369,6 +369,10 @@ var hawkularRest;
                         method: 'GET',
                         url: urlPrefix + '/parent'
                     };
+                    dataActions['updateProperties'] = {
+                        method: 'PUT',
+                        url: urlPrefix
+                    };
                     return dataActions;
                 };
                 factory.Tenant = $resource(url + '/tenant', {
