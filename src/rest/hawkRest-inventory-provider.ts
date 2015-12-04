@@ -23,11 +23,12 @@
 
 module hawkularRest {
 
-  _module.constant("inventoryInterceptURLS",
-      [new RegExp('.+/inventory/.+/resources/.+%2F.+')]);
+  _module.constant('inventoryInterceptURLS',
+      [new RegExp('.+/inventory/.+/resources/.+%2F.+'), new RegExp('.+/inventory/.+/resources/.+%252F.+')]);
 
   _module.config(['$httpProvider', 'inventoryInterceptURLS', function($httpProvider, inventoryInterceptURLS) {
-    var ENCODED_SLASH = new RegExp("%2F", 'g');
+    var ENCODED_SLASH = new RegExp('%2F', 'g');
+    var DOUBLE_ENCODED_SLASH = new RegExp('%252F', 'g');
 
     $httpProvider.interceptors.push(function ($q) {
       return {
@@ -37,7 +38,8 @@ module hawkularRest {
           for (var i = 0; i < inventoryInterceptURLS.length; i++) {
 
             if (url.match(inventoryInterceptURLS[i])) {
-              url = url.replace(ENCODED_SLASH, "/");
+              // first step: %2F -> / ; second step: %252F -> %2F (the order is important here)
+              url = url.replace(ENCODED_SLASH, '/').replace(DOUBLE_ENCODED_SLASH, ENCODED_SLASH);
               // end there is only one matching url
               break;
             }
