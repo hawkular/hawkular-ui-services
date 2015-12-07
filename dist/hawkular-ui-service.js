@@ -282,17 +282,20 @@ var hawkularRest;
 /// limitations under the License.
 var hawkularRest;
 (function (hawkularRest) {
-    hawkularRest._module.constant('inventoryInterceptURLS', [new RegExp('.+/inventory/.+/resources/.+%2F.+'), new RegExp('.+/inventory/.+/resources/.+%252F.+')]);
+    hawkularRest._module.constant('inventoryInterceptURLS', [new RegExp('.+/inventory/.+/resources/.+%2F.+', 'i'), new RegExp('.+/inventory/.+/resources/.+%252F.+', 'i')]);
     hawkularRest._module.config(['$httpProvider', 'inventoryInterceptURLS', function ($httpProvider, inventoryInterceptURLS) {
-            var ENCODED_SLASH = new RegExp('%2F', 'gi');
-            var DOUBLE_ENCODED_SLASH = new RegExp('%252F', 'gi');
+            var SLASH = '/';
+            var ENCODED_SLASH = '%2F';
+            var ENCODED_SLASH_RE = new RegExp(ENCODED_SLASH, 'gi');
+            var DOUBLE_ENCODED_SLASH = '%252F';
+            var DOUBLE_ENCODED_SLASH_RE = new RegExp(DOUBLE_ENCODED_SLASH, 'gi');
             $httpProvider.interceptors.push(function ($q) {
                 return {
                     'request': function (config) {
                         var url = config.url;
                         for (var i = 0; i < inventoryInterceptURLS.length; i++) {
                             if (url.match(inventoryInterceptURLS[i])) {
-                                url = url.replace(ENCODED_SLASH, '/').replace(DOUBLE_ENCODED_SLASH, ENCODED_SLASH);
+                                url = url.replace(ENCODED_SLASH_RE, SLASH).replace(DOUBLE_ENCODED_SLASH_RE, ENCODED_SLASH);
                                 break;
                             }
                         }
