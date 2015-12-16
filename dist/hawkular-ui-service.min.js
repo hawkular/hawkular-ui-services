@@ -374,6 +374,10 @@ var hawkularRest;
                         method: 'GET',
                         url: urlPrefix + '/parent'
                     };
+                    dataActions['getMetrics'] = {
+                        method: 'GET',
+                        url: urlPrefix + '/metrics'
+                    };
                     dataActions['updateProperties'] = {
                         method: 'PUT',
                         url: urlPrefix
