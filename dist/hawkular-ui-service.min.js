@@ -781,7 +781,6 @@ var hawkularRest;
                         prefix: 'GenericSuccessResponse=',
                         handle: function (operationResponse, binaryData) {
                             $log.log('Execution Operation request delivery: ', operationResponse.message);
-                            NotificationService.info('Execution Ops request delivery: ' + operationResponse.message);
                         }
                     },
                     {
@@ -795,13 +794,16 @@ var hawkularRest;
                         prefix: 'ExecuteOperationResponse=',
                         handle: function (operationResponse, binaryData) {
                             $log.log('Handling ExecuteOperationResponse');
+                            var message;
                             if (operationResponse.status === "OK") {
-                                NotificationService.success('Operation "' + operationResponse.operationName + '" on resource "'
-                                    + operationResponse.resourcePath + '" succeeded.');
+                                message = 'Operation "' + operationResponse.operationName + '" on resource "'
+                                    + operationResponse.resourcePath + '" succeeded.';
+                                $rootScope.$broadcast('ExecuteOperationSuccess', message, operationResponse.resourcePath, operationResponse.operationName);
                             }
                             else if (operationResponse.status === "ERROR") {
-                                NotificationService.error('Operation "' + operationResponse.operationName + '" on resource "'
-                                    + operationResponse.resourcePath + '" failed: ' + operationResponse.message);
+                                message = 'Operation "' + operationResponse.operationName + '" on resource "'
+                                    + operationResponse.resourcePath + '" failed: ' + operationResponse.message;
+                                $rootScope.$broadcast('ExecuteOperationError', message, operationResponse.resourcePath, operationResponse.operationName);
                             }
                             else {
                                 $log.log('Unexpected operationResponse: ', operationResponse);
