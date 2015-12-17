@@ -54,7 +54,7 @@ module hawkularRest {
             factory.Persona = $resource(prefix + '/hawkular/accounts/personas/:id', {id:'@id'});
             factory.Role = $resource(prefix + '/hawkular/accounts/roles/:id', {id:'@id'});
             factory.Permission = $resource(prefix + '/hawkular/accounts/permissions/:id', {id:'@id'});
-            factory.Token = $resource(prefix + '/hawkular/secret-store/v1/tokens/:id', {id:'@id'});
+            factory.Token = $resource(prefix + '/secret-store/v1/tokens/:id', {id:'@id'});
             factory.Organization = $resource(prefix + '/hawkular/accounts/organizations/:id',
               {
                 id:'@id'
