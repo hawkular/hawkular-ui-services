@@ -119,8 +119,6 @@ module hawkularRest {
         prefix: 'GenericSuccessResponse=',
         handle: (operationResponse, binaryData:Blob) => {
           $log.log('Execution Operation request delivery: ', operationResponse.message);
-          // Probably makes no sense to show this in the UI
-          NotificationService.info('Execution Ops request delivery: ' + operationResponse.message);
         }
       },
         {
@@ -134,13 +132,18 @@ module hawkularRest {
         prefix: 'ExecuteOperationResponse=',
         handle: (operationResponse:IExecutionOperationResponse, binaryData:Blob) => {
           $log.log('Handling ExecuteOperationResponse');
-          if (operationResponse.status === "OK") {
 
-            NotificationService.success('Operation "' + operationResponse.operationName + '" on resource "'
-              + operationResponse.resourcePath + '" succeeded.');
+          let message;
+          if (operationResponse.status === "OK") {
+            message = 'Operation "' + operationResponse.operationName + '" on resource "'
+              + operationResponse.resourcePath + '" succeeded.';
+            $rootScope.$broadcast('ExecuteOperationSuccess', message, operationResponse.resourcePath,
+              operationResponse.operationName);
           } else if (operationResponse.status === "ERROR") {
-            NotificationService.error('Operation "' + operationResponse.operationName + '" on resource "'
-              + operationResponse.resourcePath + '" failed: ' + operationResponse.message);
+            message = 'Operation "' + operationResponse.operationName + '" on resource "'
+              + operationResponse.resourcePath + '" failed: ' + operationResponse.message;
+            $rootScope.$broadcast('ExecuteOperationError', message, operationResponse.resourcePath,
+              operationResponse.operationName);
           } else {
             $log.log('Unexpected operationResponse: ', operationResponse);
           }
