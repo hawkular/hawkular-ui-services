@@ -1,24 +1,24 @@
 'use strict';
 
-var gulp = require('gulp');
+const gulp = require('gulp');
 
-var $ = require('gulp-load-plugins')();
+const $ = require('gulp-load-plugins')();
 
-var wiredep = require('wiredep');
+const wiredep = require('wiredep');
 
-var minimist = require('minimist');
+const minimist = require('minimist');
 
-var paths = gulp.paths;
+const paths = gulp.paths;
 
 function runTests (singleRun) {
-  var bowerDeps = wiredep({
+  const bowerDeps = wiredep({
     directory: 'lib',
     exclude: ['bootstrap-sass-official'],
     dependencies: true,
     devDependencies: true
   });
 
-  var testFiles = bowerDeps.js.concat([
+  const testFiles = bowerDeps.js.concat([
     paths.src + '/*.spec.js',
     paths.dist + '/*.js'
   ]);
@@ -36,14 +36,14 @@ function runTests (singleRun) {
 }
 
 function runTestsRest (singleRun, service, options) {
-  var bowerDeps = wiredep({
+  const bowerDeps = wiredep({
     directory: 'lib',
     exclude: ['bootstrap-sass-official'],
     dependencies: true,
     devDependencies: true
   });
 
-  var testFiles = bowerDeps.js.concat([
+  const testFiles = bowerDeps.js.concat([
     paths.src + '/hawkRest.spec.rest.js',
     paths.src + '/hawkRest-' + service + '*.spec.rest.js',
     paths.dist + '/*.js'
@@ -65,7 +65,7 @@ function runTestsRest (singleRun, service, options) {
     });
 }
 
-var knownTestOptions = {
+const knownTestOptions = {
   string: ['hostname', 'port'],
   default: {
      hostname: process.env.HAWKULAR_TEST_HOSTNAME || 'localhost',
@@ -73,7 +73,7 @@ var knownTestOptions = {
   }
 };
 
-var options = minimist(process.argv.slice(2), knownTestOptions);
+const options = minimist(process.argv.slice(2), knownTestOptions);
 
 gulp.task('test', ['scripts'], function (done) { runTests(true /* singleRun */, done) });
 gulp.task('test:auto', ['scripts'], function (done) { runTests(false /* singleRun */, done) });

@@ -1,6 +1,6 @@
 'use strict';
 
-var gulp = require('gulp');
+import gulp from 'gulp';
 
 gulp.paths = {
   src: 'src/rest',
@@ -11,6 +11,6 @@ gulp.paths = {
 
 require('require-dir')('./gulp');
 
-var $ = require('gulp-load-plugins')();
+const $ = require('gulp-load-plugins')();
 
 gulp.task('default', ['clean','build']);
