@@ -1,11 +1,11 @@
 'use strict';
 
-var gulp = require('gulp'),
-    tslintRules = require('../tslint.json');
+import  gulp from 'gulp';
+import tslintRules from '../tslint.json';
 
-var paths = gulp.paths;
+const paths = gulp.paths;
 
-var $ = require('gulp-load-plugins')({
+const $ = require('gulp-load-plugins')({
   pattern: ['gulp-*', 'del']
 });
 
@@ -19,7 +19,7 @@ gulp.task('tslint', function () {
 
 gulp.task('scripts', function () {
 
-  var license = tslintRules.rules['license-header'][1];
+  const license = tslintRules.rules['license-header'][1];
 
   return gulp.src([paths.src + '/hawkRest.ts', paths.src + '/hawkRest-*.ts'])
     .pipe($.typescript({
