@@ -23,17 +23,24 @@
 
 module hawkularRest {
 
+  export interface IWebSocketHandler {
+    onmessage?(json: any): void;
+    onopen? (event: any): void;
+    onclose? (event: any): void;
+    onerror? (event: any): void;
+  }
+
   _module.constant('inventoryInterceptURLS',
       [new RegExp('.+/inventory/.+/resources/.+%2F.+', 'i'), new RegExp('.+/inventory/.+/resources/.+%252F.+', 'i')]);
 
   _module.config(['$httpProvider', 'inventoryInterceptURLS', function($httpProvider, inventoryInterceptURLS) {
-    var SLASH = '/';
+    const SLASH = '/';
 
-    var ENCODED_SLASH = '%2F';
-    var ENCODED_SLASH_RE = new RegExp(ENCODED_SLASH, 'gi');
+    const ENCODED_SLASH = '%2F';
+    const ENCODED_SLASH_RE = new RegExp(ENCODED_SLASH, 'gi');
 
-    var DOUBLE_ENCODED_SLASH = '%252F';
-    var DOUBLE_ENCODED_SLASH_RE = new RegExp(DOUBLE_ENCODED_SLASH, 'gi');
+    const DOUBLE_ENCODED_SLASH = '%252F';
+    const DOUBLE_ENCODED_SLASH_RE = new RegExp(DOUBLE_ENCODED_SLASH, 'gi');
 
     $httpProvider.interceptors.push(function ($q) {
       return {
@@ -75,7 +82,7 @@ module hawkularRest {
       return this;
     };
 
-    this.$get = ['$resource', '$location', function($resource, $location) {
+    this.$get = ['$resource', '$location', '$rootScope', '$log', function($resource, $location, $rootScope, $log) {
 
       // If available, used pre-configured values, otherwise use values from current browser location of fallback to
       // defaults
@@ -83,10 +90,11 @@ module hawkularRest {
       this.setHost(this.host || $location.host() || 'localhost');
       this.setPort(this.port || $location.port() || 8080);
 
-      var prefix = this.protocol + '://' + this.host + ':' + this.port;
-      var inventoryUrlPart = '/hawkular/inventory';
-      var url = prefix + inventoryUrlPart;
-      var factory: any = {};
+      const prefix = this.protocol + '://' + this.host + ':' + this.port;
+      const inventoryUrlPart = '/hawkular/inventory';
+      const url = prefix + inventoryUrlPart;
+      const wsUrl = 'ws://' + this.host + ':' + this.port + inventoryUrlPart + '/ws/events';
+      let factory: any = {};
 
 
       // helper methods for making the code DRY
@@ -278,6 +286,33 @@ module hawkularRest {
 
       // Get whole graph (read-only)
       factory.Graph = $resource(url + '/graph');
+
+      // Listen to inventory events
+      factory.Events = (tenantId) => {
+        return {
+          listen: (handler: IWebSocketHandler) => {
+            const ws = new WebSocket(wsUrl + `?tenantId=${tenantId}`);
+
+            ws.onmessage = (event) => {
+              const eventData = JSON.parse(event.data);
+              if (handler && handler.onmessage) {
+                handler.onmessage(eventData);
+              } else {
+                $log.log('ws: received event: ' + eventData);
+              }
+            };
+
+            ws.onopen = (handler && handler.onopen) || ((event) => $log.log('ws: Listening on inventory events..'));
+
+            ws.onclose = (handler && handler.onclose) || ((event) => {
+              $log.warn('ws: Stop listening on inventory events.');
+              $rootScope.$broadcast('WebSocketClosed', event.reason);
+            });
+
+            ws.onerror = (handler && handler.onerror) || ((event) => $log.log('ws: Error: ' + event));
+          }
+        };
+      };
 
       return factory;
     }];
