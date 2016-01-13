@@ -7,7 +7,8 @@
     "hawkular-ui"
   ],
   "main": [
-    "dist/hawkular-ui-service.js"
+    "dist/hawkular-ui-service.js",
+    "dist/defs/hawkRest.d.ts"
   ],
   "ignore": [
     "*",
