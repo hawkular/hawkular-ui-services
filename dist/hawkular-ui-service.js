@@ -261,13 +261,14 @@ var hawkularRest;
             this.port = port;
             return this;
         };
-        this.$get = ['$resource', '$location', function ($resource, $location) {
+        this.$get = ['$resource', '$location', '$rootScope', '$log', function ($resource, $location, $rootScope, $log) {
                 this.setProtocol(this.protocol || $location.protocol() || 'http');
                 this.setHost(this.host || $location.host() || 'localhost');
                 this.setPort(this.port || $location.port() || 8080);
                 var prefix = this.protocol + '://' + this.host + ':' + this.port;
                 var inventoryUrlPart = '/hawkular/inventory';
                 var url = prefix + inventoryUrlPart;
+                var wsUrl = 'ws://' + this.host + ':' + this.port + inventoryUrlPart + '/ws/events';
                 var factory = {};
                 var relsActionFor = function (url) {
                     return {
@@ -409,6 +410,29 @@ var hawkularRest;
                     relationships: relsActionFor(feedMetricUrl)
                 });
                 factory.Graph = $resource(url + '/graph');
+                factory.Events = function (tenantId) {
+                    return {
+                        listen: function (handler) {
+                            var ws = new WebSocket(wsUrl + ("?tenantId=" + tenantId));
+                            ws.onmessage = function (event) {
+                                var eventData = JSON.parse(event.data);
+                                if (handler && handler.onmessage) {
+                                    handler.onmessage(eventData);
+                                }
+                                else {
+                                    $log.log('ws: received event');
+                                    $log.log(eventData);
+                                }
+                            };
+                            ws.onopen = (handler && handler.onopen) || (function (event) { return $log.log('ws: Listening on inventory events..'); });
+                            ws.onclose = (handler && handler.onclose) || (function (event) {
+                                $log.warn('ws: Stop listening on inventory events.');
+                                $rootScope.$broadcast('WebSocketClosed', event.reason);
+                            });
+                            ws.onerror = (handler && handler.onerror) || (function (event) { return $log.log('ws: Error: ' + event); });
+                        }
+                    };
+                };
                 return factory;
             }];
     });
