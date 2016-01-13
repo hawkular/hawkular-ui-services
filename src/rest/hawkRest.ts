@@ -19,4 +19,13 @@ module hawkularRest {
 
   export var _module = angular.module('hawkular.services', ['ngResource']);
 
+  // here comes type definitions and interfaces that can be reused by consumers of this module
+  // these types/ifaces can define a contract
+  export interface IWebSocketHandler {
+    onmessage?(json: any): void;
+    onopen?(event: any): void;
+    onclose?(event: any): void;
+    onerror?(event: any): void;
+  }
+
 }

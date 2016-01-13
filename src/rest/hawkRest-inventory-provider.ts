@@ -23,13 +23,6 @@
 
 module hawkularRest {
 
-  export interface IWebSocketHandler {
-    onmessage?(json: any): void;
-    onopen? (event: any): void;
-    onclose? (event: any): void;
-    onerror? (event: any): void;
-  }
-
   _module.constant('inventoryInterceptURLS',
       [new RegExp('.+/inventory/.+/resources/.+%2F.+', 'i'), new RegExp('.+/inventory/.+/resources/.+%252F.+', 'i')]);
 
@@ -298,7 +291,8 @@ module hawkularRest {
               if (handler && handler.onmessage) {
                 handler.onmessage(eventData);
               } else {
-                $log.log('ws: received event: ' + eventData);
+                $log.log('ws: received event');
+                $log.log(eventData);
               }
             };
 
