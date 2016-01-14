@@ -23,7 +23,6 @@
     "karma-phantomjs-launcher": "0.2.1",
     "lodash": "3.10.1",
     "minimist": "1.2.0",
-    "require-dir": "0.3.0",
     "wiredep": "3.0.0"
   },
   "engines": {
