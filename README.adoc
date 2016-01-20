@@ -3,7 +3,10 @@
 
 
 [.lead]
-*Hawkular UI Services* is the home of Hawkular's Angular.js UI services. It wraps the Hawkular REST services with ngResource wrappers to provide a simplified REST interface to the the Hawkular Modules. These UI data services comprise the Hawkular console for https://github.com/hawkular/hawkular[Hawkular]. 
+
+image::https://www.bithound.io/github/hawkular/hawkular-ui-services/badges/score.svg[title="Bithound score", alt="Bithound Score", link="https://www.bithound.io/github/hawkular/hawkular-ui-services"]
+
+*Hawkular UI Services* is the home of Hawkular's Angular.js UI services. It wraps the Hawkular REST services with ngResource wrappers to provide a simplified REST interface to the the Hawkular Modules. These UI data services comprise the Hawkular console for https://github.com/hawkular/hawkular[Hawkular] and can be used as the basis for any Hawkular based data Angular data service.
 
 Hawkular UI Services provides Angular ngResouce wrappers for the following Hawkular REST Resources:
 
