@@ -4,7 +4,8 @@
 
 [.lead]
 
-image::https://www.bithound.io/github/hawkular/hawkular-ui-services/badges/score.svg[title="Bithound score", alt="Bithound Score", link="https://www.bithound.io/github/hawkular/hawkular-ui-services"]
+image::https://www.bithound.io/github/hawkular/hawkular-ui-services/badges/score.svg[title="Bithound score", alt="Bithound Score", link="https://www.bithound.io/github/hawkular/hawkular-ui-services"] 
+image::https://www.bithound.io/github/hawkular/hawkular-ui-services/badges/dependencies.svg[title="Bithound Dependencies", alt="Bithound dependencies", link="https://www.bithound.io/github/hawkular/hawkular-ui-services/master/dependencies/npm"]
 
 *Hawkular UI Services* is the home of Hawkular's Angular.js UI services. It wraps the Hawkular REST services with ngResource wrappers to provide a simplified REST interface to the the Hawkular Modules. These UI data services comprise the Hawkular console for https://github.com/hawkular/hawkular[Hawkular] and can be used as the basis for any Hawkular based data Angular data service.
 
