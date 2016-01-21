@@ -55,11 +55,17 @@ module hawkularRest {
             factory.Role = $resource(prefix + '/hawkular/accounts/roles/:id', {id:'@id'});
             factory.Permission = $resource(prefix + '/hawkular/accounts/permissions/:id', {id:'@id'});
             factory.Token = $resource(prefix + '/secret-store/v1/tokens/:id', {id:'@id'});
+            factory.OrganizationJoinRequest = $resource(prefix + '/hawkular/accounts/organizationJoinRequests/:organizationId', {organizationId:'@organizationId'}, {
+                'update': {method: 'PUT'}
+            }
+
+            );
             factory.Organization = $resource(prefix + '/hawkular/accounts/organizations/:id',
               {
                 id:'@id'
               }, {
-                'update': {method: 'PUT'}
+                'update': {method: 'PUT'},
+                'listToJoin': {method: 'GET', url: prefix + '/hawkular/accounts/organizations/join', isArray: true}
               }
             );
             factory.OrganizationMembership = $resource(prefix + '/hawkular/accounts/organizationMemberships/:id',
