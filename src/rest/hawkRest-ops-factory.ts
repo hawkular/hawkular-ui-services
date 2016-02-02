@@ -300,31 +300,20 @@ module hawkularRest {
             let message;
 
             if (jdrResponse.status === "OK") {
-              message = 'JDR generated';
-              let reportFileName:string = jdrResponse.fileName;
-
-              // TODO: this could be extracted into a function, if other handlers also need to offer a download feature
-              var a = document.createElement("a");
-              document.body.appendChild(a);
-              a.style.display = "none";
-              var url = URL.createObjectURL(binaryData);
-              a.href = url;
-              a['download'] = reportFileName;
-              a.click();
-              setTimeout(function(){
-                document.body.removeChild(a);
-                URL.revokeObjectURL(url);
-              }, 100);
-
-              $rootScope.$broadcast('ExportJDRSuccess', message);
+              const urlWithFileName = {
+                url: URL.createObjectURL(binaryData),
+                fileName: jdrResponse.fileName,
+                jdrResponse: jdrResponse
+              };
+              $rootScope.$broadcast('ExportJDRSuccess', urlWithFileName);
 
             } else if (jdrResponse.status === "ERROR") {
               message = 'Export of JDR failed: ' + jdrResponse.message;
-              $rootScope.$broadcast('ExportJDRError', message);
+              $rootScope.$broadcast('ExportJDRError', {message, jdrResponse});
             } else {
               message = 'Export of JDR failed: ' + jdrResponse.message;
               console.error('Unexpected ExportJdrResponse: ', jdrResponse);
-              $rootScope.$broadcast('ExportJDRError', message);
+              $rootScope.$broadcast('ExportJDRError', {message, jdrResponse});
             }
           }
         },
