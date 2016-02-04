@@ -893,29 +893,21 @@ var hawkularRest;
                         handle: function (jdrResponse, binaryData) {
                             var message;
                             if (jdrResponse.status === "OK") {
-                                message = 'JDR generated';
-                                var reportFileName = jdrResponse.fileName;
-                                var a = document.createElement("a");
-                                document.body.appendChild(a);
-                                a.style.display = "none";
-                                var url = URL.createObjectURL(binaryData);
-                                a.href = url;
-                                a['download'] = reportFileName;
-                                a.click();
-                                setTimeout(function () {
-                                    document.body.removeChild(a);
-                                    URL.revokeObjectURL(url);
-                                }, 100);
-                                $rootScope.$broadcast('ExportJDRSuccess', message);
+                                var urlWithFileName = {
+                                    url: URL.createObjectURL(binaryData),
+                                    fileName: jdrResponse.fileName,
+                                    jdrResponse: jdrResponse
+                                };
+                                $rootScope.$broadcast('ExportJDRSuccess', urlWithFileName);
                             }
                             else if (jdrResponse.status === "ERROR") {
                                 message = 'Export of JDR failed: ' + jdrResponse.message;
-                                $rootScope.$broadcast('ExportJDRError', message);
+                                $rootScope.$broadcast('ExportJDRError', { message: message, jdrResponse: jdrResponse });
                             }
                             else {
                                 message = 'Export of JDR failed: ' + jdrResponse.message;
                                 console.error('Unexpected ExportJdrResponse: ', jdrResponse);
-                                $rootScope.$broadcast('ExportJDRError', message);
+                                $rootScope.$broadcast('ExportJDRError', { message: message, jdrResponse: jdrResponse });
                             }
                         }
                     },
