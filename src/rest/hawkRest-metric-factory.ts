@@ -59,20 +59,17 @@ module hawkularRest {
           queryGauges: {
             method: 'GET',
             isArray: true,
-            params: { type: 'gauge' },
-            headers: {'Hawkular-Tenant': tenantId}
+            params: { type: 'gauge' }
           },
           queryCounters: {
             method: 'GET',
             isArray: true,
-            params: { type: 'counter' },
-            headers: {'Hawkular-Tenant': tenantId}
+            params: { type: 'counter' }
           },
           queryAvailability: {
             method: 'GET',
             isArray: true,
-            params: { type: 'availability' },
-            headers: {'Hawkular-Tenant': tenantId}
+            params: { type: 'availability' }
           }
         });
       };
@@ -80,17 +77,14 @@ module hawkularRest {
       factory.GaugeMetric = function(tenantId){
         return $resource(url + '/gauges', null, {
           get: {
-            method:'GET',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'GET'
           },
           query: {
             method:'GET',
-            isArray:true,
-            headers: {'Hawkular-Tenant': tenantId}
+            isArray:true
           },
           save: {
-            method:'POST',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'POST'
           }
         });
       };
@@ -101,22 +95,18 @@ module hawkularRest {
         }, {
           queryMetrics: {
             method: 'GET',
-            isArray: true,
-            headers: {'Hawkular-Tenant': tenantId}
+            isArray: true
           },
           queryMetricsTimeRange: {
             method: 'GET',
             isArray: true,
-            params: {buckets: 60, start: '@startTimestamp', end: '@endTimestamp'},
-            headers: {'Hawkular-Tenant': tenantId}
+            params: {buckets: 60, start: '@startTimestamp', end: '@endTimestamp'}
           },
           get: {
-            method:'GET',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'GET'
           },
           save: {
-            method:'POST',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'POST'
           }
         });
       };
@@ -126,17 +116,14 @@ module hawkularRest {
           gaugeId : '@gaugeId'
         }, {
           get: {
-            method:'GET',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'GET'
             ,
             query: {
               method:'GET',
-              isArray:true,
-              headers: {'Hawkular-Tenant': tenantId}
+              isArray:true
             }},
           save: {
-            method:'POST',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'POST'
           }
         });
       };
@@ -149,7 +136,6 @@ module hawkularRest {
         }, {
           get: {
             method: 'GET',
-            headers: {'Hawkular-Tenant': tenantId},
             isArray: true,
             params: {metrics: metrics, // send metrics=id1,metrics=id2,...
               stacked:useStacked}
@@ -162,17 +148,14 @@ module hawkularRest {
       factory.CounterMetric = function(tenantId){
         return $resource(url + '/counters', null, {
           get: {
-            method:'GET',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'GET'
           },
           query: {
             method:'GET',
-            isArray:true,
-            headers: {'Hawkular-Tenant': tenantId}
+            isArray:true
           },
           save: {
-            method:'POST',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'POST'
           }
         });
       };
@@ -183,22 +166,18 @@ module hawkularRest {
         }, {
           queryMetrics: {
             method: 'GET',
-            isArray: true,
-            headers: {'Hawkular-Tenant': tenantId}
+            isArray: true
           },
           queryMetricsTimeRange: {
             method: 'GET',
             isArray: true,
-            params: {buckets: 60, start: '@startTimestamp', end: '@endTimestamp'},
-            headers: {'Hawkular-Tenant': tenantId}
+            params: {buckets: 60, start: '@startTimestamp', end: '@endTimestamp'}
           },
           get: {
-            method:'GET',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'GET'
           },
           save: {
-            method:'POST',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'POST'
           }
         });
       };
@@ -208,17 +187,14 @@ module hawkularRest {
           counterId : '@counterId'
         }, {
           get: {
+            method:'GET'
+          },
+          query: {
             method:'GET',
-            headers: {'Hawkular-Tenant': tenantId}
-            ,
-            query: {
-              method:'GET',
-              isArray:true,
-              headers: {'Hawkular-Tenant': tenantId}
-            }},
+            isArray:true
+          },
           save: {
-            method:'POST',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'POST'
           }
         });
       };
@@ -229,14 +205,12 @@ module hawkularRest {
         }, {
           queryMetrics: {
             method: 'GET',
-            isArray: true,
-            headers: {'Hawkular-Tenant': tenantId}
+            isArray: true
           },
           queryMetricsTimeRange: {
             method: 'GET',
             isArray: true,
-            params: {buckets: 60, start: '@startTimestamp', end: '@endTimestamp'},
-            headers: {'Hawkular-Tenant': tenantId}
+            params: {buckets: 60, start: '@startTimestamp', end: '@endTimestamp'}
           }
         });
       };
@@ -244,17 +218,14 @@ module hawkularRest {
       factory.AvailabilityMetric = function(tenantId) {
         return $resource(url + '/availability', null, {
           get: {
-            method:'GET',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'GET'
           },
           query: {
             method:'GET',
-            isArray:true,
-            headers: {'Hawkular-Tenant': tenantId}
+            isArray:true
           },
           save: {
-            method:'POST',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'POST'
           }
         });
       };
@@ -264,17 +235,14 @@ module hawkularRest {
           availabilityId : '@availabilityId'
         }, {
           get: {
-            method:'GET',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'GET'
           },
           query: {
             method:'GET',
-            isArray:true,
-            headers: {'Hawkular-Tenant': tenantId}
+            isArray:true
           },
           save: {
-            method:'POST',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'POST'
           }
         });
       };
@@ -282,17 +250,14 @@ module hawkularRest {
       factory.AvailabilityMetricMultiple = function(tenantId) {
         return $resource(url + '/availability/data', null, {
           get: {
-            method:'GET',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'GET'
           },
           query: {
             method:'GET',
-            isArray:true,
-            headers: {'Hawkular-Tenant': tenantId}
+            isArray:true
           },
           save: {
-            method:'POST',
-            headers: {'Hawkular-Tenant': tenantId}
+            method:'POST'
           }
         });
       };
