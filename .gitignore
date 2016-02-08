@@ -15,5 +15,8 @@ lib/
 .classpath
 .settings
 
+#Atom
+tsconfig.json
+
 # OSX
 .DS_Store
