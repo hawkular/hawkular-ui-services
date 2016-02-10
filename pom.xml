@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
+    and other contributors as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <parent>
+    <groupId>org.hawkular</groupId>
+    <artifactId>hawkular-parent</artifactId>
+    <version>35</version>
+  </parent>
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>org.hawkular</groupId>
+  <artifactId>hawkular-ui-services</artifactId>
+  <!-- Important a released version should always follow any of these patterns: -->
+  <!-- major.minor.micro.Alpha[n] -->
+  <!-- major.minor.micro.Beta[n] -->
+  <!-- major.minor.micro.CR[n] -->
+  <!-- major.minor.micro.Final -->
+  <version>0.0.1.Alpha01-SNAPSHOT</version>
+  <packaging>pom</packaging>
+
+  <name>Hawkular-ui-services</name>
+  <description>Hawkular Distribution</description>
+  <url>http://github.com/hawkular/hawkular-ui-services</url>
+  <inceptionYear>2015</inceptionYear>
+  <organization>
+    <name>Red Hat</name>
+    <url>http://www.redhat.com/</url>
+  </organization>
+  <licenses>
+    <license>
+      <name>The Apache Software License, Version 2.0</name>
+      <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+      <distribution>repo</distribution>
+    </license>
+  </licenses>
+  <modules>
+    <module>modules/end-to-end-test</module>
+  </modules>
+
+  <properties>
+
+    <!-- Maven Plugin versions -->
+    <version.com.github.eirslett.frontend-maven-plugin>0.0.26</version.com.github.eirslett.frontend-maven-plugin>
+    <version.com.spotify.docker-maven-plugin>0.2.12</version.com.spotify.docker-maven-plugin>
+
+    <!-- Hawkular application dist version -->
+    <version.org.hawkular.dist>1.0.0.Alpha10</version.org.hawkular.dist>
+
+    <!-- DEPENDENCY VERSIONS -->
+
+    <!-- CONVENTIONS: -->
+    <!-- - A version property must be specified in the format "version.{groupId}" -->
+    <!-- - If groupId is not unique, append the property name with ".{artifactId}" -->
+    <!-- - Version properties must be sorted alphabetically -->
+    <version.com.fasterxml.jackson.core>2.5.4</version.com.fasterxml.jackson.core>
+    <version.com.fasterxml.jackson.databind>2.5.4</version.com.fasterxml.jackson.databind>
+    <version.com.google.code.gson>2.2.4</version.com.google.code.gson>
+    <version.commons.io>2.4</version.commons.io>
+    <version.gnu.getopt>1.0.13</version.gnu.getopt>
+    <version.javax.inject.javax.inject>1</version.javax.inject.javax.inject>
+    <version.javax.enterprise.cdi-api>1.2</version.javax.enterprise.cdi-api>
+    <version.org.hawkular.accounts>2.0.21.Final</version.org.hawkular.accounts>
+    <version.org.hawkular.agent>0.16.0.Final</version.org.hawkular.agent>
+    <version.org.hawkular.alerts>1.0.0.Final</version.org.hawkular.alerts>
+    <version.org.hawkular.cmdgw>0.10.11.Final</version.org.hawkular.cmdgw>
+    <version.org.hawkular.commons>0.3.5.Final</version.org.hawkular.commons>
+    <version.org.hawkular.inventory>0.12.2.Final</version.org.hawkular.inventory>
+    <version.org.hawkular.metrics>0.13.0.Final-SRC-revision-163a3c8</version.org.hawkular.metrics>
+    <version.org.jboss.resteasy.resteasy-client>3.0.14.Final</version.org.jboss.resteasy.resteasy-client>
+    <version.org.jboss.weld.se>2.3.2.Final</version.org.jboss.weld.se>
+    <version.org.keycloak.secretstore>1.8.1.Final</version.org.keycloak.secretstore>
+    <version.org.testng.testng>6.9.6</version.org.testng.testng>
+    <version.rxjava>1.0.16</version.rxjava>
+    <version.hystrix-core>1.4.21</version.hystrix-core>
+    <version.hystrix-request-servlet>1.1.2</version.hystrix-request-servlet>
+  </properties>
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>com.mycila</groupId>
+        <artifactId>license-maven-plugin</artifactId>
+        <configuration>
+          <excludes combine.children="append">
+            <exclude>**/.babelrc</exclude>
+            <exclude>lib/**</exclude>
+            <exclude>.editorconfig</exclude>
+            <exclude>.bithoundrc</exclude>
+            <exclude>tslint-rules/**</exclude>
+            <exclude>**/target/**</exclude>
+            <exclude>**/node_modules/**</exclude>
+          </excludes>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

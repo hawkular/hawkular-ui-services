@@ -20,3 +20,8 @@ tsconfig.json
 
 # OSX
 .DS_Store
+
+# Maven
+target/
+pom.xml.releaseBackup
+release.properties

@@ -1,7 +1,24 @@
+/*
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
+ * and other contributors as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 describe('Provider: Hawkular live REST', function() {
 
   var HawkularMetric;
   var httpReal;
+  var $http;
 
   var debug = false;
   var suffix = '-test-' + new Date().getTime();
@@ -25,9 +42,14 @@ describe('Provider: Hawkular live REST', function() {
     HawkularMetricProvider.setPort(__karma__.config.port);
   }));
 
-  beforeEach(inject(function(_HawkularMetric_, _httpReal_) {
+  beforeEach(inject(function(_HawkularMetric_, _httpReal_, _$http_) {
     HawkularMetric = _HawkularMetric_;
     httpReal = _httpReal_;
+    $http = _$http_;
+
+    // it assumes we are running the tests against the hawkular built with -Pdev profile
+    // 'amRvZTpwYXNzd29yZA==' ~ jdoe:password in base64
+    $http.defaults.headers.common['Authorization'] = 'Basic amRvZTpwYXNzd29yZA==';
   }));
 
   describe('Tenants: ', function() {
@@ -46,7 +68,7 @@ describe('Provider: Hawkular live REST', function() {
         result = HawkularMetric.Tenant.save(tenant);
         httpReal.submit();
 
-        result.$promise.then(function(){
+        result.$promise.then(function(data){
         }, function(error){
           fail(errorFn(error));
         }).finally(function(){
@@ -397,7 +419,7 @@ describe('Provider: Hawkular live REST', function() {
       beforeEach(function(done) {
 
         var metric = {
-          "id": "myavail",
+          "id": "myavail_" + new Date().getTime(),
           "tags": {
             "attribute1": "value1",
             "attribute2": "value2"
@@ -406,6 +428,34 @@ describe('Provider: Hawkular live REST', function() {
 
         debug && dump('creating availability metric..', metric);
         result = HawkularMetric.AvailabilityMetric(tenantId1).save(null, metric);
+        httpReal.submit();
+
+        result.$promise.then(function(){
+        }, function(error){
+          fail(errorFn(error));
+        }).finally(function(){
+          done();
+        });
+      });
+
+      it('should resolve', function() {
+        expect(result.$resolved).toEqual(true);
+      });
+    });
+
+    describe('creating a availability data for single metric', function() {
+      var result;
+      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
+
+      beforeEach(function(done) {
+
+        var data = [
+          {"timestamp": 1416857688195, "value": "down"},
+          {"timestamp": 1416857688195, "value": "up"}
+        ];
+
+        debug && dump('creating availability metric data..', data);
+        result = HawkularMetric.AvailabilityMetricData(tenantId1).save({ availabilityId: 'myavail' }, data);
         httpReal.submit();
 
         result.$promise.then(function(){
@@ -442,34 +492,6 @@ describe('Provider: Hawkular live REST', function() {
       it('should get previously saved metric only', function() {
         expect(result.$resolved).toBe(true);
         expect(arrayContainsField(result, 'id', 'myavail')).toBe(true);
-      });
-    });
-
-    describe('creating a availability data for single metric', function() {
-      var result;
-      jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
-
-      beforeEach(function(done) {
-
-        var data = [
-          {"timestamp": 1416857688195, "value": "down"},
-          {"timestamp": 1416857688195, "value": "up"}
-        ];
-
-        debug && dump('creating availability metric data..', data);
-        result = HawkularMetric.AvailabilityMetricData(tenantId1).save({ availabilityId: 'myavail' }, data);
-        httpReal.submit();
-
-        result.$promise.then(function(){
-        }, function(error){
-          fail(errorFn(error));
-        }).finally(function(){
-          done();
-        });
-      });
-
-      it('should resolve', function() {
-        expect(result.$resolved).toEqual(true);
       });
     });
 
