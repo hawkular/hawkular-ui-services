@@ -134,6 +134,13 @@ var hawkularRest;
                 factory.Trigger = $resource(prefix + '/hawkular/alerts/triggers/:triggerId', {
                     triggerId: '@triggerId'
                 }, {
+                    full: {
+                        method: 'GET',
+                        url: prefix + '/hawkular/alerts/triggers/trigger/:triggerId',
+                        params: {
+                            triggerId: '@triggerId'
+                        }
+                    },
                     query: {
                         method: 'GET',
                         isArray: true,
@@ -145,12 +152,24 @@ var hawkularRest;
                     },
                     put: {
                         method: 'PUT'
+                    },
+                    putGroup: {
+                        method: 'PUT',
+                        url: prefix + '/hawkular/alerts/triggers/groups/:groupId',
+                        params: {
+                            groupId: '@groupId'
+                        }
                     }
                 });
                 factory.Dampening = $resource(prefix + '/hawkular/alerts/triggers/:triggerId/dampenings/:dampeningId', {
                     triggerId: '@triggerId',
                     dampeningId: '@dampeningId'
                 }, {
+                    query: {
+                        method: 'GET',
+                        isArray: true,
+                        url: prefix + '/hawkular/alerts/triggers/:triggerId/dampenings/'
+                    },
                     save: {
                         method: 'POST',
                         url: prefix + '/hawkular/alerts/triggers/:triggerId/dampenings/'
@@ -158,15 +177,23 @@ var hawkularRest;
                     put: {
                         method: 'PUT'
                     },
-                    query: {
-                        method: 'GET',
-                        isArray: true,
-                        url: prefix + '/hawkular/alerts/triggers/:triggerId/dampenings/'
+                    putGroup: {
+                        method: 'PUT',
+                        url: prefix + '/hawkular/alerts/triggers/groups/:groupId/dampenings/:dampeningId',
+                        params: {
+                            groupId: '@groupId',
+                            triggerMode: '@dampeningId'
+                        }
                     }
                 });
                 factory.Conditions = $resource(prefix + '/hawkular/alerts/triggers/:triggerId/conditions/', {
                     triggerId: '@triggerId'
                 }, {
+                    query: {
+                        method: 'GET',
+                        isArray: true,
+                        url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/'
+                    },
                     save: {
                         method: 'PUT',
                         isArray: true,
@@ -176,10 +203,14 @@ var hawkularRest;
                             triggerMode: '@triggerMode'
                         }
                     },
-                    query: {
-                        method: 'GET',
+                    saveGroup: {
+                        method: 'PUT',
                         isArray: true,
-                        url: prefix + '/hawkular/alerts/triggers/:triggerId/conditions/'
+                        url: prefix + '/hawkular/alerts/triggers/groups/:groupId/conditions/:triggerMode',
+                        params: {
+                            groupId: '@groupId',
+                            triggerMode: '@triggerMode'
+                        }
                     }
                 });
                 factory.ActionPlugin = $resource(prefix + '/hawkular/alerts/plugins/:actionPlugin', {
