@@ -33,6 +33,7 @@ Once the server is up and running, execute the relevant rest sub-target:
 ```shell
 gulp rest:inventory
 gulp rest:metric
+gulp rest:alert
 ```
 
 to start the testsuite. You can also specify the server's hostname (`--hostname)` or port (`--port`) when running the gulp command or by environment properties called `HAWKULAR_TEST_HOSTNAME` and `HAWKULAR_TEST_PORT`. If not specified, host and port default to `localhost:8080`.
