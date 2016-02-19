@@ -1,13 +1,11 @@
 {
   ignore: [
-    "**/lib/**",
-    "**/dist/**",
-    "**/d.ts/**",
-    "**/tslint-rules/**",
-    "**/node_modules/**",
-    "**/**-min-**",
-    "**/**-min.**",
-    "**/**.min.**",
+    "lib/**",
+    "dist/**",
+    "d.ts/**",
+    "tslint-rules/**",
+    "node_modules/**",
+    "src/rest/**.spec.rest.js"
   ],
   test: [
     "**/**.spec**"
