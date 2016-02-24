@@ -1,0 +1,362 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
+    and other contributors as indicated by the @author tags.
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <parent>
+    <groupId>org.hawkular</groupId>
+    <artifactId>hawkular-ui-services</artifactId>
+    <version>0.0.1.Alpha1-SNAPSHOT</version>
+    <relativePath>../../pom.xml</relativePath>
+  </parent>
+
+  <artifactId>hawkular-ui-services-end-to-end-tests</artifactId>
+  <name>Hawkular ui services: End-To-End integration tests</name>
+  <description>A module for some End-To-End integration tests on Rest-API level</description>
+
+  <properties>
+    <hawkular.backend>embedded_cassandra</hawkular.backend>
+    <node.version>v4.2.2</node.version>
+    <node.npm.version>2.14.7</node.npm.version>
+    <node.install.dir>target/gulp-build</node.install.dir>
+    <resource.directory>../..</resource.directory>
+    <test.files>src/test/**/*.js</test.files>
+    <dist.files>dist/*.js</dist.files>
+  </properties>
+
+  <dependencies>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.core</groupId>
+      <artifactId>jackson-databind</artifactId>
+      <version>${version.com.fasterxml.jackson.databind}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>com.fasterxml.jackson.module</groupId>
+      <artifactId>jackson-module-jaxb-annotations</artifactId>
+      <version>${version.com.fasterxml.jackson.core}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.enterprise</groupId>
+      <artifactId>cdi-api</artifactId>
+      <version>${version.javax.enterprise.cdi-api}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>javax.inject</groupId>
+      <artifactId>javax.inject</artifactId>
+      <version>${version.javax.inject.javax.inject}</version>
+      <scope>provided</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hawkular</groupId>
+      <artifactId>hawkular-rx</artifactId>
+      <version>${version.org.hawkular.dist}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hawkular.accounts</groupId>
+      <artifactId>hawkular-accounts-jaxb-adapters</artifactId>
+      <version>${version.org.hawkular.accounts}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hawkular.inventory</groupId>
+      <artifactId>hawkular-inventory-itest</artifactId>
+      <version>${version.org.hawkular.inventory}</version>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hawkular.inventory</groupId>
+      <artifactId>hawkular-inventory-api</artifactId>
+      <version>${version.org.hawkular.inventory}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.hawkular.metrics</groupId>
+      <artifactId>hawkular-metrics-model</artifactId>
+      <version>${version.org.hawkular.metrics}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.resteasy</groupId>
+      <artifactId>resteasy-client</artifactId>
+      <version>${version.org.jboss.resteasy.resteasy-client}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.jboss.weld.se</groupId>
+      <artifactId>weld-se</artifactId>
+      <version>${version.org.jboss.weld.se}</version>
+      <scope>test</scope>
+    </dependency>
+
+    <dependency>
+      <groupId>org.testng</groupId>
+      <artifactId>testng</artifactId>
+      <version>${version.org.testng.testng}</version>
+      <scope>test</scope>
+    </dependency>
+
+  </dependencies>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-resources-plugin</artifactId>
+        <executions>
+          <execution>
+            <id>copy-resources</id>
+            <phase>compile</phase>
+            <goals>
+              <goal>copy-resources</goal>
+            </goals>
+            <configuration>
+              <nonFilteredFileExtensions>
+                <nonFilteredFileExtension>ico</nonFilteredFileExtension>
+              </nonFilteredFileExtensions>
+              <outputDirectory>${node.install.dir}</outputDirectory>
+              <resources>
+                <resource>
+                  <directory>${resource.directory}</directory>
+                  <includes>
+                    <include>gulpfile.babel.js</include>
+                    <include>package.json</include>
+                    <include>bower.json</include>
+                    <include>.bowerrc</include>
+                    <include>tslint.json</include>
+                    <include>${dist.files}</include>
+                    <include>${test.files}</include>
+                  </includes>
+                </resource>
+              </resources>
+            </configuration>
+          </execution>
+        </executions>
+      </plugin>
+    </plugins>
+  </build>
+
+  <profiles>
+    <profile>
+      <!-- Integration tests -->
+      <id>itest</id>
+      <properties>
+        <hawkular.bind.address>127.0.0.1</hawkular.bind.address>
+        <hawkular.port.offset>0</hawkular.port.offset>
+        <!-- $hawkular.management.port must be equal to $hawkular.port.offset + 9990 -->
+        <hawkular.management.port>9990</hawkular.management.port>
+
+        <hawkular.agent.enabled>false</hawkular.agent.enabled>
+
+        <hawkular.log>INFO</hawkular.log>
+        <hawkular.log.accounts>INFO</hawkular.log.accounts>
+        <hawkular.log.agent>INFO</hawkular.log.agent>
+        <hawkular.log.alerts>INFO</hawkular.log.alerts>
+        <hawkular.log.bus>INFO</hawkular.log.bus>
+        <hawkular.log.availcreator>INFO</hawkular.log.availcreator>
+        <hawkular.log.pinger>INFO</hawkular.log.pinger>
+        <hawkular.log.inventory>INFO</hawkular.log.inventory>
+        <hawkular.log.inventory.rest.requests>INFO</hawkular.log.inventory.rest.requests>
+        <hawkular.log.metrics>INFO</hawkular.log.metrics>
+        <hawkular.log.nest>INFO</hawkular.log.nest>
+        <hawkular.log.datastax.driver>INFO</hawkular.log.datastax.driver>
+        <hawkular.log.liquibase>WARN</hawkular.log.liquibase>
+        <hawkular.log.ejb3>WARN</hawkular.log.ejb3>
+        <hawkular.log.rewrite>WARN</hawkular.log.rewrite>
+        <http.log>ERROR</http.log>
+        <http.log.wire>WARN</http.log.wire>
+      </properties>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.apache.maven.plugins</groupId>
+            <artifactId>maven-failsafe-plugin</artifactId>
+            <configuration>
+              <includes>
+                <include>**/*ITest*</include>
+              </includes>
+              <systemPropertyVariables>
+                <hawkular.bind.address>${hawkular.bind.address}</hawkular.bind.address>
+                <hawkular.port.offset>${hawkular.port.offset}</hawkular.port.offset>
+
+                <!-- output over-the-wire traffic -->
+                <org.apache.commons.logging.Log>
+                  org.apache.commons.logging.impl.SimpleLog
+                </org.apache.commons.logging.Log>
+                <org.apache.commons.logging.simplelog.log.org.apache.http>
+                  ${http.log}
+                </org.apache.commons.logging.simplelog.log.org.apache.http>
+                <org.apache.commons.logging.simplelog.log.org.apache.http.wire>
+                  ${http.log.wire}
+                </org.apache.commons.logging.simplelog.log.org.apache.http.wire>
+                <hystrix.command.default.execution.timeout.enabled>false</hystrix.command.default.execution.timeout.enabled>
+              </systemPropertyVariables>
+              <!--<argLine>-Xdebug -Xrunjdwp:transport=dt_socket,address=5005,server=y,suspend=y</argLine>-->
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>integration-test</goal>
+                  <goal>verify</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+
+          <plugin>
+            <groupId>org.wildfly.plugins</groupId>
+            <artifactId>wildfly-maven-plugin</artifactId>
+            <configuration>
+              <groupId>org.hawkular</groupId>
+              <artifactId>hawkular-dist</artifactId>
+              <version>${version.org.hawkular.dist}</version>
+              <skip>${skipTests}</skip>
+              <startupTimeout>360</startupTimeout>
+              <port>${hawkular.management.port}</port>
+              <javaOpts>
+                <javaOpt>-server</javaOpt>
+                <javaOpt>-Xms64m</javaOpt>
+                <javaOpt>-Xmx512m</javaOpt>
+                <javaOpt>-Djava.net.preferIPv4Stack=true</javaOpt>
+                <javaOpt>-Djboss.modules.system.pkgs=org.jboss.byteman</javaOpt>
+                <javaOpt>-Djava.awt.headless=true</javaOpt>
+                <javaOpt>-Djboss.bind.address=${hawkular.bind.address}</javaOpt>
+                <javaOpt>-Djboss.socket.binding.port-offset=${hawkular.port.offset}</javaOpt>
+                <javaOpt>-Dkeycloak.import=${project.build.directory}/wildfly-run/hawkular-${version.org.hawkular.dist}/standalone/configuration/hawkular-realm-for-dev.json</javaOpt>
+                <javaOpt>-Dhawkular.agent.enabled=${hawkular.agent.enabled}</javaOpt>
+                <javaOpt>-Dhawkular.backend=${hawkular.backend}</javaOpt>
+                <javaOpt>-Dhawkular.log=${hawkular.log}</javaOpt>
+                <javaOpt>-Dhawkular.log.accounts=${hawkular.log.accounts}</javaOpt>
+                <javaOpt>-Dhawkular.log.agent=${hawkular.log.agent}</javaOpt>
+                <javaOpt>-Dhawkular.log.alerts=${hawkular.log.alerts}</javaOpt>
+                <javaOpt>-Dhawkular.log.bus=${hawkular.log.bus}</javaOpt>
+                <javaOpt>-Dhawkular.log.availcreator=${hawkular.log.availcreator}</javaOpt>
+                <javaOpt>-Dhawkular.log.pinger=${hawkular.log.pinger}</javaOpt>
+                <javaOpt>-Dhawkular.log.inventory=${hawkular.log.inventory}</javaOpt>
+                <javaOpt>-Dhawkular.log.inventory.rest.requests=${hawkular.log.inventory.rest.requests}</javaOpt>
+                <javaOpt>-Dhawkular.log.metrics=${hawkular.log.metrics}</javaOpt>
+                <javaOpt>-Dhawkular.log.nest=${hawkular.log.nest}</javaOpt>
+                <javaOpt>-Dhawkular.log.datastax.driver=${hawkular.log.datastax.driver}</javaOpt>
+                <javaOpt>-Dhawkular.log.liquibase=${hawkular.log.liquibase}</javaOpt>
+                <javaOpt>-Dhawkular.log.ejb3=${hawkular.log.ejb3}</javaOpt>
+                <javaOpt>-Dhawkular.log.rewrite=${hawkular.log.rewrite}</javaOpt>
+                <!--<javaOpt>-Xdebug</javaOpt>-->
+                <!--<javaOpt>-Xrunjdwp:transport=dt_socket,address=8787,server=y,suspend=y</javaOpt>-->
+              </javaOpts>
+            </configuration>
+            <executions>
+              <execution>
+                <id>start-wildfly</id>
+                <phase>pre-integration-test</phase>
+                <configuration>
+                  <server-config>standalone.xml</server-config>
+                </configuration>
+                <goals>
+                  <goal>start</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>stop-wildfly</id>
+                <phase>post-integration-test</phase>
+                <goals>
+                  <goal>shutdown</goal>
+                </goals>
+                <configuration>
+                  <timeout>240</timeout>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>com.github.eirslett</groupId>
+            <artifactId>frontend-maven-plugin</artifactId>
+            <version>0.0.27</version>
+            <configuration>
+              <workingDirectory>${node.install.dir}</workingDirectory>
+              <nodeInstallDirectory>${node.install.dir}</nodeInstallDirectory>
+            </configuration>
+
+            <executions>
+              <execution>
+                <id>install node and npm</id>
+                <goals>
+                  <goal>install-node-and-npm</goal>
+                </goals>
+                <phase>prepare-package</phase>
+                <configuration>
+                  <nodeVersion>${node.version}</nodeVersion>
+                  <npmVersion>${node.npm.version}</npmVersion>
+                  <installDirectory>${node.install.dir}</installDirectory>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>npm install</id>
+                <goals>
+                  <goal>npm</goal>
+                </goals>
+                <phase>prepare-package</phase>
+                <configuration>
+                  <arguments>install</arguments>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>bower install</id>
+                <goals>
+                  <goal>bower</goal>
+                </goals>
+                <phase>prepare-package</phase>
+                <configuration>
+                  <arguments>install</arguments>
+                </configuration>
+              </execution>
+
+              <execution>
+                <id>gulp test</id>
+                <goals>
+                  <goal>gulp</goal>
+                </goals>
+                <phase>integration-test</phase>
+                <configuration>
+                  <arguments>test</arguments>
+                </configuration>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+    </profile>
+  </profiles>
+</project>

@@ -1,3 +1,19 @@
+/*
+ * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates
+ * and other contributors as indicated by the @author tags.
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *    http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 describe('Provider: Hawkular live REST', function() {
   // todo: put credentials to each request, find out what is my tenant uuid and do the testsuite against it
   // also test if the stuff was precreated correctly
@@ -341,7 +357,7 @@ describe('Provider: Hawkular live REST', function() {
       //   });
       // });
 
-      // same thing as ^ 
+      // same thing as ^
       // describe('getting the parent resource', function() {
       //   var result;
       //   jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
@@ -366,7 +382,17 @@ describe('Provider: Hawkular live REST', function() {
       var config = {
         value: {
           firstName: 'John',
-          lastName: 'Smith',
+          age: 42,
+          foo: {
+            something:'whatever',
+            someArray: [1,1,2,3,5,8],
+            foo:{
+              answer: '5',
+              question:'2+2=?'
+            }
+          },
+          male: true,
+          secondName: 'Smith',
           hobbies: ['foo', 'bar']
         },
         role: 'configuration'
@@ -398,7 +424,7 @@ describe('Provider: Hawkular live REST', function() {
         it('should be there', function() {
           expect(result.$resolved).toBeTruthy();
           expect(result.value.firstName).toBe('John');
-          expect(result.value.lastName).toBe('Smith');
+          expect(result.value.secondName).toBe('Smith');
           expect(result.value.hobbies[1]).toBe('bar');
         });
       });
@@ -468,7 +494,7 @@ describe('Provider: Hawkular live REST', function() {
               },
               required  : ['firstName', 'secondName', 'male', 'age', 'foo']
             },
-            role : 'configurationSchema'   
+            role : 'configurationSchema'
           };
           debug && dump('creating a new JSON schema for resource config on a resource type ' + typeId + '..');
           result = HawkularInventory.ResourceType.createData({resourceTypeId: typeId}, schema);
@@ -512,7 +538,7 @@ describe('Provider: Hawkular live REST', function() {
       });
 
       describe('creating resource config that is not valid', function() {
-        // it was valid before, because there was no JSON schema on the 
+        // it was valid before, because there was no JSON schema on the
         // associated resource type, but now, after we created the schema
         // it should fail
         var result;
@@ -564,7 +590,7 @@ describe('Provider: Hawkular live REST', function() {
             }
           };
           debug && dump('creating resource config that is valid..');
-          result = HawkularInventory.Resource.createData({environmentId: eId, resourcePath: rId}, validConfig);
+          result = HawkularInventory.Resource.createData({environmentId: eId, resourcePath: rId3}, validConfig);
           restResolve(result, done);
         });
 
@@ -578,7 +604,7 @@ describe('Provider: Hawkular live REST', function() {
         jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
         beforeEach(function(done) {
           debug && dump('getting the newly created valid config..');
-          result = HawkularInventory.Resource.getData({environmentId: eId, resourcePath: rId});
+          result = HawkularInventory.Resource.getData({environmentId: eId, resourcePath: rId3});
           restResolve(result, done);
         });
 
@@ -604,7 +630,8 @@ describe('Provider: Hawkular live REST', function() {
         var metricType = {
           id: mtId,
           unit: 'SECONDS',
-          type: 'GAUGE'
+          type: 'GAUGE',
+          collectionInterval : 20
         };
         var metric = {
           id: mId1,
@@ -751,8 +778,8 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        debug && dump('deleting environment ' + eId + '..');
-        result = HawkularInventory.Environment.delete({environmentId: eId});
+        debug && dump('deleting environment ' + eId + 2 + '..');
+        result = HawkularInventory.Environment.delete({environmentId: eId + 2});
         restResolve(result, done);
       });
 
@@ -766,7 +793,7 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Environment.query({environmentId: eId});
+        result = HawkularInventory.Environment.get({environmentId: eId + 2});
         var finish = function(){
           resolved = true;
         };
@@ -775,7 +802,7 @@ describe('Provider: Hawkular live REST', function() {
 
       it('it should not be there', function() {
         expect(result.$resolved).toBeTruthy();
-        expect(result.length).toEqual(0);
+        expect(result.length).toEqual(undefined);
       });
     });
 
@@ -784,7 +811,7 @@ describe('Provider: Hawkular live REST', function() {
       jasmine.DEFAULT_TIMEOUT_INTERVAL = TIMEOUT;
 
       beforeEach(function(done) {
-        result = HawkularInventory.Resource.query({environmentId: eId});
+        result = HawkularInventory.Resource.query({environmentId: eId + 2});
         restResolve(result, done);
       });
 
