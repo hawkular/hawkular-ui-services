@@ -230,9 +230,13 @@ module hawkularRest {
       });
 
       var feedResourceMetricUrl = url + '/feeds/:feedId/resources/:resourcePath/metrics/:metricId';
-      factory.MetricOfResourceUnderFeed = $resource(resourceMetricUrl, null, {
+      factory.MetricOfResourceUnderFeed = $resource(feedResourceMetricUrl, null, {
         put: {
           method: 'PUT'
+        },
+        'get':  {
+          method:'GET',
+          isArray:true
         }
       });
 
