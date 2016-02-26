@@ -264,7 +264,12 @@ module hawkularRest {
       // same as ^ but it's for the resources under the feed additional optional query param called 'feedlessType'
       // can be used. It denotes whether to use the resource type located under the env (true) or not which is default
       factory.ResourceRecursiveChildrenUnderFeed =
-      $resource(url + '/feeds/:feedId/resources/:resourcePath/recursiveChildren');
+      $resource(url + '/feeds/:feedId/resources/:resourcePath/recursiveChildren', null, {
+        'get':  {
+          method:'GET',
+          isArray:true
+        }
+      });
 
       // Metrics
       var metricUrl = url + '/:environmentId/metrics/:metricId';

@@ -415,9 +415,13 @@ var hawkularRest;
                     }
                 });
                 var feedResourceMetricUrl = url + '/feeds/:feedId/resources/:resourcePath/metrics/:metricId';
-                factory.MetricOfResourceUnderFeed = $resource(resourceMetricUrl, null, {
+                factory.MetricOfResourceUnderFeed = $resource(feedResourceMetricUrl, null, {
                     put: {
                         method: 'PUT'
+                    },
+                    'get': {
+                        method: 'GET',
+                        isArray: true
                     }
                 });
                 var metricTypeOfResourceTypeUrl = url + '/resourceTypes/:resourceTypeId/metricTypes/:metricTypeId';
@@ -433,7 +437,12 @@ var hawkularRest;
                     $resource(url + '/feeds/:feedId/resourceTypes/:resourceTypeId/resources');
                 factory.ResourceRecursiveChildren = $resource(url + '/:environmentId/resources/:resourcePath/recursiveChildren');
                 factory.ResourceRecursiveChildrenUnderFeed =
-                    $resource(url + '/feeds/:feedId/resources/:resourcePath/recursiveChildren');
+                    $resource(url + '/feeds/:feedId/resources/:resourcePath/recursiveChildren', null, {
+                        'get': {
+                            method: 'GET',
+                            isArray: true
+                        }
+                    });
                 var metricUrl = url + '/:environmentId/metrics/:metricId';
                 factory.Metric = $resource(metricUrl, null, {
                     put: {
