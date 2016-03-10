@@ -938,10 +938,10 @@ var hawkularRest;
                     $log.log('Execution Ops WebSocket received:', message);
                     var data = message.data;
                     if (data instanceof Blob) {
-                        var reader = new FileReader();
-                        reader.addEventListener("loadend", function () {
+                        var reader_1 = new FileReader();
+                        reader_1.addEventListener("loadend", function () {
                             var textPart = "";
-                            var content = reader.result;
+                            var content = reader_1.result;
                             var counter = 0;
                             var started = false;
                             var lastPartOfText;
@@ -961,7 +961,7 @@ var hawkularRest;
                             }
                             dispatchToHandlers(textPart, data);
                         });
-                        reader.readAsText(data);
+                        reader_1.readAsText(data);
                     }
                     else {
                         dispatchToHandlers(data);

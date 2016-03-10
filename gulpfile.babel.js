@@ -36,6 +36,9 @@ const config = {
   test: {
     testDir: 'src/test/'
   },
+  licenseBuildHeader:
+"/*\n * Copyright 2015-2016 Red Hat, Inc. and/or its affiliates\n * and other contributors as indicated by the" +
+" @author tags.\n * \n * Licensed under the Apache License, Version 2.0 (the \"License\");\n * you may not use this file except in compliance with the License.\n * You may obtain a copy of the License at\n *\n *    http://www.apache.org/licenses/LICENSE-2.0\n *\n * Unless required by applicable law or agreed to in writing, software\n * distributed under the License is distributed on an \"AS IS\" BASIS,\n * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.\n * See the License for the specific language governing permissions and\n * limitations under the License.\n */\n",
   tsProject: typescript.createProject({
     target: 'ES5',
     module: 'commonjs',
@@ -58,17 +61,16 @@ gulp.task('default', ['clean', 'build']);
 const paths = gulp.paths;
 
 
+// @todo: add licenseHeaderChecker back in later once compatible with new version of tslint
 gulp.task('tslint', () => {
   gulp.src([paths.src + '/hawkRest.ts', paths.src + '/hawkRest-*.ts'])
-    .pipe(tslint({
-      rulesDirectory: './tslint-rules/'
-    }))
+    .pipe(tslint())
     .pipe(tslint.report('verbose'));
 });
 
 gulp.task('scripts', () => {
 
-  const license = tslintRules.rules['license-build-header'][1];
+  const license = config.licenseBuildHeader;
 
   const tsResult = gulp.src([paths.src + '/hawkRest.ts', paths.src + '/hawkRest*.ts'])
     .pipe(typescript(config.tsProject))
@@ -83,7 +85,6 @@ gulp.task('scripts', () => {
   .pipe(concat('hawkular-ui-service.min.js'))
   //.pipe(uglify())
   .pipe(gulp.dest(paths.dist + '/'));
-  return merge([tsResult.dts.pipe(gulp.dest(paths.dist + '/defs')), jsPipe]);
   return merge([tsResult.dts.pipe(gulp.dest(paths.dist + '/defs')), jsPipe]);
 });
 
