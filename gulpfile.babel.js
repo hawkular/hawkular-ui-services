@@ -58,11 +58,10 @@ gulp.task('default', ['clean', 'build']);
 const paths = gulp.paths;
 
 
+// @todo: add licenseHeaderChecker back in later once compatible with new version of tslint
 gulp.task('tslint', () => {
   gulp.src([paths.src + '/hawkRest.ts', paths.src + '/hawkRest-*.ts'])
-    .pipe(tslint({
-      rulesDirectory: './tslint-rules/'
-    }))
+    .pipe(tslint())
     .pipe(tslint.report('verbose'));
 });
 
