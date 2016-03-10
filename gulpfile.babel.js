@@ -83,7 +83,6 @@ gulp.task('scripts', () => {
   //.pipe(uglify())
   .pipe(gulp.dest(paths.dist + '/'));
   return merge([tsResult.dts.pipe(gulp.dest(paths.dist + '/defs')), jsPipe]);
-  return merge([tsResult.dts.pipe(gulp.dest(paths.dist + '/defs')), jsPipe]);
 });
 
 
